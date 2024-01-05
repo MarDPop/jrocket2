@@ -12,21 +12,25 @@ public class Vec3 {
     
     public Vec3(){}
     
-    public Vec3(double x, double y, double z) {
+    public Vec3(double x, double y, double z)
+    {
         this.data[0] = x;
         this.data[1] = y;
         this.data[2] = z;
     }
     
-    public Vec3(double[] v) {
+    public Vec3(double[] v)
+    {
         System.arraycopy(v, 0, this.data, 0, 3);
     }
     
-    public Vec3(Vec3 v) {
+    public Vec3(Vec3 v)
+    {
         System.arraycopy(v.data, 0, this.data, 0, 3);
     }
     
-    public void zero() {
+    public void zero()
+    {
         Arrays.fill(this.data, 0);
     }
     
@@ -35,71 +39,105 @@ public class Vec3 {
         System.arraycopy(v.data, 0, this.data, 0, 3);
     }
     
-    public void add(Vec3 v) {
+    public void add(Vec3 v)
+    {
         data[0] += v.data[0];
         data[1] += v.data[1];
         data[2] += v.data[2];
     }
     
-    public void subtract(Vec3 v) {
+    public void subtract(Vec3 v)
+    {
         data[0] -= v.data[0];
         data[1] -= v.data[1];
         data[2] -= v.data[2];
     }
     
-    public void scale(double scalar) {
+    public void scale(double scalar)
+    {
         data[0] *= scalar;
         data[1] *= scalar;
         data[2] *= scalar;
     }
     
-    public static Vec3 add(Vec3 a, Vec3 b) {
+    public static Vec3 add(Vec3 a, Vec3 b) 
+    {
         return new Vec3(a.data[0] + b.data[0], a.data[1] + b.data[1], a.data[2] + b.data[2]);
     }
     
-    public static Vec3 subtract(Vec3 a, Vec3 b) {
+    public static Vec3 subtract(Vec3 a, Vec3 b)
+    {
         return new Vec3(a.data[0] - b.data[0], a.data[1] - b.data[1], a.data[2] - b.data[2]);
     }
     
-    public static Vec3 cross(Vec3 a, Vec3 b) {
+    public static Vec3 mult(Vec3 a, double m)
+    {
+        return new Vec3(a.data[0]*m, a.data[1]*m, a.data[2]*m);
+    }
+    
+    public static Vec3 cross(Vec3 a, Vec3 b) 
+    {
         return new Vec3(a.data[1]*b.data[2] - a.data[2]*b.data[1],
             a.data[2]*b.data[0] - a.data[0]*b.data[2],
             a.data[0]*b.data[1] - a.data[1]*b.data[0]);
     }
     
-    public double dot(Vec3 v) {
+    public void fromCross(Vec3 a, Vec3 b) 
+    {
+        this.data[0] = a.data[1]*b.data[2] - a.data[2]*b.data[1];
+        this.data[1] = a.data[2]*b.data[0] - a.data[0]*b.data[2];
+        this.data[2] = a.data[0]*b.data[1] - a.data[1]*b.data[0];
+    }
+    
+    public double dot(Vec3 v)
+    {
         return v.data[0]*this.data[0] + v.data[1]*this.data[1] + v.data[2]*this.data[2];
     }
     
-    public double magnitude() {
+    public double magnitude()
+    {
         return Math.sqrt(data[0]*data[0] + data[1]*data[1] + data[2]*data[2]);
     }
     
-    public void normalize() {
+    public void normalize() 
+    {
         this.scale(1.0/magnitude());
     }
     
-    public double x() {
+    public void mult(Matrix3 A, Vec3 u)
+    {
+        this.data[0] = A.data[0]*u.data[0] + A.data[1]*u.data[1] + A.data[2]*u.data[2];
+        this.data[1] = A.data[3]*u.data[0] + A.data[4]*u.data[1] + A.data[5]*u.data[2];
+        this.data[2] = A.data[6]*u.data[0] + A.data[7]*u.data[1] + A.data[8]*u.data[2];
+    }
+    
+    public double x()
+    {
         return this.data[0];
     }
     
-    public double y() {
+    public double y() 
+    {
         return this.data[1];
     }
     
-    public double z() {
+    public double z() 
+    {
         return this.data[2];
     }
     
-    public void x(double x) {
+    public void x(double x) 
+    {
         this.data[0] = x;
     }
     
-    public void y(double y) {
+    public void y(double y)
+    {
         this.data[1] = y;
     }
     
-    public void z(double z) {
+    public void z(double z)
+    {
         this.data[2] = z;
     }
     

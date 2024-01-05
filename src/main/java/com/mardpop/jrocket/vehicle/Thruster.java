@@ -8,8 +8,17 @@ public class Thruster
 {    
     protected double thrust;
     
-    protected double mass_rate;
+    protected double massRate;
     
+    public void update(double pressure, double time) {}
     
+    public double getThrust()
+    {
+        return this.thrust;
+    }
     
+    public double getMassRate()
+    {
+        return this.massRate;
+    }
 }

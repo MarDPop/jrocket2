@@ -76,8 +76,7 @@ public class Quaternion {
         return q;
     }
     
-    public Matrix3 toRotationMatrix() {
-        Matrix3 a = new Matrix3();
+    public void setRotationMatrix(Matrix3 R) {
         double qi2 = data[0]*data[0];
         double qj2 = data[1]*data[1];
         double qk2 = data[2]*data[2];
@@ -91,18 +90,22 @@ public class Quaternion {
         
         double factor = 2.0/(qi2 + qj2 + qk2 + data[3]*data[3]);
         
-        a.data[0] = 1.0 - factor*(qj2 + qk2);
-        a.data[4] = 1.0 - factor*(qi2 + qk2);
-        a.data[8] = 1.0 - factor*(qi2 + qj2);
+        R.data[0] = 1.0 - factor*(qj2 + qk2);
+        R.data[4] = 1.0 - factor*(qi2 + qk2);
+        R.data[8] = 1.0 - factor*(qi2 + qj2);
         
-        a.data[1] = factor*(qij - qkw);
-        a.data[2] = factor*(qik + qjw);
-        a.data[3] = factor*(qij + qkw);
+        R.data[1] = factor*(qij - qkw);
+        R.data[2] = factor*(qik + qjw);
+        R.data[3] = factor*(qij + qkw);
         
-        a.data[5] = factor*(qjk - qiw);
-        a.data[6] = factor*(qik - qjw);
-        a.data[7] = factor*(qjk + qiw);
-        
+        R.data[5] = factor*(qjk - qiw);
+        R.data[6] = factor*(qik - qjw);
+        R.data[7] = factor*(qjk + qiw);
+    }
+    
+    public Matrix3 toRotationMatrix() {
+        Matrix3 a = new Matrix3();
+        this.setRotationMatrix(a);
         return a;
     }
 }

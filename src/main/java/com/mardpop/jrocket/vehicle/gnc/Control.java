@@ -1,0 +1,15 @@
+package com.mardpop.jrocket.vehicle.gnc;
+
+/**
+ *
+ * @author mariu
+ */
+public class Control 
+{
+    private final Guidance guidance;
+    
+    public Control(Guidance guidance)
+    {
+        this.guidance = guidance;
+    }
+}

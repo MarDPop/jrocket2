@@ -58,17 +58,15 @@ public class Matrix3 {
         return R;
     }
     
-    Vec3 mult(Vec3 u) {
+    public Vec3 mult(Vec3 u) 
+    {
         Vec3 v = new Vec3();
-        v.data[0] = this.data[0]*u.data[0] + this.data[1]*u.data[1] + this.data[2]*u.data[2];
-        v.data[1] = this.data[3]*u.data[0] + this.data[4]*u.data[1] + this.data[5]*u.data[2];
-        v.data[2] = this.data[6]*u.data[0] + this.data[7]*u.data[1] + this.data[8]*u.data[2];
+        v.mult(this, u);
         return v;
     }
     
-    Matrix3 mult(Matrix3 B)
+    public void mult(Matrix3 A, Matrix3 B)
     {
-        Matrix3 C = new Matrix3();
         for(int i = 0; i < 9; i += 3)
         {
             for(int j = 0; j < 3; j++)
@@ -76,15 +74,21 @@ public class Matrix3 {
                 int idx = 0;
                 for(int k = 0; k < 3; k++)
                 {
-                    C.data[i + k] += this.data[i + j]*B.data[k + idx];
+                    this.data[i + k] += A.data[i + j]*B.data[k + idx];
                 }
                 idx += 3;
             }
         }
+    }
+    
+    public Matrix3 mult(Matrix3 B)
+    {
+        Matrix3 C = new Matrix3();
+        C.mult(this,B);
         return C;
     }
     
-    Matrix3 getInverse()
+    public Matrix3 getInverse()
     {
         double det = data[0] * (data[4] * data[8] - data[7] * data[5]) -
              data[1] * (data[3] * data[8] - data[5] * data[6]) +
@@ -106,7 +110,7 @@ public class Matrix3 {
         return minv;
     }
     
-    Matrix3 getTranspose() 
+    public Matrix3 getTranspose() 
     {
         Matrix3 t = new Matrix3();
         t.data[0] = this.data[0];
@@ -121,22 +125,22 @@ public class Matrix3 {
         return t;
     }
     
-    double get(int i, int j)
+    public double get(int i, int j)
     {
         return this.data[i*3 + j];
     }
     
-    void set(int i, int j, double v)
+    public void set(int i, int j, double v)
     {
         this.data[i*3 + j] = v;
     }
     
-    double get(int k)
+    public double get(int k)
     {
         return this.data[k];
     }
     
-    void set(int k, double v)
+    public void set(int k, double v)
     {
         this.data[k] = v;
     }
