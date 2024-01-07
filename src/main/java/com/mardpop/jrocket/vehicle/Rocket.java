@@ -98,7 +98,6 @@ public class Rocket {
     void update(double time, double dt)
     {
         double dt_2 = dt*0.5;
-        double dt_4 = dt*0.25;
         this.updateForces(time);
         
         Vec3 acceleration0 = Vec3.mult(this.forces, 1.0/this.inertia.mass);
@@ -117,29 +116,6 @@ public class Rocket {
         Quaternion qd0 = Util.getQuaternionDelta(this.orientation, this.angular_velocity, dt);
         this.orientation.add(qd0);
         this.angular_velocity.add(Vec3.mult(angularAcceleration0, dt));
-        
-        this.orientation.normalize();
-        
-        this.updateForces(time);
-        
-        Vec3 acceleration1 = Vec3.mult(this.forces, 1.0/this.inertia.mass);
-        acceleration1.add(this.frameAcceleration.getAcceleration(this.position.z(), this.velocity));
-        
-        Vec3 angularAcceleration1 = this.getAngularAcceleration();
-        
-        acceleration1.add(acceleration0);
-        angularAcceleration1.add(angularAcceleration0);
-        
-        Vec3 velocity1 = Vec3.add(velocity0, this.velocity);
-        
-        this.velocity = Vec3.add(velocity0, Vec3.mult(acceleration1, dt_2));
-        this.position = Vec3.add(position0, Vec3.mult(Vec3.add(velocity0, Vec3.mult(acceleration1, dt_4)),dt));
-        
-        Quaternion qd1 = Util.getQuaternionDelta(this.orientation, this.angular_velocity, dt);
-        qd1.add(qd0);
-        qd1.scale(0.5);
-        this.orientation.add(qd1);
-        this.angular_velocity = Vec3.add(angularRate0, forces)
         
         this.orientation.normalize();
     }
