@@ -58,6 +58,11 @@ public class Matrix3 {
         return R;
     }
     
+    public double[] data()
+    {
+        return this.data;
+    }
+    
     public Vec3 mult(Vec3 u) 
     {
         Vec3 v = new Vec3();

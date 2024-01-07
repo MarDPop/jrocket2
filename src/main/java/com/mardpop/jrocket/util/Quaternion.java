@@ -27,56 +27,114 @@ public class Quaternion {
     public double scalar() {
         return this.data[3];
     }
+    
+    public double x()
+    {
+        return this.data[0];
+    }
+    
+    public void x(double x)
+    {
+        this.data[0] = x;
+    }
+    
+    public double y()
+    {
+        return this.data[1];
+    }
+    
+    public void y(double y)
+    {
+        this.data[1] = y;
+    }
+    
+    public double z()
+    {
+        return this.data[2];
+    }
+    
+    public void z(double z)
+    {
+        this.data[2] = z;
+    }
+    
+    public double w()
+    {
+        return this.data[3];
+    }
+    
+    public void w(double w)
+    {
+        this.data[3] = w;
+    }
+    
+    public double[] data()
+    {
+        return this.data;
+    }
 
-    public Quaternion conjugate() {
+    public Quaternion conjugate() 
+    {
         return new Quaternion(-this.data[0],-this.data[1],-this.data[2],this.data[3]);
     }
 
-    public double norm() {
+    public double norm() 
+    {
         return Math.sqrt(data[0]*data[0] + data[1]*data[1] + data[2]*data[2] + data[3]*data[3]);
     } 
 
-    public void add(Quaternion p) {
+    public void add(Quaternion p)
+    {
         this.data[0] += p.data[0];
         this.data[1] += p.data[1];
         this.data[2] += p.data[2];
         this.data[3] += p.data[3];
     }
 
-    public void subtract(Quaternion p) {
+    public void subtract(Quaternion p) 
+    {
         this.data[0] -= p.data[0];
         this.data[1] -= p.data[1];
         this.data[2] -= p.data[2];
         this.data[3] -= p.data[3];
     }
 
-    public void scale(double a) {
+    public void scale(double a) 
+    {
         this.data[0] *= a;
         this.data[1] *= a;
         this.data[2] *= a;
         this.data[3] *= a;
     }
+    
+    public void normalize()
+    {
+        this.scale(1.0/this.norm());
+    }
 
-    public Quaternion hamiltonProduct(Quaternion p) {
+    public Quaternion mult(Quaternion p) 
+    {
         Quaternion q = new Quaternion();
-        q.data[3] = this.data[3]*q.data[3] - this.data[0]*p.data[0] - this.data[1]*p.data[1] - this.data[2]*p.data[2];
         q.data[0] = this.data[3]*q.data[0] + this.data[0]*p.data[3] + this.data[1]*p.data[2] - this.data[2]*p.data[1];
         q.data[1] = this.data[3]*q.data[1] - this.data[0]*p.data[2] + this.data[1]*p.data[3] + this.data[2]*p.data[0];
         q.data[2] = this.data[3]*q.data[2] + this.data[0]*p.data[1] - this.data[1]*p.data[0] + this.data[2]*p.data[3];
+        q.data[3] = this.data[3]*q.data[3] - this.data[0]*p.data[0] - this.data[1]*p.data[1] - this.data[2]*p.data[2];
         return q;
     }
 
     public static Quaternion fromAxisAngle(Vec3 axis, double angle) {
         Quaternion q = new Quaternion();
         double s = Math.sin(angle/2);
-        q.data[3] = Math.cos(angle/2);
+        
         q.data[0] = axis.data[0]*s;
         q.data[1] = axis.data[1]*s;
         q.data[2] = axis.data[2]*s;
+        q.data[3] = Math.cos(angle/2);
         return q;
     }
     
-    public void setRotationMatrix(Matrix3 R) {
+    public void setRotationMatrix(Matrix3 R)
+    {
         double qi2 = data[0]*data[0];
         double qj2 = data[1]*data[1];
         double qk2 = data[2]*data[2];
@@ -101,6 +159,32 @@ public class Quaternion {
         R.data[5] = factor*(qjk - qiw);
         R.data[6] = factor*(qik - qjw);
         R.data[7] = factor*(qjk + qiw);
+    }
+    
+    public void setRotationMatrixUnit(Matrix3 R) 
+    {
+        double qi2 = data[0]*data[0];
+        double qj2 = data[1]*data[1];
+        double qk2 = data[2]*data[2];
+        
+        double qij = data[0]*data[1];
+        double qik = data[0]*data[2];
+        double qjk = data[1]*data[2];
+        double qiw = data[0]*data[3];
+        double qjw = data[1]*data[3];
+        double qkw = data[2]*data[3];
+        
+        R.data[0] = 1.0 - 2*(qj2 + qk2);
+        R.data[4] = 1.0 - 2*(qi2 + qk2);
+        R.data[8] = 1.0 - 2*(qi2 + qj2);
+        
+        R.data[1] = 2*(qij - qkw);
+        R.data[2] = 2*(qik + qjw);
+        R.data[3] = 2*(qij + qkw);
+        
+        R.data[5] = 2*(qjk - qiw);
+        R.data[6] = 2*(qik - qjw);
+        R.data[7] = 2*(qjk + qiw);
     }
     
     public Matrix3 toRotationMatrix() {

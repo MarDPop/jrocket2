@@ -111,6 +111,11 @@ public class Vec3 {
         this.data[2] = A.data[6]*u.data[0] + A.data[7]*u.data[1] + A.data[8]*u.data[2];
     }
     
+    public double[] data()
+    {
+        return this.data;
+    }
+    
     public double x()
     {
         return this.data[0];

@@ -7,6 +7,7 @@ import com.mardpop.jrocket.atmosphere.Atmosphere;
 import com.mardpop.jrocket.atmosphere.AerodynamicQuantities;
 import com.mardpop.jrocket.util.Matrix3;
 import com.mardpop.jrocket.util.Quaternion;
+import com.mardpop.jrocket.util.Util;
 import com.mardpop.jrocket.util.Vec3;
 import com.mardpop.jrocket.vehicle.gnc.GNC;
 
@@ -16,13 +17,13 @@ import com.mardpop.jrocket.vehicle.gnc.GNC;
  */
 public class Rocket {
     
-    final Vec3 position = new Vec3();
+    Vec3 position = new Vec3();
     
-    final Vec3 velocity  = new Vec3();
+    Vec3 velocity  = new Vec3();
     
-    final Quaternion orientation = new Quaternion();
+    Quaternion orientation = new Quaternion();
     
-    final Vec3 angular_velocity = new Vec3();
+    Vec3 angular_velocity = new Vec3();
     
     
     final Inertia inertia = new Inertia();
@@ -74,14 +75,9 @@ public class Rocket {
         return I.mult(rhs);
     }
     
-    Vec3 getAngularAccelerationSymmetry()
-    {
-        return new Vec3(this.moments.x()/this.inertia.Ixx,this.moments.y()/this.inertia.Iyy,this.moments.z()/this.inertia.Izz);
-    }
-    
     void updateForces(double time) 
     {
-        this.orientation.setRotationMatrix(this.CS);
+        this.orientation.setRotationMatrixUnit(this.CS);
         this.inertia.combine(this.inertiaEmpty, this.propulsion.propellant.fuelInertia);
         
         this.atm.update(this.position.z(), time);
@@ -101,13 +97,51 @@ public class Rocket {
     
     void update(double time, double dt)
     {
+        double dt_2 = dt*0.5;
+        double dt_4 = dt*0.25;
         this.updateForces(time);
         
-        Vec3 acceleration = Vec3.mult(this.forces, 1.0/this.inertia.mass);
-        acceleration.add(this.frameAcceleration.getAcceleration(this.position.z(), this.velocity));
+        Vec3 acceleration0 = Vec3.mult(this.forces, 1.0/this.inertia.mass);
+        acceleration0.add(this.frameAcceleration.getAcceleration(this.position.z(), this.velocity));
         
-        Vec3 angularAcceleration = this.getAngularAcceleration();
-
+        Vec3 angularAcceleration0 = this.getAngularAcceleration();
+        
+        Vec3 position0 = new Vec3(this.position);
+        Vec3 velocity0 = new Vec3(this.velocity);
+        Quaternion orientation0 = new Quaternion(this.orientation);
+        Vec3 angularRate0 = new Vec3(this.angular_velocity);
+        
+        this.position.add(Vec3.mult(Vec3.add(this.velocity, Vec3.mult(acceleration0, dt_2)), dt));
+        this.velocity.add(Vec3.mult(acceleration0, dt));
+        
+        Quaternion qd0 = Util.getQuaternionDelta(this.orientation, this.angular_velocity, dt);
+        this.orientation.add(qd0);
+        this.angular_velocity.add(Vec3.mult(angularAcceleration0, dt));
+        
+        this.orientation.normalize();
+        
+        this.updateForces(time);
+        
+        Vec3 acceleration1 = Vec3.mult(this.forces, 1.0/this.inertia.mass);
+        acceleration1.add(this.frameAcceleration.getAcceleration(this.position.z(), this.velocity));
+        
+        Vec3 angularAcceleration1 = this.getAngularAcceleration();
+        
+        acceleration1.add(acceleration0);
+        angularAcceleration1.add(angularAcceleration0);
+        
+        Vec3 velocity1 = Vec3.add(velocity0, this.velocity);
+        
+        this.velocity = Vec3.add(velocity0, Vec3.mult(acceleration1, dt_2));
+        this.position = Vec3.add(position0, Vec3.mult(Vec3.add(velocity0, Vec3.mult(acceleration1, dt_4)),dt));
+        
+        Quaternion qd1 = Util.getQuaternionDelta(this.orientation, this.angular_velocity, dt);
+        qd1.add(qd0);
+        qd1.scale(0.5);
+        this.orientation.add(qd1);
+        this.angular_velocity = Vec3.add(angularRate0, forces)
+        
+        this.orientation.normalize();
     }
     
     
