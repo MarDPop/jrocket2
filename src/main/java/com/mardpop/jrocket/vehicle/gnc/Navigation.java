@@ -1,7 +1,6 @@
 package com.mardpop.jrocket.vehicle.gnc;
 
 import com.mardpop.jrocket.vehicle.Rocket;
-import java.util.ArrayList;
 
 /**
  *
@@ -13,16 +12,19 @@ public class Navigation
     
     protected double[] values;
     
-    public ArrayList<Sensor> sensors = new ArrayList<>();
-    
     Navigation(Rocket rocket)
     {
         this.rocket = rocket;
     }
     
+    final double[] getValues()
+    {
+        return this.values;
+    }
+    
     void update(double time)
     {
-        
+        // for override
     }
     
 }

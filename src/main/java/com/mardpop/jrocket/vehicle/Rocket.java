@@ -15,17 +15,8 @@ import com.mardpop.jrocket.vehicle.gnc.GNC;
  *
  * @author mariu
  */
-public class Rocket {
-    
-    Vec3 position = new Vec3();
-    
-    Vec3 velocity  = new Vec3();
-    
-    Quaternion orientation = new Quaternion();
-    
-    Vec3 angular_velocity = new Vec3();
-    
-    
+public class Rocket extends State 
+{    
     final Inertia inertia = new Inertia();
     
     

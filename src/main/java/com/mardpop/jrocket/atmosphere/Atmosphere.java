@@ -17,8 +17,6 @@ public class Atmosphere
     
     private int heightIdx = 0;
     
-    private double R0 = 6371000;
-    
     public final Air air = new Air();
     
     public final Vec3 wind = new Vec3(0,0,0);

@@ -16,7 +16,13 @@ public class Quaternion {
         this.data[3] = w;
     }
 
-    public Quaternion(Quaternion p) {
+    public Quaternion(Quaternion p)
+    {
+        System.arraycopy(p.data, 0, this.data, 0, 4);
+    }
+    
+    public void set(Quaternion p) 
+    {
         System.arraycopy(p.data, 0, this.data, 0, 4);
     }
 
@@ -115,10 +121,10 @@ public class Quaternion {
     public Quaternion mult(Quaternion p) 
     {
         Quaternion q = new Quaternion();
-        q.data[0] = this.data[3]*q.data[0] + this.data[0]*p.data[3] + this.data[1]*p.data[2] - this.data[2]*p.data[1];
-        q.data[1] = this.data[3]*q.data[1] - this.data[0]*p.data[2] + this.data[1]*p.data[3] + this.data[2]*p.data[0];
-        q.data[2] = this.data[3]*q.data[2] + this.data[0]*p.data[1] - this.data[1]*p.data[0] + this.data[2]*p.data[3];
-        q.data[3] = this.data[3]*q.data[3] - this.data[0]*p.data[0] - this.data[1]*p.data[1] - this.data[2]*p.data[2];
+        this.data[0] = this.data[3]*this.data[0] + this.data[0]*p.data[3] + this.data[1]*p.data[2] - this.data[2]*p.data[1];
+        this.data[1] = this.data[3]*this.data[1] - this.data[0]*p.data[2] + this.data[1]*p.data[3] + this.data[2]*p.data[0];
+        this.data[2] = this.data[3]*this.data[2] + this.data[0]*p.data[1] - this.data[1]*p.data[0] + this.data[2]*p.data[3];
+        this.data[3] = this.data[3]*this.data[3] - this.data[0]*p.data[0] - this.data[1]*p.data[1] - this.data[2]*p.data[2];
         return q;
     }
 
@@ -131,6 +137,41 @@ public class Quaternion {
         q.data[2] = axis.data[2]*s;
         q.data[3] = Math.cos(angle/2);
         return q;
+    }
+    
+    public void fromRotationMatrix(Matrix3 R)
+    {
+        double trace = R.data[0] + R.data[4] + R.data[8];
+        if( trace > 0 ) {
+          double s = 0.5 / Math.sqrt(trace+ 1.0);
+          this.data[3] = 0.25/s;
+          this.data[0] = ( R.data[7] - R.data[5] ) * s;
+          this.data[1] = ( R.data[2] - R.data[6] ) * s;
+          this.data[2] = ( R.data[3] - R.data[1] ) * s;
+        } else {
+          if ( R.data[0] > R.data[4] && R.data[0] > R.data[8] ) {
+            double s = Math.sqrt( 1.0f + R.data[0] - R.data[4] - R.data[8]);
+            double sInv = 0.5/s;
+            this.data[3] = (R.data[7] - R.data[5] ) * sInv;
+            this.data[0] = 0.5*s;
+            this.data[1] = (R.data[1] + R.data[3] ) * sInv;
+            this.data[2] = (R.data[2] + R.data[6] ) * sInv;
+          } else if (R.data[4] > R.data[8]) {
+            double s = Math.sqrt( 1.0f + R.data[4] - R.data[0] - R.data[8]);
+            double sInv = 0.5/s;
+            this.data[3] = (R.data[2] - R.data[6] ) * sInv;
+            this.data[0] = (R.data[1] + R.data[3] ) * sInv;
+            this.data[1] = 0.5*s;
+            this.data[2] = (R.data[5] + R.data[7] ) * sInv;
+          } else {
+            double s = Math.sqrt( 1.0f + R.data[8] - R.data[0] - R.data[4] );
+            double sInv = 0.5/s;
+            this.data[3] = (R.data[3] - R.data[1] ) * sInv;
+            this.data[0] = (R.data[2] + R.data[6] ) * sInv;
+            this.data[1] = (R.data[5] + R.data[7] ) * sInv;
+            this.data[2] = 0.5*s;
+          }
+        }
     }
     
     public void setRotationMatrix(Matrix3 R)
@@ -191,5 +232,11 @@ public class Quaternion {
         Matrix3 a = new Matrix3();
         this.setRotationMatrix(a);
         return a;
+    }
+    
+    @Override
+    public String toString()
+    {
+        return String.format("[%f, %f, %f, %f]", this.data[0], this.data[1], this.data[2], this.data[3]);
     }
 }

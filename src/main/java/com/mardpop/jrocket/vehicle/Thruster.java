@@ -12,13 +12,16 @@ public class Thruster
     
     public Thruster(){}
     
-    public Thruster(double thrust, double massRate)
+    public Thruster(double thrust, double ISP)
     {
         this.thrust = thrust;
-        this.massRate = massRate;
+        this.massRate = thrust/(ISP*9.806);
     }
     
-    public void update(double pressure, double time) {}
+    public void update(double pressure, double time) 
+    {
+        // for override
+    }
     
     public double getThrust()
     {

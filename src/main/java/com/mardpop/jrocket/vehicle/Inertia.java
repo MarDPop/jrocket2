@@ -29,15 +29,16 @@ public class Inertia
     
     Matrix3 getMatrix()
     {
-        I.data[0] = Ixx;
-        I.data[1] = -Ixy;
-        I.data[2] = -Ixz;
-        I.data[3] = -Iyz;
-        I.data[4] = Iyy;
-        I.data[5] = -Ixy;
-        I.data[6] = -Ixz;
-        I.data[7] = -Iyz;
-        I.data[8] = Izz;        
+        double[] data = I.getData();
+        data[0] = Ixx;
+        data[1] = -Ixy;
+        data[2] = -Ixz;
+        data[3] = -Iyz;
+        data[4] = Iyy;
+        data[5] = -Ixy;
+        data[6] = -Ixz;
+        data[7] = -Iyz;
+        data[8] = Izz;        
         return I;
     }
     
@@ -68,9 +69,9 @@ public class Inertia
         double dxdz_b = -d_b.x()*d_b.z();
         double dydz_b = -d_b.y()*d_b.z();
         
-        this.Ixx = a.Ixx + b.Ixx + a.mass*(dy2_a + dz2_a) + b.mass*(dy2_b + dz2_a); 
-        this.Iyy = a.Iyy + b.Iyy + a.mass*(dx2_a + dz2_a) + b.mass*(dx2_b + dz2_a);
-        this.Izz = a.Izz + b.Izz + a.mass*(dy2_a + dx2_a) + b.mass*(dy2_b + dx2_a);
+        this.Ixx = a.Ixx + b.Ixx + a.mass*(dy2_a + dz2_a) + b.mass*(dy2_b + dz2_b); 
+        this.Iyy = a.Iyy + b.Iyy + a.mass*(dx2_a + dz2_a) + b.mass*(dx2_b + dz2_b);
+        this.Izz = a.Izz + b.Izz + a.mass*(dy2_a + dx2_a) + b.mass*(dy2_b + dx2_b);
         
         this.Ixy = a.Ixy + b.Ixy + a.mass*dxdy_a + b.mass*dxdy_b;
         this.Ixz = a.Ixz + b.Ixz + a.mass*dxdz_a + b.mass*dxdz_b;

@@ -3,7 +3,7 @@ package com.mardpop.jrocket.vehicle;
 import com.mardpop.jrocket.atmosphere.AerodynamicQuantities;
 import com.mardpop.jrocket.atmosphere.Atmosphere;
 import com.mardpop.jrocket.util.*;
-import com.mardpop.jrocket.vehicle.gnc.GNC;
+import com.mardpop.jrocket.vehicle.gnc.SimpleGNC;
 
 /**
  *
@@ -11,22 +11,22 @@ import com.mardpop.jrocket.vehicle.gnc.GNC;
  */
 public class RocketSimple extends State 
 {
-    final InertiaSimple inertia = new InertiaSimple();
+    private final InertiaSimple inertia = new InertiaSimple();
     
     
-    final Vec3 forces = new Vec3();
+    private final Vec3 forces = new Vec3();
     
-    final Vec3 moments = new Vec3();
+    private final Vec3 moments = new Vec3();
     
     
-    final InertiaSimple inertiaEmpty = new InertiaSimple();
+    private final InertiaSimple inertiaEmpty = new InertiaSimple();
     
-    final InertiaSimple fuelInertia = new InertiaSimple();
+    private final InertiaSimple inertiaFuel = new InertiaSimple();
     
     private boolean hasFuel = true;
     
         
-    public final Matrix3 CS = new Matrix3();
+    public final Matrix3 coordinateSystem = new Matrix3();
     
     private final Atmosphere atm = new Atmosphere();
     
@@ -39,29 +39,56 @@ public class RocketSimple extends State
     
     public final Aerodynamics aerodynamics;
     
+    public final SimpleGNC gnc;
     
-    RocketSimple(Thruster thruster, Aerodynamics aerodynamics, GNC gnc) 
+    
+    public RocketSimple(Thruster thruster, Aerodynamics aerodynamics, SimpleGNC gnc) 
     {
         this.thruster = thruster;
         this.aerodynamics = aerodynamics;
+        this.gnc = gnc;
     }
     
-    void setGround(double pascal, double kelvin, double gravity, double latitude)
+    public void setGround(double pascal, double kelvin, double gravity, double latitude)
     {
         this.g0 = gravity;
-        double R0 = Earth.earthRadius(latitude);
-        this.atm.setConstantTemperature(kelvin, pascal, gravity, 100, 6200, R0);
+        this.atm.setConstantTemperature(kelvin, pascal, gravity, 100, 6200, Earth.earthRadius(latitude));
+    }
+    
+    public void setLaunchOrientation(double pitch, double heading)
+    {
+        double s = Math.cos(pitch);
+        double c = Math.sqrt(1.0 - s*s);
+        Vec3 up = new Vec3(c*Math.cos(heading),c*Math.sin(heading),s);
+        Vec3 y = new Vec3(-Math.sin(heading),Math.cos(heading),0);
+        Vec3 z = Vec3.cross(up, y);
+        
+        Matrix3 CS = new Matrix3(up,y,z);
+        
+        this.coordinateSystem.copy(CS);
+        this.orientation.fromRotationMatrix(CS);
+    }
+    
+    public void setInertia(InertiaSimple empty, InertiaSimple fuel)
+    {
+        this.inertiaEmpty.copy(empty);
+        this.inertiaFuel.copy(fuel);
+    }
+    
+    public double getMass()
+    {
+        return this.inertia.mass;
     }
     
     void computeEnvironment(double time)
     {
-        this.hasFuel = this.fuelInertia.mass > 0;
+        this.hasFuel = this.inertiaFuel.mass > 0;
         
-        this.orientation.setRotationMatrixUnit(this.CS);
-        this.inertia.combine(this.inertiaEmpty, this.fuelInertia);
+        this.orientation.setRotationMatrixUnit(this.coordinateSystem);
+        this.inertia.combine(this.inertiaEmpty, this.inertiaFuel);
         
         this.atm.update(this.position.z(), time);
-        this.aero.update(this.velocity, this.CS, this.atm.air, this.atm.wind);
+        this.aero.update(this.velocity, this.coordinateSystem, this.atm.air, this.atm.wind);
     }
     
     void updateForces(double time) 
@@ -78,21 +105,22 @@ public class RocketSimple extends State
         this.moments.set(this.aerodynamics.moment);
     }
     
-        
     Vec3 getAngularAcceleration()
     {
         double invIrr = 1.0/this.inertiaEmpty.Irr;
-        Vec3 angularAcceleration = new Vec3(this.moments.x()/this.inertiaEmpty.Ixx,this.moments.y()*invIrr, this.moments.z()*invIrr);
-        return angularAcceleration;
+        return new Vec3(this.moments.x()/this.inertiaEmpty.Ixx,this.moments.y()*invIrr, this.moments.z()*invIrr);
     }
     
     void step(double dt)
     {
-        Vec3 acceleration0 = Vec3.mult(this.forces, 1.0/this.inertia.mass);
+        Vec3 acceleration0 = this.coordinateSystem.transposeMult(this.forces);
+        acceleration0.scale(1.0/this.inertia.mass);
         acceleration0.z(acceleration0.z() - this.g0);
+        acceleration0.scale(dt*0.5);
         
-        this.position.add(Vec3.mult(Vec3.add(this.velocity, Vec3.mult(acceleration0, dt*0.5)), dt));
-        this.velocity.add(Vec3.mult(acceleration0, dt));
+        this.velocity.add(acceleration0);
+        this.position.add(Vec3.mult(this.velocity, dt));
+        this.velocity.add(acceleration0);
         
         Quaternion qd0 = Util.getQuaternionDelta(this.orientation, this.angular_velocity, dt);
         this.orientation.add(qd0);
@@ -102,14 +130,19 @@ public class RocketSimple extends State
         
         if(this.hasFuel)
         {
-            this.inertia.mass -= this.thruster.getMassRate()*dt;
+            double mass0 = this.inertiaFuel.mass;
+            this.inertiaFuel.mass -= this.thruster.getMassRate()*dt;
+            mass0 = this.inertiaFuel.mass / mass0;
+            this.inertiaFuel.Irr *= mass0;
+            this.inertiaFuel.Ixx *= mass0;
         }
     }
 
-    void update(double time, double dt)
+    public void push(double time, double dt)
     {        
         this.computeEnvironment(time);
         this.updateForces(time);
+        this.gnc.update(time);
         this.step(dt);
     }
 }

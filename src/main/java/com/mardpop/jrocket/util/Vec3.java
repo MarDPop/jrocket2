@@ -104,13 +104,6 @@ public class Vec3 {
         this.scale(1.0/magnitude());
     }
     
-    public void mult(Matrix3 A, Vec3 u)
-    {
-        this.data[0] = A.data[0]*u.data[0] + A.data[1]*u.data[1] + A.data[2]*u.data[2];
-        this.data[1] = A.data[3]*u.data[0] + A.data[4]*u.data[1] + A.data[5]*u.data[2];
-        this.data[2] = A.data[6]*u.data[0] + A.data[7]*u.data[1] + A.data[8]*u.data[2];
-    }
-    
     public double[] data()
     {
         return this.data;
@@ -146,4 +139,9 @@ public class Vec3 {
         this.data[2] = z;
     }
     
+    @Override
+    public String toString()
+    {
+        return String.format("[%f, %f, %f]", this.data[0], this.data[1], this.data[2]);
+    }
 }

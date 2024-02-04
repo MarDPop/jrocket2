@@ -6,7 +6,7 @@ package com.mardpop.jrocket.util;
  */
 public class Matrix3 {
     
-    public final double data[] = new double[9];
+    final double data[] = new double[9];
     
     public Matrix3() {}
     
@@ -58,19 +58,40 @@ public class Matrix3 {
         return R;
     }
     
-    public double[] data()
+    public final double[] getData()
     {
         return this.data;
+    }
+    
+    public static void mult(Matrix3 A, Vec3 u, Vec3 v)
+    {
+        v.data[0] = A.data[0]*u.data[0] + A.data[1]*u.data[1] + A.data[2]*u.data[2];
+        v.data[1] = A.data[3]*u.data[0] + A.data[4]*u.data[1] + A.data[5]*u.data[2];
+        v.data[2] = A.data[6]*u.data[0] + A.data[7]*u.data[1] + A.data[8]*u.data[2];
+    }
+    
+    public static void transposeMult(Matrix3 A, Vec3 u, Vec3 v)
+    {
+        v.data[0] = A.data[0]*u.data[0] + A.data[3]*u.data[1] + A.data[6]*u.data[2];
+        v.data[1] = A.data[1]*u.data[0] + A.data[4]*u.data[1] + A.data[7]*u.data[2];
+        v.data[2] = A.data[2]*u.data[0] + A.data[5]*u.data[1] + A.data[8]*u.data[2];
     }
     
     public Vec3 mult(Vec3 u) 
     {
         Vec3 v = new Vec3();
-        v.mult(this, u);
+        mult(this, u, v);
         return v;
     }
     
-    public void mult(Matrix3 A, Matrix3 B)
+    public Vec3 transposeMult(Vec3 u)
+    {
+        Vec3 v = new Vec3();
+        transposeMult(this, u, v);
+        return v; 
+    }
+    
+    public static void mult(Matrix3 A, Matrix3 B, Matrix3 C)
     {
         for(int i = 0; i < 9; i += 3)
         {
@@ -79,9 +100,9 @@ public class Matrix3 {
                 int idx = 0;
                 for(int k = 0; k < 3; k++)
                 {
-                    this.data[i + k] += A.data[i + j]*B.data[k + idx];
+                    C.data[i + k] += A.data[i + j]*B.data[k + idx];
+                    idx += 3;
                 }
-                idx += 3;
             }
         }
     }
@@ -89,7 +110,7 @@ public class Matrix3 {
     public Matrix3 mult(Matrix3 B)
     {
         Matrix3 C = new Matrix3();
-        C.mult(this,B);
+        mult(this,B,C);
         return C;
     }
     
@@ -148,5 +169,19 @@ public class Matrix3 {
     public void set(int k, double v)
     {
         this.data[k] = v;
+    }
+    
+    public void copy(Matrix3 other)
+    {
+        System.arraycopy(other.data, 0, this.data, 0, 9);
+    }
+    
+    @Override
+    public String toString()
+    {
+        return String.format("[[%f, %f, %f],%n[%f, %f, %f],%n[%f, %f, %f]]", 
+                this.data[0], this.data[1], this.data[2],
+                this.data[3], this.data[4], this.data[5],
+                this.data[6], this.data[7], this.data[8]);
     }
 }

@@ -1,7 +1,6 @@
 package com.mardpop.jrocket.vehicle;
 
 import com.mardpop.jrocket.atmosphere.AerodynamicQuantities;
-import com.mardpop.jrocket.util.*;
 
 /**
  *

@@ -7,13 +7,29 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 /**
  * JavaFX App
  */
 public class App extends Application {
 
-    private static Scene scene;
+    private Scene scene;
+    
+    public void runSim() throws IOException 
+    {
+        Logger logger 
+            = Logger.getLogger(App.class.getName()); 
+        logger.info("Running Sim.");
+        
+        SimulationSimpleRocket sim = new SimulationSimpleRocket();
+        
+        sim.load("simple_rocket.json");
+        
+        sim.run();
+        
+        sim.save("simple_rocket.output");
+    }
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -21,11 +37,7 @@ public class App extends Application {
         stage.setScene(scene);
         stage.show();
         
-        
-    }
-
-    static void setRoot(String fxml) throws IOException {
-        scene.setRoot(loadFXML(fxml));
+        runSim();
     }
 
     private static Parent loadFXML(String fxml) throws IOException {

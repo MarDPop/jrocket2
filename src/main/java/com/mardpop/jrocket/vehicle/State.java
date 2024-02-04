@@ -9,11 +9,41 @@ import com.mardpop.jrocket.util.Vec3;
  */
 public class State 
 {
-    Vec3 position;
+    protected final Vec3 position = new Vec3();
     
-    Vec3 velocity;
+    protected final Vec3 velocity = new Vec3();
     
-    Quaternion orientation;
+    protected final Quaternion orientation = new Quaternion();
     
-    Vec3 angular_velocity;
+    protected final Vec3 angular_velocity = new Vec3();
+    
+    public State copy()
+    {
+        State state = new State();
+        state.position.set(this.position);
+        state.velocity.set(this.velocity);
+        state.orientation.set(this.orientation);
+        state.angular_velocity.set(this.angular_velocity);
+        return state;
+    }
+    
+    public void getPosition(Vec3 position)
+    {
+        position.set(this.position);
+    }
+    
+    public void getVelocity(Vec3 velocity)
+    {
+        velocity.set(this.velocity);
+    }
+    
+    public void getOrientation(Quaternion orientation)
+    {
+        orientation.set(this.orientation);
+    }
+    
+    public void getAngularVelocity(Vec3 angular_velocity)
+    {
+        angular_velocity.set(this.angular_velocity);
+    }
 }

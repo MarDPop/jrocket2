@@ -1,5 +1,7 @@
 package com.mardpop.jrocket.vehicle.gnc;
 
+import com.mardpop.jrocket.vehicle.Rocket;
+
 /**
  *
  * @author mariu
@@ -12,6 +14,13 @@ public class GNC
     
     protected Control control;
     
+    public GNC(Rocket rocket)
+    {
+        this.navigation = new Navigation(rocket);
+        this.guidance = new Guidance(this.navigation);
+        this.control = new Control(this.guidance);
+    }
+    
     public void set(Guidance guidance, Navigation navigation, Control control)
     {
         this.guidance = guidance;
@@ -21,6 +30,6 @@ public class GNC
     
     public void update(double time)
     {
-        
+        this.navigation.update(time);
     }
 }
