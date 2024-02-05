@@ -13,13 +13,69 @@ public class SolidThruster extends Thruster
     
     private final double[] performance;
     
-    private final double[] fuelIneritias;
+    private final double[] fuelInertias;
     
-    public SolidThruster(double[] times, double[] performance, double[] fuelInertias)
+    private final double[] deltaPerformance;
+    
+    private final double[] deltaInertia;
+    
+    private int tIdx = 0;
+    
+    private final double tFinal;
+    
+    private final double Aexit;
+    
+    public SolidThruster(double[] times, double[] performance, double[] fuelInertias, double Aexit)
     {
         this.times = times;
         this.performance = performance;
-        this.fuelIneritias = fuelInertias;
+        this.fuelInertias = fuelInertias;
+        this.Aexit = Aexit;
+        final int n = times.length - 1;
+        this.tFinal = times[n];
+        this.deltaPerformance = new double[n];
+        this.deltaInertia = new double[n];
+        for(int i = 1; i < times.length; i++)
+        {
+            double deltaT = 1.0/(this.times[i] - this.times[i-1]);
+            int jhi = i*3;
+            int jlo = (i-1)*3;
+            this.deltaPerformance[jlo] = (this.performance[jhi] - this.performance[jlo])*deltaT;
+            this.deltaPerformance[jlo + 1] = (this.performance[jhi + 1] - this.performance[jlo + 1])*deltaT;
+            this.deltaPerformance[jlo + 2] = (this.performance[jhi + 2] - this.performance[jlo + 2])*deltaT;
+            
+            this.deltaInertia[jlo] = (this.fuelInertias[jhi] - this.fuelInertias[jlo])*deltaT;
+            this.deltaInertia[jlo + 1] = (this.fuelInertias[jhi + 1] - this.fuelInertias[jlo + 1])*deltaT;
+            this.deltaInertia[jlo + 2] = (this.fuelInertias[jhi + 2] - this.fuelInertias[jlo + 2])*deltaT;
+        }
+    }
+    
+    @Override
+    public void update(double pressure, double time) 
+    {
+        if(time > this.tFinal)
+        {
+            this.massRate = 0;
+            this.thrust = 0;
+            return;
+        }
+        while(time > this.times[this.tIdx + 1])
+        {
+            this.tIdx++;
+        }
+        while(time < this.times[this.tIdx])
+        {
+            this.tIdx--;
+        }
+        
+        int idx = this.tIdx*3;
+        
+        double deltaT = time - this.times[this.tIdx];
+        this.massRate = this.performance[idx] + deltaT*this.deltaPerformance[idx];
+        double vExitEffective = this.performance[idx + 1] + deltaT*this.deltaPerformance[idx + 1];
+        double pExit = this.performance[idx + 2] + deltaT*this.deltaPerformance[idx + 21];
+        
+        this.thrust = (pExit - pressure)*Aexit + this.massRate*vExitEffective;
     }
     
     public static SolidThruster create(double throatR, double combustorR, double exitR, double boreR,
@@ -43,6 +99,7 @@ public class SolidThruster extends Thruster
         final double Vcone2throat = Math.PI/3.0*combustorR*(combustorR*combustorR + combustorR*throatR + throatR*throatR);
         final double Vempty = Acombustor*combustorL + Vcone2throat;
         final double maxSegmentWidth = combustorL/sections;
+        final double Aexit = Math.PI*exitR*exitR;
         
         double segmentWidth = sectionGap;
         double Rbore = boreR;
@@ -59,6 +116,7 @@ public class SolidThruster extends Thruster
         double M = V*density;
         double cv = Rgas/(fuel.gasProductGamma - 1);
         double cp = fuel.gasProductGamma*cv;
+        double ratio = (fuel.gasProductGamma - 1)/fuel.gasProductGamma;
         double specificEnergyCombustor = T*cp;
         double E = specificEnergyCombustor*M;
         
@@ -83,9 +141,7 @@ public class SolidThruster extends Thruster
             M += dM;
             E += dE;
             
-            double specificEnthalpy = E / M;
-            T = specificEnthalpy / cp;
-            P = M/V*Rgas*T;
+            P = ratio*E/V;
             
             if (V > Vempty)
             {
@@ -114,7 +170,7 @@ public class SolidThruster extends Thruster
             m[j + 2] = Ixx.get(i);
         }
         
-        return new SolidThruster(t,p,m);
+        return new SolidThruster(t,p,m, Aexit);
     }
     
 }
