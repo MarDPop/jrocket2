@@ -68,4 +68,56 @@ public class Air
         return temperature;
     }
     
+    public static double isentropicTemperatureRatio(double M, double gamma)
+    {
+        return 1.0 + (gamma - 1.0)*0.5*M*M;
+    }
+    
+    public static double isentropicPressureRatio(double M, double gamma)
+    {
+        return Math.pow(isentropicTemperatureRatio(M,gamma), -gamma/(gamma - 1.0));
+    }
+    
+    public static double isentropicDensityRatio(double M, double gamma)
+    {
+        return Math.pow(isentropicTemperatureRatio(M,gamma), -1.0/(gamma - 1.0));
+    }
+    
+    public static double machFromPressure(double pressure, double totalPressure, double gamma)
+    {
+        return Math.sqrt(2/(gamma - 1.0)*(Math.pow(totalPressure/pressure, (gamma-1.0)/gamma) - 1.0));
+    }
+    
+    public static double areaRatio(double M, double gamma)
+    {
+        double g1 = (gamma + 1)*0.5;
+        return M*Math.pow(g1/isentropicTemperatureRatio(M,gamma), g1/(gamma - 1.0));
+    }
+    
+    public static double supersonicMachFromAreaRatio(double Aratio, double gamma)
+    {
+        double Mlo = 1.001;
+        double Mhi = 8.0;
+        
+        double M = (Mlo + Mhi)*0.5;
+        for(int iter = 0; iter < 20; iter++)
+        {
+            if(areaRatio(M, gamma) < Aratio)
+            {
+                Mhi = M;
+            }
+            else
+            {
+                Mlo = M;
+            }
+            M = (Mlo + Mhi)*0.5;
+        }
+        return M;
+    }
+    
+    public static double normalShockPressureRatio(double M, double gamma)
+    {
+        return (2*gamma*M*M - (gamma - 1.0))/(gamma + 1.0);
+    }
+    
 }

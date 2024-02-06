@@ -89,9 +89,10 @@ public class SolidThruster extends Thruster
         ArrayList<Double> Ixx = new ArrayList<>();
         ArrayList<Double> Irr = new ArrayList<>();
         
-        final double Pambient = 1e5;
+        final double pAmbient = 1e5;
         
-        final double Pchoke = Math.pow((fuel.gasProductGamma + 1)*0.5, fuel.gasProductGamma/(fuel.gasProductGamma - 1));
+        final double pChokeRatio = Math.pow((fuel.gasProductGamma + 1)*0.5, fuel.gasProductGamma/(fuel.gasProductGamma - 1));
+        final double pChoke = pChokeRatio*pAmbient;
         
         final double Athroat = Math.PI*throatR*throatR;
         final double Astar = Athroat*dischargeCoef;
@@ -100,19 +101,28 @@ public class SolidThruster extends Thruster
         final double Vempty = Acombustor*combustorL + Vcone2throat;
         final double maxSegmentWidth = combustorL/sections;
         final double Aexit = Math.PI*exitR*exitR;
+        final double Aratio = Astar/Aexit;
+        
+        final double Rgas = Air.RGAS/fuel.gasProductMW;
+        final double cSoundSpeed = Rgas*fuel.gasProductGamma;
+        
+        final double MexitIdeal = Air.supersonicMachFromAreaRatio(Aratio, fuel.gasProductGamma);
+        
+        final double normalShockPressureRatio = Air.normalShockPressureRatio(MexitIdeal, fuel.gasProductGamma);
+        final double PexitRatioIdeal = Air.isentropicPressureRatio(MexitIdeal, fuel.gasProductGamma);
+        
+        final double pCrit = pAmbient/(normalShockPressureRatio*PexitRatioIdeal);
+        final double massFlowChokeRatio = 
+                Astar*Math.sqrt(fuel.gasProductGamma/Rgas*Math.pow((fuel.gasProductGamma + 1)*0.5,(fuel.gasProductGamma + 1.0)/(1.0 - fuel.gasProductGamma)));
         
         double segmentWidth = sectionGap;
         double Rbore = boreR;
         double Abore = Math.PI*Rbore*Rbore;
         
         double V = Abore*combustorL + sections*segmentWidth*(Acombustor - Abore) + Vcone2throat;
-        
-        double Aburn = 2*boreR*Math.PI*combustorL;
-        double Rgas = Air.RGAS/fuel.gasProductMW;
         double T = 298;
         double P = 101325;
         double density = P/(Rgas*T);
-        double massRate = 0;
         double M = V*density;
         double cv = Rgas/(fuel.gasProductGamma - 1);
         double cp = fuel.gasProductGamma*cv;
@@ -142,6 +152,34 @@ public class SolidThruster extends Thruster
             E += dE;
             
             P = ratio*E/V;
+            T = (E/(M*cp));
+            
+            if( P < pChoke )
+            {
+                pexit.add(-1.0);
+                double Mexit = Air.machFromPressure(pAmbient, P, fuel.gasProductGamma);
+                double Texit = T/Air.isentropicTemperatureRatio(Mexit, fuel.gasProductGamma);
+                double Vexit = Mexit*Math.sqrt(cSoundSpeed*Texit);
+                vexit.add(Vexit);
+                double rhoExit = pAmbient/(Rgas*Texit);
+                massRates.add(rhoExit*Vexit*Aexit);
+            }
+            else
+            {
+                double massRate = massFlowChokeRatio*P/Math.sqrt(T);
+                if( P > pCrit )
+                {
+                    pexit.add(P*PexitRatioIdeal);
+                    double Texit = T/Air.isentropicTemperatureRatio(MexitIdeal, fuel.gasProductGamma);
+                    double Vexit = MexitIdeal*Math.sqrt(cSoundSpeed*Texit);
+                    vexit.add(Vexit);
+                }
+                else
+                {
+                    pexit.add(-1.0);
+                }
+                massRates.add(massRate);
+            }
             
             if (V > Vempty)
             {
