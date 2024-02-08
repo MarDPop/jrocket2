@@ -2,6 +2,7 @@ package com.mardpop.jrocket.vehicle;
 
 import java.util.ArrayList;
 import com.mardpop.jrocket.atmosphere.Air;
+import java.io.*;
 
 /**
  *
@@ -23,14 +24,23 @@ public class SolidThruster extends Thruster
     
     private final double tFinal;
     
-    private final double Aexit;
+    private final double areaExit;
     
-    public SolidThruster(double[] times, double[] performance, double[] fuelInertias, double Aexit)
+    public SolidThruster(SolidThruster thruster)
     {
-        this.times = times;
-        this.performance = performance;
-        this.fuelInertias = fuelInertias;
-        this.Aexit = Aexit;
+        this(thruster.times, thruster.performance, thruster.fuelInertias, thruster.areaExit);
+    }
+    
+    public SolidThruster(double[] times, double[] performance, double[] fuelInertias, double areaExit)
+    {
+        this.times = new double[times.length];
+        this.performance = new double[3*times.length];
+        this.fuelInertias = new double[3*times.length];
+        System.arraycopy(times, 0, this.times, 0, times.length);
+        System.arraycopy(performance, 0, this.performance, 0, 3*times.length);
+        System.arraycopy(fuelInertias, 0, this.fuelInertias, 0, 3*times.length);
+        
+        this.areaExit = areaExit;
         final int n = times.length - 1;
         this.tFinal = times[n];
         this.deltaPerformance = new double[n];
@@ -47,6 +57,72 @@ public class SolidThruster extends Thruster
             this.deltaInertia[jlo] = (this.fuelInertias[jhi] - this.fuelInertias[jlo])*deltaT;
             this.deltaInertia[jlo + 1] = (this.fuelInertias[jhi + 1] - this.fuelInertias[jlo + 1])*deltaT;
             this.deltaInertia[jlo + 2] = (this.fuelInertias[jhi + 2] - this.fuelInertias[jlo + 2])*deltaT;
+        }
+    }
+    
+    public static SolidThruster load(String filename)
+    {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename)))
+        {
+            String line = reader.readLine();
+            ArrayList<Double> times = new ArrayList<>();
+            ArrayList<Double> massRates = new ArrayList<>();
+            ArrayList<Double> vExit = new ArrayList<>();
+            ArrayList<Double> pExit = new ArrayList<>();
+            ArrayList<Double> mass = new ArrayList<>();
+            ArrayList<Double> Ixx = new ArrayList<>();
+            ArrayList<Double> Irr = new ArrayList<>();
+            double A_exit = 1.0;
+            while(line != null)
+            {
+                line = reader.readLine();
+                line = reader.readLine();
+                A_exit = Double.parseDouble(line);
+                if(line != null)
+                {
+                    String[] data = line.split("\\s+");
+                    times.add(Double.valueOf(data[0]));
+                    massRates.add(Double.valueOf(data[1]));
+                    vExit.add(Double.valueOf(data[2]));
+                    pExit.add(Double.valueOf(data[3]));
+                    mass.add(Double.valueOf(data[4]));
+                    Ixx.add(Double.valueOf(data[5]));
+                    Irr.add(Double.valueOf(data[6]));
+                }
+            }
+            if(times.size() > 1) 
+            {
+                double[][] arrays = getArrays(times, massRates, vExit, pExit, mass, Ixx, Irr);
+                return new SolidThruster(arrays[0], arrays[1], arrays[2], A_exit);
+            }
+            
+        }
+        catch(IOException ex)
+        {
+            // DO nothing
+        }
+        return null;
+    }
+    
+    public void save(String filename)
+    {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename, false)))
+        {
+            writer.write("SOLID ROCKET");
+            writer.write(Double.toString(this.areaExit));
+            
+            for(int i = 0; i < this.times.length; i++)
+            {
+                int idx = i*3;
+                writer.write(String.format("%8.3f %14.8f %16.2f %14.8f %14.6f %12.6f %12.6f %n", this.times[i], 
+                        this.performance[idx], this.performance[idx+1], this.performance[idx+2],
+                        this.fuelInertias[idx], this.fuelInertias[idx+1], this.fuelInertias[idx+2]));
+            }
+
+        }
+        catch(IOException ex)
+        {
+            // DO nothing
         }
     }
     
@@ -75,53 +151,114 @@ public class SolidThruster extends Thruster
         double vExitEffective = this.performance[idx + 1] + deltaT*this.deltaPerformance[idx + 1];
         double pExit = this.performance[idx + 2] + deltaT*this.deltaPerformance[idx + 21];
         
-        this.thrust = (pExit - pressure)*Aexit + this.massRate*vExitEffective;
+        this.thrust = (pExit - pressure)*areaExit + this.massRate*vExitEffective;
     }
     
-    public static SolidThruster create(double throatR, double combustorR, double exitR, double boreR,
-        double combustorL, int sections, double sectionGap, SolidFuel fuel, double dischargeCoef, double nozzleEfficiency)
+    public static double[] getExitConditions(double P_total, double T_total, double A_exit,double M_exit_Ideal, double P_exit_RatioIdeal,
+            double P_choke, double P_crit, double P_ambient, double cSoundSpeed, SolidFuel fuel)
+    {
+        final double dMNozzle = (M_exit_Ideal - 1.0)*0.05;
+        double[] exitConditions = new double[2];
+        if( P_total < P_choke )
+        {
+            exitConditions[0] = P_ambient;
+            double M_exit = Air.machFromPressureRatio(P_ambient, P_total, fuel.gasProductGamma);
+            double T_exit = T_total/Air.isentropicTemperatureRatio(M_exit, fuel.gasProductGamma);
+            exitConditions[1] = M_exit*Math.sqrt(cSoundSpeed*T_exit);
+        }
+        else
+        {
+            if( P_total > P_crit )
+            {
+                exitConditions[0] = P_total*P_exit_RatioIdeal;
+                double T_exit = T_total/Air.isentropicTemperatureRatio(M_exit_Ideal, fuel.gasProductGamma);
+                exitConditions[1] = M_exit_Ideal*Math.sqrt(cSoundSpeed*T_exit);
+            }
+            else
+            {
+                double minDelta = 1e300;
+                double V_exit_found = 0;
+                for(double Mshock = 1.0; Mshock < M_exit_Ideal; Mshock += dMNozzle)
+                {
+                    double areaRatioBefore = Air.areaRatio(Mshock, fuel.gasProductGamma); // Astar1 / A
+                    double pTotalAfter = P_total*Air.normalShockPressureRatio(Mshock, fuel.gasProductGamma);
+                    double machAfter = Air.normalShockMachAfter(Mshock, fuel.gasProductGamma);
+                    double areaRatioAfter = Air.areaRatio(machAfter, fuel.gasProductGamma); // Astar2 / A
+                    double A_star2 = areaRatioAfter / areaRatioBefore;
+                    double M_exit = Air.subsonicMachFromAreaRatio(A_star2/A_exit, fuel.gasProductGamma);
+
+                    exitConditions[0] = pTotalAfter*Air.isentropicPressureRatio(M_exit, fuel.gasProductGamma);
+
+                    double err = Math.abs(exitConditions[0] - P_ambient);
+                    if(err < minDelta)
+                    {
+                        minDelta = err;
+                        double T_exit = T_total/Air.isentropicTemperatureRatio(M_exit, fuel.gasProductGamma);
+                        V_exit_found = Math.sqrt(cSoundSpeed*T_exit)*M_exit;
+                    }
+                }
+                exitConditions[1] = V_exit_found; 
+            }
+        }
+        
+        return exitConditions;
+    }
+    
+    /**
+     *
+     * @param R_throat
+     * @param R_combustor
+     * @param R_exit
+     * @param boreR
+     * @param combustorL
+     * @param sections
+     * @param sectionGap
+     * @param fuel
+     * @param dischargeCoef
+     * @param nozzleEfficiency
+     * @param P_ambient
+     * @return
+     */
+    public static SolidThruster create(double R_throat, double R_combustor, double R_exit, double boreR,
+        double combustorL, int sections, double sectionGap, SolidFuel fuel, double dischargeCoef, double nozzleEfficiency, double P_ambient)
     {
         ArrayList<Double> times = new ArrayList<>();
         ArrayList<Double> massRates = new ArrayList<>();
-        ArrayList<Double> vexit = new ArrayList<>();
-        ArrayList<Double> pexit = new ArrayList<>();
+        ArrayList<Double> vExit = new ArrayList<>();
+        ArrayList<Double> pExit = new ArrayList<>();
         ArrayList<Double> mass = new ArrayList<>();
         ArrayList<Double> Ixx = new ArrayList<>();
         ArrayList<Double> Irr = new ArrayList<>();
         
-        final double pAmbient = 1e5;
-        
         final double pChokeRatio = Math.pow((fuel.gasProductGamma + 1)*0.5, fuel.gasProductGamma/(fuel.gasProductGamma - 1));
-        final double pChoke = pChokeRatio*pAmbient;
+        final double P_choke = pChokeRatio*P_ambient;
         
-        final double Athroat = Math.PI*throatR*throatR;
-        final double Astar = Athroat*dischargeCoef;
-        final double Acombustor = Math.PI*combustorR*combustorR;
-        final double Vcone2throat = Math.PI/3.0*combustorR*(combustorR*combustorR + combustorR*throatR + throatR*throatR);
-        final double Vempty = Acombustor*combustorL + Vcone2throat;
+        final double A_throat = Math.PI*R_throat*R_throat;
+        final double A_star = A_throat*dischargeCoef;
+        final double A_combustor = Math.PI*R_combustor*R_combustor;
+        final double V_empty = A_combustor*combustorL;
         final double maxSegmentWidth = combustorL/sections;
-        final double Aexit = Math.PI*exitR*exitR;
-        final double Aratio = Astar/Aexit;
+        final double A_exit = Math.PI*R_exit*R_exit;
+        final double A_exit_ratio = A_star/A_exit;
         
         final double Rgas = Air.RGAS/fuel.gasProductMW;
         final double cSoundSpeed = Rgas*fuel.gasProductGamma;
         
-        final double MexitIdeal = Air.supersonicMachFromAreaRatio(Aratio, fuel.gasProductGamma);
-        
-        final double normalShockPressureRatio = Air.normalShockPressureRatio(MexitIdeal, fuel.gasProductGamma);
-        final double PexitRatioIdeal = Air.isentropicPressureRatio(MexitIdeal, fuel.gasProductGamma);
-        
-        final double pCrit = pAmbient/(normalShockPressureRatio*PexitRatioIdeal);
+        final double M_exit_Ideal = Air.supersonicMachFromAreaRatio(A_exit_ratio, fuel.gasProductGamma);
+        final double P_exit_RatioIdeal = Air.isentropicPressureRatio(M_exit_Ideal, fuel.gasProductGamma);
+        final double normalShockPressureRatio = Air.normalShockPressureRatio(M_exit_Ideal, fuel.gasProductGamma);
+
+        final double P_crit = P_ambient/(normalShockPressureRatio*P_exit_RatioIdeal);
         final double massFlowChokeRatio = 
-                Astar*Math.sqrt(fuel.gasProductGamma/Rgas*Math.pow((fuel.gasProductGamma + 1)*0.5,(fuel.gasProductGamma + 1.0)/(1.0 - fuel.gasProductGamma)));
+                A_star*Math.sqrt(fuel.gasProductGamma*Math.pow((fuel.gasProductGamma + 1)*0.5,(fuel.gasProductGamma + 1.0)/(1.0 - fuel.gasProductGamma)));
         
-        double segmentWidth = sectionGap;
-        double Rbore = boreR;
-        double Abore = Math.PI*Rbore*Rbore;
+        double segmentWidth = maxSegmentWidth - sectionGap;
+        double R_bore = boreR;
         
-        double V = Abore*combustorL + sections*segmentWidth*(Acombustor - Abore) + Vcone2throat;
+        double V_fuel = sections*segmentWidth*(A_combustor - Math.PI*R_bore*R_bore);
+        double V = V_empty - V_fuel;
         double T = 298;
-        double P = 101325;
+        double P = P_ambient;
         double density = P/(Rgas*T);
         double M = V*density;
         double cv = Rgas/(fuel.gasProductGamma - 1);
@@ -131,66 +268,102 @@ public class SolidThruster extends Thruster
         double E = specificEnergyCombustor*M;
         
         double time = 0;
-        double dt = 0.00001;
+        double dt = 1e-4;
+        double timeRecord = time;
+        final double timeRecordInterval = 0.1;
         while(time < 1000)
         {
             double V0 = V;
             
-            double burnRate = fuel.burnRate(P,0,0);
-            double dR = burnRate*dt;
+            double dR = fuel.burnRate(P,0,0)*dt;
             
-            Rbore -= dR;
-            segmentWidth = Math.min(maxSegmentWidth, segmentWidth + 2*dR);
-            Abore = Math.PI*Rbore*Rbore;            
-            V = Abore*combustorL + sections*segmentWidth*(Acombustor - Abore) + Vcone2throat;
+            R_bore -= dR;
+            segmentWidth -= (2*dR);
+            
+            V_fuel = sections*segmentWidth*(A_combustor - Math.PI*R_bore*R_bore);
+            V = V_empty - V_fuel;
             
             double dV = V - V0;
-            double dM = dV*fuel.density;
-            double dE = dM*fuel.heatingValue;
+            double dM_in = dV*fuel.density;
+            double dE_in = dM_in*fuel.heatingValue;
             
-            M += dM;
-            E += dE;
-            
-            P = ratio*E/V;
-            T = (E/(M*cp));
-            
-            if( P < pChoke )
+            double massRate;
+            if( P < P_choke )
             {
-                pexit.add(-1.0);
-                double Mexit = Air.machFromPressure(pAmbient, P, fuel.gasProductGamma);
-                double Texit = T/Air.isentropicTemperatureRatio(Mexit, fuel.gasProductGamma);
-                double Vexit = Mexit*Math.sqrt(cSoundSpeed*Texit);
-                vexit.add(Vexit);
-                double rhoExit = pAmbient/(Rgas*Texit);
-                massRates.add(rhoExit*Vexit*Aexit);
+                double M_exit = Air.machFromPressureRatio(P_ambient, P, fuel.gasProductGamma);
+                double T_exit = T/Air.isentropicTemperatureRatio(M_exit, fuel.gasProductGamma);
+                double V_exit = M_exit*Math.sqrt(cSoundSpeed*T_exit);
+                double rhoExit = P_ambient/(Rgas*T_exit);
+                massRate = rhoExit*V_exit*A_exit;
             }
             else
             {
-                double massRate = massFlowChokeRatio*P/Math.sqrt(T);
-                if( P > pCrit )
-                {
-                    pexit.add(P*PexitRatioIdeal);
-                    double Texit = T/Air.isentropicTemperatureRatio(MexitIdeal, fuel.gasProductGamma);
-                    double Vexit = MexitIdeal*Math.sqrt(cSoundSpeed*Texit);
-                    vexit.add(Vexit);
-                }
-                else
-                {
-                    pexit.add(-1.0);
-                }
-                massRates.add(massRate);
+                massRate = massFlowChokeRatio*P*M/V;
             }
             
-            if (V > Vempty)
+            double specificEnergy = E/M;
+            
+            double dM_out = massRate*dt;
+            double dE_out = dM_out*specificEnergy;
+                        
+            M += (dM_in - dM_out);
+            E += (dE_in - dE_out);
+            
+            P = ratio*E/V;
+            T = (specificEnergy/cp);
+            
+            if (V > V_empty)
             {
                 break;
             }
             
+            if(time >= timeRecord)
+            {
+                double[] exitConditions = getExitConditions(P, T, A_exit, M_exit_Ideal, P_exit_RatioIdeal,
+                    P_choke, P_crit, P_ambient, cSoundSpeed, fuel);
+                times.add(time);
+                pExit.add(exitConditions[0]);
+                vExit.add(exitConditions[1]*nozzleEfficiency);
+                massRates.add(massRate);
+                
+                double massFuel = V_fuel*fuel.density;
+                double segmentMass = massFuel/sections;
+                double I_xx = 0.5*massFuel*(R_combustor*R_combustor - R_bore*R_bore);
+                double I_rr = (I_xx + massFuel*segmentWidth*segmentWidth)/12;
+                for(int iSegment = 0; iSegment < sections; iSegment++)
+                {
+                    double d = sections*maxSegmentWidth + maxSegmentWidth*0.5 - combustorL*0.5;
+                    I_rr += segmentMass*d*d;
+                }
+
+                mass.add(massFuel);
+                Ixx.add(I_xx);
+                Irr.add(I_rr);
+                
+                timeRecord += timeRecordInterval;
+            }
+            
             time += dt;
         }
-        
-        
-        int n = times.size();
+        double[][] arrays = getArrays(times, massRates, vExit, pExit, mass, Ixx, Irr);
+        return new SolidThruster(arrays[0], arrays[1], arrays[2], A_exit);
+    }
+    
+    /**
+     *
+     * @param times
+     * @param massRates
+     * @param vExit
+     * @param pExit
+     * @param mass
+     * @param Ixx
+     * @param Irr
+     * @return
+     */
+    private static double[][] getArrays(ArrayList<Double> times, ArrayList<Double> massRates, ArrayList<Double> vExit,
+        ArrayList<Double> pExit, ArrayList<Double> mass, ArrayList<Double> Ixx, ArrayList<Double> Irr)
+    {
+        final int n = times.size();
         
         double[] t = new double[n];
         double[] p = new double[n*3];
@@ -201,14 +374,14 @@ public class SolidThruster extends Thruster
             t[i] = times.get(i);
             int j = i*3;
             p[j] = massRates.get(i);
-            p[j + 1] = vexit.get(i);
-            p[j + 2] = pexit.get(i);
+            p[j + 1] = vExit.get(i);
+            p[j + 2] = pExit.get(i);
             m[j] = mass.get(i);
             m[j + 1] = Irr.get(i);
             m[j + 2] = Ixx.get(i);
         }
         
-        return new SolidThruster(t,p,m, Aexit);
+        return new double[][]{t,p,m};
     }
     
 }

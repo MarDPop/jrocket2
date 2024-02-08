@@ -1,6 +1,5 @@
 package com.mardpop.jrocket.atmosphere;
 
-import com.mardpop.jrocket.util.Util;
 import com.mardpop.jrocket.util.Vec3;
 
 /**

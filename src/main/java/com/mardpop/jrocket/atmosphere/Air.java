@@ -83,7 +83,7 @@ public class Air
         return Math.pow(isentropicTemperatureRatio(M,gamma), -1.0/(gamma - 1.0));
     }
     
-    public static double machFromPressure(double pressure, double totalPressure, double gamma)
+    public static double machFromPressureRatio(double pressure, double totalPressure, double gamma)
     {
         return Math.sqrt(2/(gamma - 1.0)*(Math.pow(totalPressure/pressure, (gamma-1.0)/gamma) - 1.0));
     }
@@ -92,6 +92,11 @@ public class Air
     {
         double g1 = (gamma + 1)*0.5;
         return M*Math.pow(g1/isentropicTemperatureRatio(M,gamma), g1/(gamma - 1.0));
+    }
+    
+    public static double normalizedChokeRate(double Pt, double Tt, double gamma, double MW)
+    {
+        return Pt*Math.sqrt(gamma*MW/(Air.RGAS*Tt)*Math.pow(2/(gamma + 1.0),(gamma + 1.0)/(gamma - 1.0)));
     }
     
     public static double supersonicMachFromAreaRatio(double Aratio, double gamma)
@@ -115,9 +120,46 @@ public class Air
         return M;
     }
     
+    public static double subsonicMachFromAreaRatio(double Aratio, double gamma)
+    {
+        double Mlo = 0.0;
+        double Mhi = 0.9999;
+        
+        double M = (Mlo + Mhi)*0.5;
+        for(int iter = 0; iter < 20; iter++)
+        {
+            if(areaRatio(M, gamma) > Aratio)
+            {
+                Mhi = M;
+            }
+            else
+            {
+                Mlo = M;
+            }
+            M = (Mlo + Mhi)*0.5;
+        }
+        return M;
+    }
+    
     public static double normalShockPressureRatio(double M, double gamma)
     {
         return (2*gamma*M*M - (gamma - 1.0))/(gamma + 1.0);
     }
     
+    public static double normalShockDensityRatio(double M, double gamma)
+    {
+        double M2 = M*M;
+        return ((gamma + 1)*M2)/((gamma - 1)*M2 + 2.0);
+    }
+    
+    public static double normalShockMachAfter(double M, double gamma)
+    {
+        return Math.sqrt(((gamma - 1.0)*M*M + 2.0 )/(2*gamma*M*M - 1.0 + gamma));
+    }
+    
+    public static double normalShockTotalPressureRatio(double M, double gamma)
+    {
+        double ex = 1.0/(gamma - 1.0);
+        return Math.pow(normalShockDensityRatio(M,gamma), gamma*ex)*Math.pow(normalShockPressureRatio(M,gamma),-ex);
+    }
 }
