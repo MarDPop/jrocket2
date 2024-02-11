@@ -4,10 +4,8 @@ package com.mardpop.jrocket.vehicle;
  *
  * @author mariu
  */
-public abstract class SolidFuel 
-{    
-    public final double density;
-    
+public abstract class SolidFuel extends Fuel
+{        
     public final double heatingValue;
     
     public final double gasProductGamma;
@@ -25,7 +23,7 @@ public abstract class SolidFuel
     SolidFuel(double density, 
             double heatingValue, double gasProductGamma, double gasProductMW)
     {
-        this.density = density;
+        super(1,density);
         this.heatingValue = heatingValue;
         this.gasProductGamma = gasProductGamma;
         this.gasProductMW = gasProductMW;

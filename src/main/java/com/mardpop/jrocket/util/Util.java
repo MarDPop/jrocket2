@@ -1,11 +1,18 @@
 package com.mardpop.jrocket.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author mariu
  */
 public class Util 
 {
+    
+    private Util() {
+        throw new IllegalStateException("Utility class");
+    }
 
     public static int lowerIndex(double[] values, double value)
     {
@@ -52,5 +59,26 @@ public class Util
         q_dot[1] = (-angular_velocity[2]*q[0] + angular_velocity[0]*q[2] + angular_velocity[1]*q[3])*dt_half;
         q_dot[2] = ( angular_velocity[1]*q[0] - angular_velocity[0]*q[1] + angular_velocity[2]*q[3])*dt_half;
         q_dot[3] = (-angular_velocity[0]*q[0] - angular_velocity[1]*q[1] - angular_velocity[2]*q[2])*dt_half;
+    }
+    
+    public static boolean isSorted(double[] arr)
+    {
+        boolean ascending = true, descending = true;
+        for (int i = 1; i < arr.length && (ascending || descending); i++) {
+            ascending = ascending && arr[i] >= arr[i-1];
+            descending = descending && arr[i] <= arr[i-1];
+        }
+        return ascending || descending;
+    }
+    
+    public static boolean isSorted(List<Double> arr)
+    {
+        boolean ascending = true;
+        boolean descending = true;
+        for (int i = 1; i < arr.size() && (ascending || descending); i++) {
+            ascending = ascending && arr.get(i) >= arr.get(i-1);
+            descending = descending && arr.get(i) <= arr.get(i-1);
+        }
+        return ascending || descending;
     }
 }
