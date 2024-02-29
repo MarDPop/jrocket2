@@ -6,7 +6,13 @@ package com.mardpop.jrocket.vehicle;
  */
 public class Propellant 
 {
-    public final Inertia fuelInertia = new Inertia();
+    public final int id;
     
-    public void update(double time){}
+    public final double density;
+    
+    public Propellant(int id, double density)
+    {
+        this.id = id;
+        this.density = density;
+    }
 }

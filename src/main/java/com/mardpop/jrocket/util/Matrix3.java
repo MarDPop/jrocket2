@@ -9,6 +9,18 @@ public class Matrix3 {
     final double data[] = new double[9];
     
     public Matrix3() {}
+
+    public Matrix3(double a11, double a12, double a13, double a21, double a22, double a23, double a31, double a32, double a33) {
+        this.data[0] = a11;
+        this.data[1] = a12;
+        this.data[2] = a13;
+        this.data[3] = a21;
+        this.data[4] = a22;
+        this.data[5] = a23;
+        this.data[6] = a31;
+        this.data[7] = a32;
+        this.data[8] = a33;
+    }
     
     public Matrix3(Vec3 x, Vec3 y, Vec3 z) {
         System.arraycopy(x.data, 0, this.data, 0, 3);

@@ -6,9 +6,9 @@ package com.mardpop.jrocket.vehicle;
  */
 public class SolidThruster extends Thruster 
 {
-    protected FuelTank solidFuel;
+    protected PropellantTank solidFuel;
     
-    public FuelTank getFuel()
+    public PropellantTank getFuel()
     {
         return this.solidFuel;
     }

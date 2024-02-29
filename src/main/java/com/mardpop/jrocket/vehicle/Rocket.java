@@ -65,31 +65,35 @@ public class Rocket extends State
         I = I.getInverse();
         return I.mult(rhs);
     }
-    
-    void updateForces(double time) 
+
+    void updateState(double time)
     {
         this.orientation.setRotationMatrixUnit(this.CS);
-        this.inertia.combine(this.inertiaEmpty, this.propulsion.propellant.fuelInertia);
+        this.inertia.combine(this.inertiaEmpty, this.propulsion.propellant.getInertia());
         
         this.atm.update(this.position.z(), time);
         this.aero.update(this.velocity, this.CS, this.atm.air, this.atm.wind);
         
         this.gnc.update(time);
-        
-        this.propulsion.update(this.atm.air.getPressure(), time);
+    }
+    
+    void updateForces(double time, double dt) 
+    {
+        this.propulsion.update(this.atm.air.getPressure(), time, dt);
         this.aerodynamics.update(aero);
         
         this.forces.set(this.aerodynamics.force);
         this.forces.add(this.propulsion.force);
         
-        this.moments.set(this.aerodynamics.getTorque(this.inertia.CG));
-        this.moments.add(this.propulsion.getTorque(this.inertia.CG));
+        this.moments.set(this.aerodynamics.getTorque(this.inertia.COM));
+        this.moments.add(this.propulsion.getTorque(this.inertia.COM));
     }
     
     void update(double time, double dt)
     {
         double dt_2 = dt*0.5;
-        this.updateForces(time);
+        this.updateState(time);
+        this.updateForces(time, dt);
         
         Vec3 acceleration0 = Vec3.mult(this.forces, 1.0/this.inertia.mass);
         acceleration0.add(this.frameAcceleration.getAcceleration(this.position.z(), this.velocity));
@@ -107,7 +111,7 @@ public class Rocket extends State
         Quaternion qd0 = Util.getQuaternionDelta(this.orientation, this.angular_velocity, dt);
         this.orientation.add(qd0);
         this.angular_velocity.add(Vec3.mult(angularAcceleration0, dt));
-        
+
         this.orientation.normalize();
     }
     

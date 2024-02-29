@@ -4,7 +4,7 @@ package com.mardpop.jrocket.vehicle;
  *
  * @author mariu
  */
-public abstract class SolidFuel extends Fuel
+public abstract class SolidFuel extends Propellant
 {        
     public final double heatingValue;
     

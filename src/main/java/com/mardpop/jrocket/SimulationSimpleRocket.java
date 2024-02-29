@@ -49,6 +49,13 @@ public class SimulationSimpleRocket
     
     private final ArrayList<State> states = new ArrayList<>();
     
+    /**
+     * Set the ground properties including gravity, pressure, and temperature.
+     *
+     * @param  groundGravity     the gravity value of the ground
+     * @param  groundPressure    the pressure value of the ground
+     * @param  groundTemperature the temperature value of the ground in Celsius
+     */
     public void setGround(double groundGravity, double groundPressure, double groundTemperature)
     {
         this.groundGravity = groundGravity;
@@ -56,6 +63,13 @@ public class SimulationSimpleRocket
         this.groundTemperature = groundTemperature + 273.15;
     }
     
+    /**
+     * Sets the launch site coordinates and altitude.
+     *
+     * @param  latitude   the latitude of the launch site
+     * @param  longitude  the longitude of the launch site
+     * @param  altitude   the altitude of the launch site
+     */
     public void setLaunchSite(double latitude, double longitude, double altitude)
     {
         this.longitude = Math.toRadians(longitude);

@@ -2,10 +2,10 @@
 	"Ground" : {"Gravity" : 9.8, "Pressure" : 85000, "Temperature" : 18},
 	"Launch" : {"Latitude" : 39.939235, "Longitude" : -104.748822, "Altitude" : 1556 },
 	"Type" : "Simple",
-	"MaxRunTime" : 60,
+	"MaxRunTime" : 90,
 	"InertiaEmpty" : {"CGx" : 0.0, "Irr": 0.3, "Ixx" : 0.1, "Mass" : 2 },
 	"InertiaFuel" : {"CGx" : 0.0, "Irr" : 0.3, "Ixx" : 0.1, "Mass" : 14 }, 
 	"Thruster" : { "Type" : 1, "Thrust" : 700, "ISP" : 125 },
 	"Aerodynamics" : { "Type" : 1, "CD" : 0.7, "Area" : 0.03 },
-	"GNC" : 0,
+	"GNC" : 0
 }

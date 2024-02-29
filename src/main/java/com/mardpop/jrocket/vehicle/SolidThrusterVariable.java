@@ -22,7 +22,7 @@ public class SolidThrusterVariable extends SolidThruster
     
     private final double areaExit;
     
-    private SolidThrusterVariable(FuelTankInterpolated solidFuel, ArrayList<Double> times, 
+    private SolidThrusterVariable(PropellantTankInterpolated solidFuel, ArrayList<Double> times, 
                 ArrayList<Double> performance, double areaExit)
     {
         this.solidFuel = solidFuel;
@@ -73,15 +73,15 @@ public class SolidThrusterVariable extends SolidThruster
                     vExit.add(Double.valueOf(data[2]));
                     pExit.add(Double.valueOf(data[3]));
                     mass.add(Double.valueOf(data[4]));
-                    Irr.add(Double.valueOf(data[5]));
-                    Ixx.add(Double.valueOf(data[6]));
+                    Ixx.add(Double.valueOf(data[5]));
+                    Irr.add(Double.valueOf(data[6]));
                 }
             }
             if(times.size() > 1) 
             {
                 ArrayList<ArrayList<Double>> arrays = getArrays(massRates, vExit, pExit, Irr, Ixx);
-                Fuel fuel = new Fuel(fuelType, 1.805);
-                FuelTankInterpolated solidFuel = new FuelTankInterpolated(fuel,mass, arrays.get(1));
+                Propellant fuel = new Propellant(fuelType, 1.805);
+                PropellantTankInterpolated solidFuel = new PropellantTankInterpolated(fuel,mass, arrays.get(1));
                 return new SolidThrusterVariable(solidFuel, times, arrays.get(0),A_exit);
             }
             
@@ -106,16 +106,14 @@ public class SolidThrusterVariable extends SolidThruster
                 int idx = i*3;
                 if(i > 0)
                 {
-                    this.solidFuel.update(this.performance[idx - 3]*(this.times[i] - this.times[i-1]));
+                    this.solidFuel.takePropellant(this.performance[idx - 3]*(this.times[i] - this.times[i-1]));
                 }
                 
                 double mass = this.solidFuel.getMass();
-                double Irr = this.solidFuel.getIrr();
-                double Ixx = this.solidFuel.getIxx();
-                this.solidFuel.getIrr();
+                Inertia inertia = this.solidFuel.getInertia();
                 writer.write(String.format("%8.3f %14.9f %16.2f %14.8f %14.6f %12.6f %12.6f %n", this.times[i], 
                         this.performance[idx], this.performance[idx+1], this.performance[idx+2],
-                        mass, Irr, Ixx));
+                        mass, inertia.Ixx, inertia.Iyy));
                 
             }
         }
@@ -345,7 +343,7 @@ public class SolidThrusterVariable extends SolidThruster
             time += dt;
         }
         ArrayList<ArrayList<Double>> arrays = getArrays(massRates, vExit, pExit, Irr, Ixx);
-        FuelTankInterpolated solidFuel = new FuelTankInterpolated(fuel, mass, arrays.get(1));       
+        PropellantTankInterpolated solidFuel = new PropellantTankInterpolated(fuel, mass, arrays.get(1));       
         return new SolidThrusterVariable(solidFuel, times, arrays.get(0), A_exit);
     }
     

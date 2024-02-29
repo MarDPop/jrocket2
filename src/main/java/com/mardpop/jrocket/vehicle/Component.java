@@ -1,5 +1,6 @@
 package com.mardpop.jrocket.vehicle;
 
+import com.mardpop.jrocket.util.Matrix3;
 import com.mardpop.jrocket.util.Vec3;
 
 /**
@@ -12,7 +13,9 @@ public class Component
     
     protected Vec3 centerOfMass;
     
-    protected final double[] inertia = new double[3];
+    protected Matrix3 orientation;
+    
+    protected final Inertia inertia = new Inertia();
     
     public double getMass()
     {
@@ -24,15 +27,23 @@ public class Component
         return this.centerOfMass;
     }
     
-    public double[] getInertia()
+    public Inertia getInertia()
     {
         return inertia;
     }
     
-    public double[] getInertiaFromPoint(Vec3 point)
+    public Inertia getInertiaFromPoint(Vec3 point)
     {
         Vec3 arm = Vec3.subtract(point, this.centerOfMass);
-        double d = arm.dot(arm);
+        double x2 = arm.x()*arm.x();
+        double y2 = arm.y()*arm.y();
+        double z2 = arm.z()*arm.z();
+        double xy = -arm.x()*arm.y();
+        double xz = -arm.x()*arm.z();
+        double yz = -arm.y()*arm.z();
+
+        
+        
         return this.inertia;
     }
     

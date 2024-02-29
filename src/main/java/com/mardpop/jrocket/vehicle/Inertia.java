@@ -23,35 +23,41 @@ public class Inertia
     
     double Iyz;
     
-    final Vec3 CG = new Vec3();
-    
-    final Matrix3 I = new Matrix3();
-    
-    Matrix3 getMatrix()
+    final Vec3 COM = new Vec3();
+
+    public Inertia(){}
+
+    public Inertia(double mass, double Ixx, double Iyy, double Izz, double Ixy, double Ixz, double Iyz)
     {
-        double[] data = I.getData();
-        data[0] = Ixx;
-        data[1] = -Ixy;
-        data[2] = -Ixz;
-        data[3] = -Iyz;
-        data[4] = Iyy;
-        data[5] = -Ixy;
-        data[6] = -Ixz;
-        data[7] = -Iyz;
-        data[8] = Izz;        
-        return I;
+        this.mass = mass;
+        this.Ixx = Ixx;
+        this.Iyy = Iyy;
+        this.Izz = Izz;
+        this.Ixy = Ixy;
+        this.Ixz = Ixz;
+        this.Iyz = Iyz;
     }
     
-    void combine(Inertia a, Inertia b)
+    public Matrix3 getMatrix()
+    {
+        return new Matrix3(Ixx, -Ixy, -Ixz, -Ixy, Iyy, -Iyz, -Ixz, -Iyz, Izz);
+    }
+
+    public Vec3 getCOM()
+    {
+        return this.COM;
+    }
+    
+    public void combine(Inertia a, Inertia b)
     {
         this.mass = a.mass + b.mass;
         double invMass = 1.0/this.mass;
-        this.CG.x((a.CG.x()*a.mass + b.CG.x()*b.mass)*invMass);
-        this.CG.y((a.CG.y()*a.mass + b.CG.y()*b.mass)*invMass);
-        this.CG.x((a.CG.z()*a.mass + b.CG.z()*b.mass)*invMass);
+        this.COM.x((a.COM.x()*a.mass + b.COM.x()*b.mass)*invMass);
+        this.COM.y((a.COM.y()*a.mass + b.COM.y()*b.mass)*invMass);
+        this.COM.x((a.COM.z()*a.mass + b.COM.z()*b.mass)*invMass);
         
-        Vec3 d_a = Vec3.subtract(a.CG, this.CG);
-        Vec3 d_b = Vec3.subtract(b.CG, this.CG);
+        Vec3 d_a = Vec3.subtract(a.COM, this.COM);
+        Vec3 d_b = Vec3.subtract(b.COM, this.COM);
         
         double dx2_a = d_a.x()*d_a.x();
         double dy2_a = d_a.y()*d_a.y();
