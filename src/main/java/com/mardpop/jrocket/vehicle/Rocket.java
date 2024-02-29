@@ -94,23 +94,39 @@ public class Rocket extends State
         double dt_2 = dt*0.5;
         this.updateState(time);
         this.updateForces(time, dt);
-        
-        Vec3 acceleration0 = Vec3.mult(this.forces, 1.0/this.inertia.mass);
-        acceleration0.add(this.frameAcceleration.getAcceleration(this.position.z(), this.velocity));
-        
-        Vec3 angularAcceleration0 = this.getAngularAcceleration();
-        
+
         Vec3 position0 = new Vec3(this.position);
         Vec3 velocity0 = new Vec3(this.velocity);
         Quaternion orientation0 = new Quaternion(this.orientation);
         Vec3 angularRate0 = new Vec3(this.angular_velocity);
         
-        this.position.add(Vec3.mult(Vec3.add(this.velocity, Vec3.mult(acceleration0, dt_2)), dt));
+        Vec3 acceleration0 = Vec3.mult(this.forces, 1.0/this.inertia.mass);
+        acceleration0.add(this.frameAcceleration.getAcceleration(this.position.z(), this.velocity));
+        
+        Vec3 angularAcceleration0 = this.getAngularAcceleration();
+
+        this.position.add(Vec3.mult(velocity0, dt));
         this.velocity.add(Vec3.mult(acceleration0, dt));
         
         Quaternion qd0 = Util.getQuaternionDelta(this.orientation, this.angular_velocity, dt);
         this.orientation.add(qd0);
         this.angular_velocity.add(Vec3.mult(angularAcceleration0, dt));
+
+        this.updateState(time + dt);
+        this.updateForces(time, 0);
+
+        Vec3 acceleration1 = Vec3.mult(this.forces, 1.0/this.inertia.mass);
+        acceleration1.add(this.frameAcceleration.getAcceleration(this.position.z(), this.velocity));
+        
+        Vec3 angularAcceleration1 = this.getAngularAcceleration();
+
+        this.position.set(Vec3.add(position0, Vec3.mult(Vec3.add(velocity0, this.velocity), dt_2)));
+        this.velocity.set(Vec3.add(velocity0, Vec3.mult(Vec3.add(acceleration0, acceleration1), dt_2)));
+        
+
+        Quaternion qd = Util.getQuaternionDelta(this.orientation, Vec3.add(this.angular_velocity, angularRate0), dt_2);
+        this.orientation.set(Quaternion.add(orientation0, qd));
+        this.angular_velocity.set(Vec3.add(angularRate0, Vec3.mult(Vec3.add(angularAcceleration0, angularAcceleration1), dt_2)));
 
         this.orientation.normalize();
     }

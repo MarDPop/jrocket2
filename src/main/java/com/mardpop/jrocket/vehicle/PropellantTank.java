@@ -21,12 +21,11 @@ public abstract class PropellantTank extends Component
     
     public void takePropellant(double dm)
     {
-        this.setMass(mass - dm);
+        this.setMass(this.inertia.mass - dm);
     }
     
-    @Override
     public Vec3 getCenterOfMass()
     {
-        return Vec3.add(this.centerOfMass, this.centerOfMassChange);
+        return Vec3.add(this.inertia.COM, this.centerOfMassChange);
     }
 }

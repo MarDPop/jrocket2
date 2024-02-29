@@ -1,7 +1,5 @@
 package com.mardpop.jrocket.vehicle;
 
-import com.mardpop.jrocket.util.*;
-
 /**
  *
  * @author mariu

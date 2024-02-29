@@ -89,6 +89,18 @@ public class Quaternion {
         return Math.sqrt(data[0]*data[0] + data[1]*data[1] + data[2]*data[2] + data[3]*data[3]);
     } 
 
+    public static Quaternion add(Quaternion a, Quaternion b)
+    {
+        return new Quaternion(a.data[0] + b.data[0], a.data[1] + b.data[1],
+             a.data[2] + b.data[2], a.data[3] + b.data[3]);
+    }
+
+    public static Quaternion subtract(Quaternion a, Quaternion b)
+    {
+        return new Quaternion(a.data[0] - b.data[0], a.data[1] - b.data[1],
+             a.data[2] - b.data[2], a.data[3] - b.data[3]);
+    }
+
     public void add(Quaternion p)
     {
         this.data[0] += p.data[0];

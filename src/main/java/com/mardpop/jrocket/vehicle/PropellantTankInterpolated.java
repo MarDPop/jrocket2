@@ -55,10 +55,9 @@ public class PropellantTankInterpolated extends PropellantTank
 
     @Override
     public void setMass(double mass) {
-        this.mass = mass;
         if(mass < 0)
         {
-            this.mass = 0;
+            this.inertia.mass = 0;
             this.inertia.Ixx = 0;
             this.inertia.Iyy = 0;
             this.inertia.Izz = 0;
@@ -67,7 +66,7 @@ public class PropellantTankInterpolated extends PropellantTank
         
         if(mass > this.fuelMasses[0])
         {
-            this.mass = this.fuelMasses[0];
+            this.inertia.mass = this.fuelMasses[0];
             this.inertia.Ixx = this.fuelInertias[0];
             this.inertia.Iyy = this.fuelInertias[1];
             this.inertia.Izz = this.fuelInertias[2];
@@ -75,18 +74,20 @@ public class PropellantTankInterpolated extends PropellantTank
             return;
         }
         
-        while(this.fuelMasses[this.mIdx + 1] > this.mass)
+        while(this.fuelMasses[this.mIdx + 1] > mass)
         {
             this.mIdx++;
         }
         
-        while(this.fuelMasses[this.mIdx] < this.mass)
+        while(this.fuelMasses[this.mIdx] < mass)
         {
             this.mIdx--;
         }
+
+        this.inertia.mass = mass;
         
         int idx = this.mIdx*3;
-        double dM = this.mass - this.fuelMasses[this.mIdx];
+        double dM = mass - this.fuelMasses[this.mIdx];
         this.inertia.Ixx = this.fuelInertias[idx] + this.deltaInertia[idx]*dM;
         this.inertia.Izz = this.inertia.Iyy = this.fuelInertias[idx + 1] + this.deltaInertia[idx + 1]*dM;
         this.centerOfMassChange.x(this.fuelInertias[idx + 2] + this.deltaInertia[idx + 2]*dM);

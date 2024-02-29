@@ -37,7 +37,7 @@ public class PropellantTankSimple extends PropellantTank
     @Override
     public void setMass(double mass) 
     {
-        this.mass = mass;
+        this.inertia.mass = mass;
         this.inertia.Ixx = this.dI_xx*mass;
         this.inertia.Izz = this.inertia.Iyy = this.dI_rr*mass;
         this.centerOfMassChange.z(this.dCG_x*mass);

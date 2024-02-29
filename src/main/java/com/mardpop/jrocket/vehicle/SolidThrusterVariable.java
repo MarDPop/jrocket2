@@ -109,11 +109,10 @@ public class SolidThrusterVariable extends SolidThruster
                     this.solidFuel.takePropellant(this.performance[idx - 3]*(this.times[i] - this.times[i-1]));
                 }
                 
-                double mass = this.solidFuel.getMass();
                 Inertia inertia = this.solidFuel.getInertia();
                 writer.write(String.format("%8.3f %14.9f %16.2f %14.8f %14.6f %12.6f %12.6f %n", this.times[i], 
                         this.performance[idx], this.performance[idx+1], this.performance[idx+2],
-                        mass, inertia.Ixx, inertia.Iyy));
+                        inertia.mass, inertia.Ixx, inertia.Iyy));
                 
             }
         }
