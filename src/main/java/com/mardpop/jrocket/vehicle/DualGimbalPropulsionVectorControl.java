@@ -37,8 +37,8 @@ public class DualGimbalPropulsionVectorControl extends PropulsionVectorControl {
         this.commandedGimbalY = Math.asin(thrust.z());
         this.commandedGimbalZ = Math.asin(thrust.y()/thrust.x());
 
-        this.commandedGimbalY = Double.max(this.minGimbalAngle, Double.min(this.commandedGimbalY, this.maxGimbalAngle));
-        this.commandedGimbalZ = Double.max(this.minGimbalAngle, Double.min(this.commandedGimbalZ, this.maxGimbalAngle));
+        this.commandedGimbalY = Math.clamp(this.commandedGimbalY, this.minGimbalAngle, this.maxGimbalAngle);
+        this.commandedGimbalZ = Math.clamp(this.commandedGimbalZ, this.minGimbalAngle, this.maxGimbalAngle);
     }
 
     @Override
@@ -50,8 +50,8 @@ public class DualGimbalPropulsionVectorControl extends PropulsionVectorControl {
         double deltaY = this.commandedGimbalY - this.gimbalY;
         double deltaZ = this.commandedGimbalZ - this.gimbalZ;
 
-        deltaY = Double.max(minGimbalChange, Double.min(deltaY, maxGimbalChange));
-        deltaZ = Double.max(minGimbalChange, Double.min(deltaZ, maxGimbalChange));
+        deltaY = Math.clamp(deltaY, minGimbalChange, maxGimbalChange);
+        deltaZ = Math.clamp(deltaZ, minGimbalChange, maxGimbalChange);
 
         this.gimbalY += deltaY;
         this.gimbalZ += deltaZ;

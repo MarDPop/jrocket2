@@ -37,7 +37,7 @@ public class App extends Application {
         
         SimulationSimpleRocket sim = new SimulationSimpleRocket();
         
-        sim.load("simple_rocket.json");
+        sim.load("simple_rocket.sRocket");
         
         sim.run();
         
@@ -49,6 +49,7 @@ public class App extends Application {
         scene = new Scene(loadFXML("primary"), 640, 480);
         stage.setScene(scene);
         stage.show();
+        stage.setMaximized(true);
         
         runTests();
         runSim();

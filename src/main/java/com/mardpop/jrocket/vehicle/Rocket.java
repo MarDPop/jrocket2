@@ -123,7 +123,6 @@ public class Rocket extends State
         this.position.set(Vec3.add(position0, Vec3.mult(Vec3.add(velocity0, this.velocity), dt_2)));
         this.velocity.set(Vec3.add(velocity0, Vec3.mult(Vec3.add(acceleration0, acceleration1), dt_2)));
         
-
         Quaternion qd = Util.getQuaternionDelta(this.orientation, Vec3.add(this.angular_velocity, angularRate0), dt_2);
         this.orientation.set(Quaternion.add(orientation0, qd));
         this.angular_velocity.set(Vec3.add(angularRate0, Vec3.mult(Vec3.add(angularAcceleration0, angularAcceleration1), dt_2)));

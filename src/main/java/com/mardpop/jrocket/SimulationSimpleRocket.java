@@ -184,15 +184,19 @@ public class SimulationSimpleRocket
                     Math.toDegrees(this.latitude), Math.toDegrees(this.longitude), this.altitude) );
             
             Vec3 position = new Vec3();
+            Vec3 velocity = new Vec3();
             Quaternion orientation = new Quaternion();
+            Vec3 angularVelocity = new Vec3();
             for(int i = 0; i < this.times.size(); i++)
             {
                 State s = this.states.get(i);
                 s.getPosition(position);
+                s.getVelocity(velocity);
                 s.getOrientation(orientation);
-                writer.write(String.format("%8.3f %10.4f %+16.6f %+16.6f %+16.6f %+12.10f %+12.10f %+12.10f %+12.10f %n", 
-                        this.times.get(i), this.masses.get(i), position.x(), position.y(), position.z(),
-                        orientation.w(), orientation.x(), orientation.y(), orientation.z()));
+                s.getAngularVelocity(angularVelocity);
+                writer.write(String.format("%8.3f %10.4f %+16.6f %+16.6f %+16.6f %+14.6f %+14.6f %+14.6f %+12.10f %+12.10f %+12.10f %+12.10f %+9.6f %+9.6f %+9.6f %n", 
+                        this.times.get(i), this.masses.get(i), position.x(), position.y(), position.z(), velocity.x(), velocity.y(), velocity.z(),
+                        orientation.w(), orientation.x(), orientation.y(), orientation.z(), angularVelocity.x(), angularVelocity.y(), angularVelocity.z()));
             }
 
         }

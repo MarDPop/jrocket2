@@ -182,6 +182,16 @@ public class Matrix3 {
     {
         this.data[k] = v;
     }
+
+    public Vec3 getRow(int i)
+    {
+        return new Vec3(this.data[3*i], this.data[3*i + 1], this.data[3*i + 2]);
+    }
+
+    public Vec3 getCol(int j)
+    {
+        return new Vec3(this.data[j], this.data[j + 3], this.data[j + 6]);
+    }
     
     public void copy(Matrix3 other)
     {

@@ -82,8 +82,6 @@ public class RocketSimple extends State
     
     void computeEnvironment(double time)
     {
-        this.hasFuel = this.inertiaFuel.mass > 0;
-        
         this.orientation.setRotationMatrixUnit(this.coordinateSystem);
         this.inertia.combine(this.inertiaEmpty, this.inertiaFuel);
         
@@ -135,6 +133,7 @@ public class RocketSimple extends State
             mass0 = this.inertiaFuel.mass / mass0;
             this.inertiaFuel.Irr *= mass0;
             this.inertiaFuel.Ixx *= mass0;
+            this.hasFuel = this.inertiaFuel.mass > 0;
         }
     }
 
