@@ -30,6 +30,10 @@ public class SimulationSimpleRocket
     private double longitude = 0.0;
     
     private double altitude = 0.0;
+
+    private double pitch = 0.0;
+    
+    private double heading = 0.0;
     
     private double timeFinal = 60.0;
     
@@ -76,6 +80,12 @@ public class SimulationSimpleRocket
         this.latitude = Math.toRadians(latitude);
         this.altitude = altitude;
     }
+
+    public void setLaunchOrientation(double pitch, double heading)
+    {
+        this.pitch = Math.toRadians(pitch);
+        this.heading = Math.toRadians(heading);
+    }
     
     public void setSimulationRunTime(double runTime)
     {
@@ -92,7 +102,7 @@ public class SimulationSimpleRocket
         this.fuelInertia = inertia;
     }
     
-    public void load(String filename) throws IOException
+    public void load(String filename) throws Exception
     {
         String content = new String(Files.readAllBytes(Paths.get(filename)));
         JSONObject json = new JSONObject(content);
@@ -117,32 +127,41 @@ public class SimulationSimpleRocket
             this.setLaunchSite(obj.getDouble("Latitude"),
                     obj.getDouble("Longitude"),
                     obj.getDouble("Altitude"));
+            this.setLaunchOrientation(obj.getDouble("Pitch"),obj.getDouble("Heading"));
         }
-        
-        if(json.has("InertiaEmpty"))
+
+        if(!json.has("Rocket"))
         {
-            obj = json.getJSONObject("InertiaEmpty");
+            throw new Exception("Missing Rocket");
+        }
+
+        JSONObject rocket = json.getJSONObject("Rocket");
+        
+        if(rocket.has("InertiaEmpty"))
+        {
+            obj = rocket.getJSONObject("InertiaEmpty");
             this.structureInertia = new InertiaSimple(obj.getDouble("Mass"),obj.getDouble("Irr"),
                     obj.getDouble("Ixx"),obj.getDouble("CGx"));
         }
         
-        if(json.has("InertiaFuel"))
+        if(rocket.has("InertiaFuel"))
         {
-            obj = json.getJSONObject("InertiaFuel");
+            obj = rocket.getJSONObject("InertiaFuel");
             this.fuelInertia = new InertiaSimple(obj.getDouble("Mass"),obj.getDouble("Irr"),
                     obj.getDouble("Ixx"),obj.getDouble("CGx"));
         }
         
-        if(json.has("Thruster"))
+        if(rocket.has("Thruster"))
         {
-            obj = json.getJSONObject("Thruster");
+            obj = rocket.getJSONObject("Thruster");
             this.thruster = new Thruster(obj.getDouble("Thrust"), obj.getDouble("ISP"));
         }
         
-        if(json.has("Aerodynamics"))
+        if(rocket.has("Aerodynamics"))
         {
-            obj = json.getJSONObject("Aerodynamics");
-            this.aerodynamics = new AerodynamicsBallistic(obj.getDouble("CD"), obj.getDouble("Area"));
+            obj = rocket.getJSONObject("Aerodynamics");
+            this.aerodynamics = new AerodynamicsBasicCoefficients(obj.getDouble("CD"), obj.getDouble("CL_alpha"),
+                    obj.getDouble("CM_alpha"), obj.getDouble("LiftInducedDrag"), obj.getDouble("Area"));
         }
     }
     
@@ -151,10 +170,10 @@ public class SimulationSimpleRocket
         RocketSimple rocket = new RocketSimple(this.thruster, this.aerodynamics, this.gnc);
         rocket.setGround(this.groundPressure, this.groundTemperature, this.groundGravity, this.latitude);
         rocket.setInertia(this.structureInertia, this.fuelInertia);
-        rocket.setLaunchOrientation(0.0, 0.0);
+        rocket.setLaunchOrientation(this.pitch, this.heading);
         
         double time = 0;
-        double dt = 0.01;
+        double dt = 0.001;
         double timeRecord = 0;
         double dtRecord = 0.5;
         
@@ -200,9 +219,7 @@ public class SimulationSimpleRocket
             }
 
         }
-        catch(IOException ex)
-        {
-            // DO nothing
-        }
+        catch(IOException ex) {} // DO nothing
+
     }
 }

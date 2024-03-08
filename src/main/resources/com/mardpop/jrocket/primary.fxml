@@ -2,7 +2,6 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.canvas.Canvas?>
-<?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Button?>
@@ -55,7 +54,7 @@
                <content>
                   <ScrollPane prefHeight="666.0" prefWidth="333.0">
                      <content>
-                        <VBox prefHeight="537.0" prefWidth="295.0" spacing="10.0">
+                        <VBox fx:id="SimpleRocketForm" prefHeight="537.0" prefWidth="295.0" spacing="10.0">
                            <children>
                               <CheckBox id="useDesignerToggle" mnemonicParsing="false" text="Use Designer" />
                               <Label text="Rocket Performance" textAlignment="CENTER">
@@ -70,7 +69,7 @@
                                           <Insets right="15.0" />
                                        </HBox.margin>
                                     </Label>
-                                    <TextField id="thrustEntry" fx:id="thrustEntry">
+                                    <TextField id="thrustEntry" fx:id="thrustEntry" promptText="Set thrust in newtons" text="1000">
                                        <HBox.margin>
                                           <Insets />
                                        </HBox.margin>
@@ -80,7 +79,7 @@
                               <HBox prefWidth="200.0">
                                  <children>
                                     <Label text="Isp (s): " />
-                                    <TextField id="ispEntry" fx:id="ispEntry" />
+                                    <TextField id="ispEntry" fx:id="ispEntry" promptText="Set Specific Impulse in Seconds" text="100" />
                                  </children>
                               </HBox>
                               <Label text="Mass &amp; Inertia">
@@ -91,37 +90,37 @@
                               <HBox prefWidth="200.0">
                                  <children>
                                     <Label text="Empty Mass (kg): " />
-                                    <TextField id="emptyMassEntry" fx:id="emptyMassEntry" />
+                                    <TextField id="emptyMassEntry" fx:id="emptyMassEntry" promptText="The mass of everything but the fuel" text="5" />
                                  </children>
                               </HBox>
                               <HBox prefWidth="200.0">
                                  <children>
                                     <Label text="Empty Ixx (kg m2): " />
-                                    <TextField id="ixxEntry" fx:id="ixxEmptyEntry" />
+                                    <TextField id="ixxEntry" fx:id="ixxEmptyEntry" promptText="Moment of Inertia about Axis" text="0.1" />
                                  </children>
                               </HBox>
                               <HBox prefWidth="200.0">
                                  <children>
                                     <Label text="Empty Irr (kg m2): " />
-                                    <TextField id="irrEntry" fx:id="irrEmptyEntry" />
+                                    <TextField id="irrEntry" fx:id="irrEmptyEntry" promptText="Moment of Inertia Perpendicular to Axis" text="0.5" />
                                  </children>
                               </HBox>
                               <HBox prefWidth="200.0">
                                  <children>
                                     <Label text="Propellant Mass (kg): " />
-                                    <TextField id="propellantMassEntry" fx:id="propellantEntry" />
+                                    <TextField id="propellantMassEntry" fx:id="propellantEntry" promptText="Mass of the fuel" text="5" />
                                  </children>
                               </HBox>
                               <HBox prefWidth="200.0">
                                  <children>
                                     <Label text="Propellant Ixx (kg m2): " />
-                                    <TextField id="ixxEntry" fx:id="ixxPropEntry" />
+                                    <TextField id="ixxEntry" fx:id="ixxPropEntry" promptText="Moment of Inertia of fuel about axis" text="0.1" />
                                  </children>
                               </HBox>
                               <HBox prefWidth="200.0">
                                  <children>
                                     <Label text="Propellant Irr (kg m2): " />
-                                    <TextField id="irrEntry" fx:id="irrPropEntry" />
+                                    <TextField id="irrEntry" fx:id="irrPropEntry" promptText="Moment of Inertia Perpendicular to Axis" text="0.5" />
                                  </children>
                               </HBox>
                               <Label text="Aerodynamics">
@@ -132,31 +131,31 @@
                               <HBox prefWidth="200.0">
                                  <children>
                                     <Label text="CD: " />
-                                    <TextField id="cdEntry" fx:id="cdEntry" />
+                                    <TextField id="cdEntry" fx:id="cdEntry" promptText="Zero Lift Drag Coefficient" text="0.6" />
                                  </children>
                               </HBox>
                               <HBox prefWidth="200.0">
                                  <children>
                                     <Label text="CL_alpha: " />
-                                    <TextField id="clAlphaEntry" fx:id="clAlphaEntry" />
+                                    <TextField id="clAlphaEntry" fx:id="clAlphaEntry" promptText="Lift Curve Slope" text="1" />
                                  </children>
                               </HBox>
                               <HBox prefWidth="200.0">
                                  <children>
                                     <Label text="CM_alpha: " />
-                                    <TextField id="cmAlphaEntry" fx:id="cmAlphaEntry" />
+                                    <TextField id="cmAlphaEntry" fx:id="cmAlphaEntry" promptText="Pitch Moment Coefficient" text="-0.001" />
                                  </children>
                               </HBox>
                               <HBox prefWidth="200.0">
                                  <children>
                                     <Label text="Reference Area (m2): " />
-                                    <TextField id="referenceAreaEntry" fx:id="referenceAreaEntry" />
+                                    <TextField id="referenceAreaEntry" fx:id="referenceAreaEntry" promptText="Reference Area for Coefficients (Cross Section Typical)" text="0.01" />
                                  </children>
                               </HBox>
                               <HBox prefWidth="200.0">
                                  <children>
                                     <Label text="Lift Induced Drag K:" />
-                                    <TextField id="liftInducedDragEntry" fx:id="liftInducedDragEntry" />
+                                    <TextField id="liftInducedDragEntry" fx:id="liftInducedDragEntry" promptText="Drag Polar Coefficient" text="0.1" />
                                  </children>
                               </HBox>
                               <Label text="Launch Conditions">
@@ -167,25 +166,37 @@
                               <HBox prefWidth="200.0">
                                  <children>
                                     <Label text="Ground Pressure (Pa): " />
-                                    <TextField id="altitudeEntry" fx:id="pressureEntry" />
+                                    <TextField id="altitudeEntry" fx:id="pressureEntry" promptText="Pressure At Ground" text="101325" />
                                  </children>
                               </HBox>
                               <HBox prefWidth="200.0">
                                  <children>
                                     <Label text="Grount Temperature (C): " />
-                                    <TextField id="altitudeEntry" fx:id="temperatureEntry" />
+                                    <TextField id="altitudeEntry" fx:id="temperatureEntry" promptText="Temperature in Celsius" text="18" />
                                  </children>
                               </HBox>
                               <HBox prefWidth="200.0">
                                  <children>
                                     <Label text="Gravity (m/s2): " />
-                                    <TextField id="gravityEntry" fx:id="gravityEntry" />
+                                    <TextField id="gravityEntry" fx:id="gravityEntry" promptText="Gravitational Acceleration on ground" text="9.8" />
                                  </children>
                               </HBox>
                               <HBox prefWidth="200.0">
                                  <children>
                                     <Label text="Latitude (deg): " />
-                                    <TextField id="latitudeEntry" fx:id="latitudeEntry" />
+                                    <TextField id="latitudeEntry" fx:id="latitudeEntry" promptText="Launch Latitude" text="0" />
+                                 </children>
+                              </HBox>
+                              <HBox prefWidth="200.0">
+                                 <children>
+                                    <Label text="Pitch (deg): " />
+                                    <TextField id="latitudeEntry" fx:id="pitchEntry" promptText="Off vertical launch pitch" text="0" />
+                                 </children>
+                              </HBox>
+                              <HBox prefWidth="200.0">
+                                 <children>
+                                    <Label text="Heading (deg): " />
+                                    <TextField id="headingEntry" fx:id="headingEntry" promptText="Direction of the pitch angle from north" text="0" />
                                  </children>
                               </HBox>
                               <HBox prefWidth="200.0" spacing="15.0">
@@ -237,46 +248,58 @@
                <content>
                   <ScrollPane prefHeight="200.0" prefWidth="200.0">
                      <content>
-                        <GridPane prefHeight="651.0" prefWidth="688.0">
+                        <GridPane prefHeight="720.0" prefWidth="1080.0">
                           <columnConstraints>
                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                           </columnConstraints>
                           <rowConstraints>
                             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                           </rowConstraints>
                            <children>
-                              <LineChart id="altitudeChart" fx:id="altitudeChart" title="Altitude &amp; Distance">
+                              <VBox prefHeight="200.0" prefWidth="100.0" spacing="5.0" GridPane.columnIndex="2">
+                                 <children>
+                                    <Label fx:id="deltaVLabel" text="Delta V (m/s): " />
+                                    <Label fx:id="maxHeightLabel" text="Max Height: " />
+                                    <Label fx:id="maxDistanceLabel" text="Max Distance (m): " />
+                                    <Label fx:id="burnOutTimeLabel" text="Burn Out Time: " />
+                                 </children>
+                                 <GridPane.margin>
+                                    <Insets left="5.0" />
+                                 </GridPane.margin>
+                              </VBox>
+                              <LineChart id="distanceChart" fx:id="distanceChart" title="Altitude &amp; Distance">
                                 <xAxis>
-                                  <CategoryAxis side="BOTTOM" />
+                                  <NumberAxis label="TALO (s)" side="BOTTOM" />
                                 </xAxis>
                                 <yAxis>
-                                  <NumberAxis side="LEFT" />
+                                  <NumberAxis label="Distance (m)" side="LEFT" />
                                 </yAxis>
                               </LineChart>
                               <LineChart id="speedChart" fx:id="speedChart" title="Speed &amp; Acceleration" GridPane.columnIndex="1">
                                 <xAxis>
-                                  <CategoryAxis side="BOTTOM" />
+                                  <NumberAxis label="TALO (s)" side="BOTTOM" />
                                 </xAxis>
                                 <yAxis>
-                                  <NumberAxis side="LEFT" />
+                                  <NumberAxis label="Speed (m/s)" side="LEFT" />
                                 </yAxis>
                               </LineChart>
-                              <LineChart id="pitchChart" fx:id="pitchChart" title="Pitch &amp; Heading" GridPane.rowIndex="1">
+                              <LineChart id="angleChart" fx:id="angleChart" title="Pitch &amp; Heading" GridPane.rowIndex="1">
                                 <xAxis>
-                                  <CategoryAxis side="BOTTOM" />
+                                  <NumberAxis label="TALO (s)" side="BOTTOM" />
                                 </xAxis>
                                 <yAxis>
-                                  <NumberAxis side="LEFT" />
+                                  <NumberAxis label="Angle (deg)" side="LEFT" />
                                 </yAxis>
                               </LineChart>
                               <LineChart id="massChart" fx:id="massChart" title="Mass " GridPane.columnIndex="1" GridPane.rowIndex="1">
                                 <xAxis>
-                                  <CategoryAxis side="BOTTOM" />
+                                  <NumberAxis label="TALO (s)" side="BOTTOM" />
                                 </xAxis>
                                 <yAxis>
-                                  <NumberAxis side="LEFT" />
+                                  <NumberAxis label="Mass (kg)" side="LEFT" />
                                 </yAxis>
                               </LineChart>
                            </children>

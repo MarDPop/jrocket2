@@ -1,11 +1,1 @@
-{
-    "Ground" : {"Gravity" : 9.8, "Pressure" : 85000.0, "Temperature" : 18.0},
-    "Launch" : {"Latitude" : 39.939235, "Longitude" : -104.748822, "Altitude" : 1556 },
-    "Type" : "Simple",
-    "MaxRunTime" : 300,
-    "InertiaEmpty" : {"CGx" : 0.0, "Irr" : 0.3, "Ixx" : 0.1, "Mass" : 2.0 },
-    "InertiaFuel" : {"CGx" : 0.0, "Irr" : 0.3, "Ixx" : 0.1, "Mass" : 14.0 },
-    "Thruster" : { "Type" : 1, "Thrust" : 700.0, "ISP" : 125.0 },
-    "Aerodynamics" : { "Type" : 1, "CD" : 0.7, "Area" : 0.03 },
-    "GNC" : 0
-}
+{"Ode":{"MaxRuntime":300},"Type":"Simple","Ground":{"Temperature":18,"Pressure":85000,"Gravity":9.8},"Rocket":{"InertiaFuel":{"Mass":5,"CGx":0,"Irr":0.5,"Ixx":0.1},"Aerodynamics":{"CD":0.5,"Area":0.01,"CL_alpha":1,"LiftInducedDrag":0.1,"CM_alpha":-0.001},"GNC":0,"InertiaEmpty":{"Mass":5,"CGx":0,"Irr":0.5,"Ixx":0.1},"Thruster":{"Type":1,"ISP":100,"Thrust":1000}},"Launch":{"Heading":0,"Pitch":5,"Latitude":0,"Longitude":0,"Altitude":0}}

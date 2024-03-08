@@ -59,11 +59,13 @@ public class RocketSimple extends State
     {
         double s = Math.cos(pitch);
         double c = Math.sqrt(1.0 - s*s);
-        Vec3 up = new Vec3(c*Math.cos(heading),c*Math.sin(heading),s);
-        Vec3 y = new Vec3(-Math.sin(heading),Math.cos(heading),0);
-        Vec3 z = Vec3.cross(up, y);
+        double ct = Math.cos(heading);
+        double st = Math.sin(heading);
+        Vec3 x = new Vec3(c*ct,c*st,s);
+        Vec3 y = new Vec3(-st,ct,0);
+        Vec3 z = Vec3.cross(x, y);
         
-        Matrix3 CS = new Matrix3(up,y,z);
+        Matrix3 CS = new Matrix3(x,y,z);
         
         this.coordinateSystem.copy(CS);
         this.orientation.fromRotationMatrix(CS);
@@ -99,8 +101,10 @@ public class RocketSimple extends State
             this.thruster.update(this.atm.air.getPressure(), time);
             this.forces.x(this.forces.x() + this.thruster.getThrust());
         }
-        
-        this.moments.set(this.aerodynamics.moment);
+        // add damping
+        final double damping = 0.001;
+        this.moments.set(Vec3.subtract(this.aerodynamics.moment, Vec3.mult(this.angular_velocity, damping)));
+        this.moments.add(this.gnc.getControlMoment());
     }
     
     Vec3 getAngularAcceleration()
@@ -140,8 +144,8 @@ public class RocketSimple extends State
     public void push(double time, double dt)
     {        
         this.computeEnvironment(time);
-        this.updateForces(time);
         this.gnc.update(time);
+        this.updateForces(time);
         this.step(dt);
     }
 }

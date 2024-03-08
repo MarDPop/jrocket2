@@ -36,12 +36,18 @@ public class App extends Application {
         logger.info("Running Sim.");
         
         SimulationSimpleRocket sim = new SimulationSimpleRocket();
-        
-        sim.load("simple_rocket.sRocket");
+        try 
+        {
+            sim.load("SimpleRocket.sRocket");
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
         
         sim.run();
         
-        sim.save("simple_rocket.output");
+        sim.save("simple_rocket.testOutput");
     }
 
     @Override

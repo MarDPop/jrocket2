@@ -14,11 +14,15 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart.*;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 
 import org.json.*;
@@ -84,13 +88,31 @@ public class PrimaryController
     TextField latitudeEntry;
 
     @FXML
-    LineChart<Double, Double> altitudeChart;
+    TextField pitchEntry;
+
+    @FXML
+    TextField headingEntry;
+
+    @FXML
+    Label maxHeightLabel;
+
+    @FXML
+    Label maxDistanceLabel;
+
+    @FXML
+    Label deltaVLabel;
+
+    @FXML
+    VBox SimpleRocketForm;
+
+    @FXML
+    LineChart<Double, Double> distanceChart;
 
     @FXML
     LineChart<Double, Double> speedChart;
 
     @FXML
-    LineChart<Double, Double> pitchChart;
+    LineChart<Double, Double> angleChart;
 
     @FXML
     LineChart<Double, Double> massChart;
@@ -98,38 +120,89 @@ public class PrimaryController
     @FXML
     void saveSimpleRocket() 
     {
-        String json = """
-        {
-            "Ground" : {"Gravity" : $g$, "Pressure" : $p$, "Temperature" : $t$},
-            "Launch" : {"Latitude" : $lat$, "Longitude" : -104.748822, "Altitude" : 1556 },
-            "Type" : "Simple",
-            "MaxRunTime" : 300,
-            "InertiaEmpty" : {"CGx" : 0.0, "Irr" : $irrEmpty$, "Ixx" : $ixxEmpty$, "Mass" : $mEmpty$ },
-            "InertiaFuel" : {"CGx" : 0.0, "Irr" : $irrProp$, "Ixx" : $ixxProp$, "Mass" : $mProp$ }, 
-            "Thruster" : { "Type" : 1, "Thrust" : $thrust$, "ISP" : $isp$ },
-            "Aerodynamics" : { "Type" : 1, "CD" : $cd$, "Area" : $area$ },
-            "GNC" : 0
-        }
-        """;
+        JSONObject json = ControllerHelper.createSimulationSimpleJson();
 
-        json = json.replace("$g$", gravityEntry.getText());
-        json = json.replace("$p$", pressureEntry.getText());
-        json = json.replace("$t$", temperatureEntry.getText());
-        json = json.replace("$lat$", latitudeEntry.getText());
-        json = json.replace("$irrEmpty$", irrEmptyEntry.getText());
-        json = json.replace("$ixxEmpty$", ixxEmptyEntry.getText());
-        json = json.replace("$mEmpty$", emptyMassEntry.getText());
-        json = json.replace("$irrProp$", irrPropEntry.getText());
-        json = json.replace("$ixxProp$", ixxPropEntry.getText());
-        json = json.replace("$mProp$", propellantEntry.getText());
-        json = json.replace("$thrust$", thrustEntry.getText());
-        json = json.replace("$isp$", ispEntry.getText());
-        json = json.replace("$cd$", cdEntry.getText());
-        json = json.replace("$area$", referenceAreaEntry.getText());
+        JSONObject ground = json.getJSONObject("Ground");
+        try {
+            ground.put("Gravity", Double.parseDouble(gravityEntry.getText()));
+        } catch (Exception e) { }
+
+        try {
+            ground.put("Pressure", Double.parseDouble(pressureEntry.getText()));
+        } catch (Exception e) {}
+
+        try {
+            ground.put("Temperature", Double.parseDouble(temperatureEntry.getText()));
+        } catch (Exception e) {}
+        
+        JSONObject launch = json.getJSONObject("Launch");
+        try {
+            launch.put("Latitude", Double.parseDouble(latitudeEntry.getText()));
+        } catch (Exception e) {}
+
+        try {
+            launch.put("Pitch", Double.parseDouble(pitchEntry.getText()));
+        } catch (Exception e) {}
+
+        try {
+            launch.put("Heading", Double.parseDouble(headingEntry.getText()));
+        } catch (Exception e) {}
+
+        JSONObject rocket = json.getJSONObject("Rocket");
+
+        JSONObject inertiaEmpty = rocket.getJSONObject("InertiaEmpty");
+
+        try {
+            inertiaEmpty.put("Mass", Double.parseDouble(emptyMassEntry.getText()));
+        } catch (Exception e) {}
+
+        try {
+            inertiaEmpty.put("Ixx", Double.parseDouble(ixxEmptyEntry.getText()));
+        } catch (Exception e) {}
+
+        try {
+            inertiaEmpty.put("Irr", Double.parseDouble(irrEmptyEntry.getText()));
+        } catch (Exception e) {}
+
+        JSONObject inertiaPropellant = rocket.getJSONObject("InertiaFuel");
+
+        try {
+            inertiaPropellant.put("Mass", Double.parseDouble(propellantEntry.getText()));
+        } catch (Exception e) {}
+
+        try {
+            inertiaPropellant.put("Ixx", Double.parseDouble(ixxPropEntry.getText()));
+        } catch (Exception e) {}
+
+        try {
+            inertiaPropellant.put("Irr", Double.parseDouble(irrPropEntry.getText()));
+        } catch (Exception e) {}
+
+        JSONObject aerodynamics = rocket.getJSONObject("Aerodynamics");
+
+        try {
+            aerodynamics.put("CD", Double.parseDouble(cdEntry.getText()));
+        } catch (Exception e) {}
+
+        try {
+            aerodynamics.put("CL_alpha", Double.parseDouble(clAlphaEntry.getText()));
+        } catch (Exception e) {}
+
+        try {
+            aerodynamics.put("CM_alpha", Double.parseDouble(cmAlphaEntry.getText()));
+        } catch (Exception e) {}
+
+        try {
+            aerodynamics.put("LiftInducedDrag", Double.parseDouble(liftInducedDragEntry.getText()));
+        } catch (Exception e) {}
+
+        try {
+            aerodynamics.put("Area", Double.parseDouble(referenceAreaEntry.getText()));
+        } catch (Exception e) {}
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(this.currentProjectName +".sRocket"))) 
         {
-            writer.write(json);
+            writer.write(json.toString());
         } 
         catch (IOException e) 
         {
@@ -163,11 +236,20 @@ public class PrimaryController
                 {
                     JSONObject obj = json.getJSONObject("Launch");
                     latitudeEntry.setText(Double.toString(obj.getDouble("Latitude")));
+                    pitchEntry.setText(Double.toString(obj.getDouble("Pitch")));
+                    headingEntry.setText(Double.toString(obj.getDouble("Heading")));
                 }
 
-                if(json.has("InertiaEmpty"))
+                if(!json.has("Rocket"))
+                { 
+                    throw new Exception("Missing Rocket");
+                }
+
+                JSONObject rocket = json.getJSONObject("Rocket");
+
+                if(rocket.has("InertiaEmpty"))
                 {
-                    JSONObject obj = json.getJSONObject("InertiaEmpty");
+                    JSONObject obj = rocket.getJSONObject("InertiaEmpty");
                     emptyMassEntry.setText(Double.toString(obj.getDouble("Mass")));
                     ixxEmptyEntry.setText(Double.toString(obj.getDouble("Ixx")));
                     irrEmptyEntry.setText(Double.toString(obj.getDouble("Irr")));
@@ -177,9 +259,9 @@ public class PrimaryController
                     throw new Exception("Missing InertiaEmpty");
                 }
 
-                if(json.has("InertiaFuel"))
+                if(rocket.has("InertiaFuel"))
                 {
-                    JSONObject obj = json.getJSONObject("InertiaFuel");
+                    JSONObject obj = rocket.getJSONObject("InertiaFuel");
                     propellantEntry.setText(Double.toString(obj.getDouble("Mass")));
                     ixxPropEntry.setText(Double.toString(obj.getDouble("Ixx")));
                     irrPropEntry.setText(Double.toString(obj.getDouble("Irr")));
@@ -189,9 +271,9 @@ public class PrimaryController
                     throw new Exception("Missing InertiaFuel");
                 }
 
-                if(json.has("Thruster"))
+                if(rocket.has("Thruster"))
                 {
-                    JSONObject obj = json.getJSONObject("Thruster");
+                    JSONObject obj = rocket.getJSONObject("Thruster");
                     thrustEntry.setText(Double.toString(obj.getDouble("Thrust")));
                     ispEntry.setText(Double.toString(obj.getDouble("ISP")));
                 }
@@ -200,12 +282,14 @@ public class PrimaryController
                     throw new Exception("Missing Thruster");
                 }
 
-                if(json.has("Aerodynamics"))
+                if(rocket.has("Aerodynamics"))
                 {
-                    JSONObject obj = json.getJSONObject("Aerodynamics");
+                    JSONObject obj = rocket.getJSONObject("Aerodynamics");
                     cdEntry.setText(Double.toString(obj.getDouble("CD")));
                     referenceAreaEntry.setText(Double.toString(obj.getDouble("Area")));
-
+                    clAlphaEntry.setText(Double.toString(obj.getDouble("CL_alpha")));
+                    cmAlphaEntry.setText(Double.toString(obj.getDouble("CM_alpha")));
+                    liftInducedDragEntry.setText(Double.toString(obj.getDouble("LiftInducedDrag")));
                 }
                 else
                 {
@@ -213,13 +297,10 @@ public class PrimaryController
                 }
 
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             } catch (JSONException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             } catch (Exception e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             
@@ -229,14 +310,10 @@ public class PrimaryController
     @SuppressWarnings("unchecked")
     private void loadCharts(String fileName)
     {
-        this.massChart.getXAxis().setLabel("TALO (s)");
-        this.massChart.getYAxis().setLabel("Mass (kg)");
-        this.altitudeChart.getXAxis().setLabel("TALO (s)");
-        this.altitudeChart.getYAxis().setLabel("Altitude (m)");
-        this.speedChart.getXAxis().setLabel("TALO (s)");
-        this.speedChart.getYAxis().setLabel("Speed (m/s)");
-        this.pitchChart.getXAxis().setLabel("TALO (s)");
-        this.pitchChart.getYAxis().setLabel("Pitch (deg)");
+        this.massChart.getData().clear();
+        this.distanceChart.getData().clear();
+        this.speedChart.getData().clear();
+        this.angleChart.getData().clear();
 
         try(BufferedReader reader = new BufferedReader(new FileReader(fileName)))
         {
@@ -299,6 +376,12 @@ public class PrimaryController
             pitchSeries.setName("Pitch");
             headingSeries.setName("Heading");
 
+            double maxHeight = 0;
+            double maxDistance = 0;
+            
+            double massRatio = masses.get(0)/ masses.getLast();
+            double deltaV = Double.parseDouble(this.ispEntry.getText())*9.806*Math.log(massRatio);
+
             int tIdx = 0;
             final int tIdxFinal = times.size() - 1;
             for(int i = 0; i < TIME_INTERVALS; i++)
@@ -334,27 +417,34 @@ public class PrimaryController
                 double distance = distancelo + deltaT*(distancehi - distancelo);
                 groundDistanceSeries.getData().add(new Data<Double,Double>(time, distance));
 
+                maxHeight = Double.max(maxHeight, altitudelo);
+                maxDistance = Double.max(maxDistance, distancelo);
+
                 Matrix3 CSlo = orientations.get(tIdx).toRotationMatrix();
                 Matrix3 CShi = orientations.get(tIdx+1).toRotationMatrix();
                 Vec3 xAxislo = CSlo.getCol(0);
                 Vec3 xAxishi = CShi.getCol(0);
-                double pitchlo = Math.asin(xAxislo.z());
-                double pitchhi = Math.asin(xAxishi.z());
+                double pitchlo = Math.acos(xAxislo.z());
+                double pitchhi = Math.acos(xAxishi.z());
                 double headinglo = Math.atan2(xAxislo.y(), xAxislo.x());
                 double headinghi = Math.atan2(xAxishi.y(), xAxishi.x());
                 double pitch = pitchlo + deltaT*(pitchhi - pitchlo);
                 double heading = headinglo + deltaT*(headinghi - headinglo);
-                pitchSeries.getData().add(new Data<Double,Double>(time, pitch));
-                headingSeries.getData().add(new Data<Double,Double>(time, heading));
+                pitchSeries.getData().add(new Data<Double,Double>(time, Math.toDegrees(pitch)));
+                headingSeries.getData().add(new Data<Double,Double>(time, Math.toDegrees(heading)));
             }
 
             this.massChart.getData().add(massSeries);
             this.speedChart.getData().add(speedSeries);
             this.speedChart.getData().add(accelerationSeries);
-            this.altitudeChart.getData().add(altitudSeries);
-            this.altitudeChart.getData().add(groundDistanceSeries);
-            this.pitchChart.getData().add(pitchSeries);
-            this.pitchChart.getData().add(headingSeries);
+            this.distanceChart.getData().add(altitudSeries);
+            this.distanceChart.getData().add(groundDistanceSeries);
+            this.angleChart.getData().add(pitchSeries);
+            this.angleChart.getData().add(headingSeries);
+
+            maxHeightLabel.setText("Max Height (m): " + maxHeight);
+            maxDistanceLabel.setText("Max Distance (m): " + maxDistance);
+            deltaVLabel.setText("Delta V (m/s) : " + deltaV);
         }
         catch(Exception e)
         {
