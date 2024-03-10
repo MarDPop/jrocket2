@@ -82,7 +82,7 @@ public class RocketSimple extends State
         return this.inertia.mass;
     }
     
-    void computeEnvironment(double time)
+    public void computeEnvironment(double time)
     {
         this.orientation.setRotationMatrixUnit(this.coordinateSystem);
         this.inertia.combine(this.inertiaEmpty, this.inertiaFuel);

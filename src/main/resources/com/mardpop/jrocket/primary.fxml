@@ -6,6 +6,7 @@
 <?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
@@ -45,6 +46,9 @@
             </items>
           </Menu>
         </menus>
+         <BorderPane.margin>
+            <Insets left="5.0" />
+         </BorderPane.margin>
       </MenuBar>
    </top>
    <left>
@@ -238,9 +242,81 @@
         <tabs>
             <Tab id="designTab" text="Design">
               <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="515.0" prefWidth="531.0">
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="515.0" prefWidth="720.0">
                      <children>
-                        <Canvas height="391.0" width="619.0" />
+                        <Canvas fx:id="designCanvas" height="320.0" width="720.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                        <GridPane hgap="5.0" layoutY="320.0" AnchorPane.leftAnchor="5.0">
+                          <columnConstraints>
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="100.0" prefWidth="160.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="60.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="160.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="60.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="160.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="60.0" />
+                          </columnConstraints>
+                          <rowConstraints>
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                          </rowConstraints>
+                           <children>
+                              <TextField fx:id="noseConeLengthEntry" text="10" GridPane.columnIndex="1" />
+                              <Label text="Nose Cone Length (cm): " />
+                              <Label text="Payload Section Radius (cm): " GridPane.rowIndex="1" />
+                              <TextField fx:id="payloadRadiusEntry" text="2" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                              <TextField fx:id="payloadLengthEntry" text="5" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                              <ChoiceBox fx:id="noseConeTypeEntry" prefWidth="150.0" GridPane.columnIndex="3" />
+                              <TextField fx:id="tubeRadiusEntry" text="2" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                              <TextField fx:id="motorRadiusEntry" text="2.5" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                              <Label text="Tube Radius (cm): " GridPane.rowIndex="2" />
+                              <TextField fx:id="payloadFlangeLengthEntry" text="0" GridPane.columnIndex="5" GridPane.rowIndex="1" />
+                              <Label text="Payload Section Length (cm): " GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                              <Label text="Payload Flange Length (cm): " GridPane.columnIndex="4" GridPane.rowIndex="1" />
+                              <Label text="Tube Length (cm): " GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                              <Label text="Motor Housing Radius (cm):" GridPane.rowIndex="3" />
+                              <Label text="Nose Cone Type:" GridPane.columnIndex="2" />
+                              <TextField fx:id="tubeLengthEntry" text="1" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                              <TextField fx:id="motorLengthEntry" text="10" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+                              <Label text="Motor Housing Length (cm):" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                              <Label text="Tube Flange Length (cm):" GridPane.columnIndex="4" GridPane.rowIndex="2" />
+                              <TextField fx:id="tubeFlangeLengthEntry" text="1" GridPane.columnIndex="5" GridPane.rowIndex="2" />
+                              <Label text="Fin Base Chord (cm): " GridPane.rowIndex="4" />
+                              <Label text="Fin Tip Chord (cm): " GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                              <Label text="Fin Span (cm): " GridPane.rowIndex="5" />
+                              <TextField fx:id="finBaseChordEntry" text="3" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                              <TextField fx:id="finTipChordEntry" text="1" GridPane.columnIndex="3" GridPane.rowIndex="4" />
+                              <Label text="Fin Sweep (deg): " GridPane.columnIndex="2" GridPane.rowIndex="5" />
+                              <TextField fx:id="finSpanEntry" text="3" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                              <TextField fx:id="finSweepEntry" text="0" GridPane.columnIndex="3" GridPane.rowIndex="5" />
+                              <Label text="Number Fins:" GridPane.columnIndex="4" GridPane.rowIndex="4" />
+                              <ChoiceBox fx:id="numberOfFinsEntry" prefWidth="150.0" GridPane.columnIndex="5" GridPane.rowIndex="4" />
+                              <Label text="Fuel Radius (cm): " GridPane.rowIndex="6" />
+                              <Label text="Fuel Length (cm): " GridPane.columnIndex="2" GridPane.rowIndex="6" />
+                              <Label text="Fuel Bore (cm): " GridPane.columnIndex="4" GridPane.rowIndex="6" />
+                              <Label text="Fuel Sections" GridPane.rowIndex="7" />
+                              <Label text="Fuel Section Gap (cm): " GridPane.columnIndex="2" GridPane.rowIndex="7" />
+                              <TextField fx:id="fuelRadiusEntry" text="1.5" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                              <TextField fx:id="fuelLengthEntry" text="9" GridPane.columnIndex="3" GridPane.rowIndex="6" />
+                              <TextField fx:id="fuelBoreEntry" text="0.5" GridPane.columnIndex="5" GridPane.rowIndex="6" />
+                              <TextField fx:id="numberFuelSectionsEntry" text="1" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                              <TextField fx:id="fuelSectionGapEntry" text="0" GridPane.columnIndex="3" GridPane.rowIndex="7" />
+                              <ChoiceBox fx:id="fuelTypeEntry" prefWidth="150.0" GridPane.columnIndex="5" GridPane.rowIndex="7" />
+                              <Label text="Fuel Type: " GridPane.columnIndex="4" GridPane.rowIndex="7" />
+                              <Label text="Throat Radius (cm): " GridPane.rowIndex="8" />
+                              <Label text="Nozzle Radius (cm): " GridPane.columnIndex="2" GridPane.rowIndex="8" />
+                              <Label text="Half Angle (deg): " GridPane.columnIndex="4" GridPane.rowIndex="8" />
+                              <TextField fx:id="throatRadiusEntry" text="0.25" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+                              <TextField fx:id="nozzleRadiusEntry" text="0.5" GridPane.columnIndex="3" GridPane.rowIndex="8" />
+                              <TextField fx:id="halfAngleEntry" text="20" GridPane.columnIndex="5" GridPane.rowIndex="8" />
+                           </children>
+                        </GridPane>
+                        <Button fx:id="designerRunButton" layoutX="14.0" layoutY="600.0" mnemonicParsing="false" text="Compute" />
                      </children></AnchorPane>
               </content>
             </Tab>

@@ -18,7 +18,9 @@ import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart.*;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
@@ -92,6 +94,39 @@ public class PrimaryController
 
     @FXML
     TextField headingEntry;
+
+    @FXML
+    TextField noseConeLengthEntry;
+
+    @FXML
+    ChoiceBox<String> noseConeTypeEntry;
+
+    @FXML 
+    TextField payloadRadiusEntry, payloadLengthEntry, payloadFlangeLengthEntry;
+
+    @FXML
+    TextField tubeRadiusEntry, tubeLengthEntry, tubeFlangeLengthEntry;
+
+    @FXML
+    TextField motorRadiusEntry, motorLengthEntry;
+
+    @FXML
+    TextField finBaseChordEntry, finTipChordEntry, finSweepEntry, finSpanEntry;
+
+    @FXML
+    ChoiceBox<Integer> numberOfFinsEntry;
+
+    @FXML
+    TextField fuelRadiusEntry, fuelLengthEntry, fuelBoreEntry, numberFuelSectionsEntry, fuelSectionGapEntry;
+
+    @FXML
+    ChoiceBox<String> fuelTypeEntry;
+
+    @FXML
+    TextField throatRadiusEntry, nozzleRadiusEntry, halfAngleEntry;
+
+    @FXML
+    Button designerRunButton;
 
     @FXML
     Label maxHeightLabel;

@@ -39,7 +39,7 @@ public class AerodynamicQuantities
         this.momentVectorBody.y(this.unitVectorBody.z()*t);
         this.momentVectorBody.z(-this.unitVectorBody.y()*t);
         
-        this.liftVectorBody.fromCross(this.unitVectorBody, this.momentVectorBody);
+        this.liftVectorBody.fromCross(this.momentVectorBody, this.unitVectorBody);
     }
     
     public double getAirspeed()

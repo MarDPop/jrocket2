@@ -35,7 +35,7 @@ public class SimulationSimpleRocket
     
     private double heading = 0.0;
     
-    private double timeFinal = 60.0;
+    private double timeFinal = 600.0;
     
     private InertiaSimple structureInertia = new InertiaSimple(0.5,1.0,1.0,0.0);
     
@@ -116,9 +116,10 @@ public class SimulationSimpleRocket
                     obj.getDouble("Temperature"));
         }
         
-        if(json.has("MaxRunTime"))
+        if(json.has("ODE") )
         {
-            this.setSimulationRunTime(json.getDouble("MaxRunTime"));
+            obj = json.getJSONObject("ODE");
+            this.setSimulationRunTime(obj.getDouble("MaxRunTime"));
         }
         
         if(json.has("Launch"))
@@ -177,9 +178,13 @@ public class SimulationSimpleRocket
         double timeRecord = 0;
         double dtRecord = 0.5;
         
+        final Vec3 position = new Vec3();
         this.times.clear();
         this.masses.clear();
         this.states.clear();
+
+        rocket.computeEnvironment(0);
+
         while(time < this.timeFinal)
         {
             if(time >= timeRecord)
@@ -188,6 +193,12 @@ public class SimulationSimpleRocket
                 masses.add(rocket.getMass());
                 states.add(rocket.copy());
                 timeRecord += dtRecord;
+
+                rocket.getPosition(position);
+                if(position.z() < -1.0)
+                {
+                    break;
+                }
             }
             
             rocket.push(time, dt);
