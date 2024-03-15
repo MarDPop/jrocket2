@@ -6,9 +6,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.ResourceBundle;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -31,7 +33,7 @@ import org.json.*;
 
 import com.mardpop.jrocket.util.*;
 
-public class PrimaryController 
+public class PrimaryController
 {
     String currentProjectName = "SimpleRocket";
 
@@ -96,7 +98,7 @@ public class PrimaryController
     TextField headingEntry;
 
     @FXML
-    TextField noseConeLengthEntry;
+    TextField noseConeLengthEntry, noseSphericalRadiusEntry;
 
     @FXML
     ChoiceBox<String> noseConeTypeEntry;
@@ -518,5 +520,10 @@ public class PrimaryController
 
     }
 
+    @FXML
+    public void initialize() {
+        noseConeTypeEntry.getItems().setAll("Cone", "Elliptical",
+            "Tangent Ogive", "Secant Ogive", "Parabolic", "3/4 Power", "Haack");
+    }
 
 }
