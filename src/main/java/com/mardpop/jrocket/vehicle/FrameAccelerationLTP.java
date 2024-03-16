@@ -28,7 +28,7 @@ public class FrameAccelerationLTP extends FrameAcceleration
     {
         double R = R0 + height;
         double f = R0/R;
-        this.acceleration.z(g0*f*f);
+        this.acceleration.z = g0*f*f;
         return this.acceleration;
     }
 }

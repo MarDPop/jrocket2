@@ -16,6 +16,7 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -33,7 +34,7 @@ import org.json.*;
 
 import com.mardpop.jrocket.util.*;
 
-public class PrimaryController
+public class PrimaryController implements Initializable
 {
     String currentProjectName = "SimpleRocket";
 
@@ -442,15 +443,15 @@ public class PrimaryController
                 double acceleration = (speedhi - speedlo)/(times.get(tIdx+1) - times.get(tIdx)); // simple for now
                 accelerationSeries.getData().add(new Data<Double,Double>(time, acceleration));
 
-                double altitudelo = positions.get(tIdx).z();
-                double altitudehi = positions.get(tIdx+1).z();
+                double altitudelo = positions.get(tIdx).z;
+                double altitudehi = positions.get(tIdx+1).z;
                 double altitude = altitudelo + deltaT*(altitudehi - altitudelo);
                 altitudSeries.getData().add(new Data<Double,Double>(time, altitude));
 
-                double distancelo = Math.sqrt(positions.get(tIdx).x()*positions.get(tIdx).x() + 
-                    positions.get(tIdx).y()*positions.get(tIdx).y());
-                double distancehi = Math.sqrt(positions.get(tIdx+1).x()*positions.get(tIdx+1).x() +
-                    positions.get(tIdx+1).y()*positions.get(tIdx+1).y());
+                double distancelo = Math.sqrt(positions.get(tIdx).x*positions.get(tIdx).x + 
+                    positions.get(tIdx).y*positions.get(tIdx).y);
+                double distancehi = Math.sqrt(positions.get(tIdx+1).x*positions.get(tIdx+1).x +
+                    positions.get(tIdx+1).y*positions.get(tIdx+1).y);
                 double distance = distancelo + deltaT*(distancehi - distancelo);
                 groundDistanceSeries.getData().add(new Data<Double,Double>(time, distance));
 
@@ -459,12 +460,12 @@ public class PrimaryController
 
                 Matrix3 CSlo = orientations.get(tIdx).toRotationMatrix();
                 Matrix3 CShi = orientations.get(tIdx+1).toRotationMatrix();
-                Vec3 xAxislo = CSlo.getCol(0);
-                Vec3 xAxishi = CShi.getCol(0);
-                double pitchlo = Math.acos(xAxislo.z());
-                double pitchhi = Math.acos(xAxishi.z());
-                double headinglo = Math.atan2(xAxislo.y(), xAxislo.x());
-                double headinghi = Math.atan2(xAxishi.y(), xAxishi.x());
+                Vec3 xAxislo = CSlo.getCol0();
+                Vec3 xAxishi = CShi.getCol0();
+                double pitchlo = Math.acos(xAxislo.z);
+                double pitchhi = Math.acos(xAxishi.z);
+                double headinglo = Math.atan2(xAxislo.y, xAxislo.x);
+                double headinghi = Math.atan2(xAxishi.y, xAxishi.x);
                 double pitch = pitchlo + deltaT*(pitchhi - pitchlo);
                 double heading = headinglo + deltaT*(headinghi - headinglo);
                 pitchSeries.getData().add(new Data<Double,Double>(time, Math.toDegrees(pitch)));
@@ -520,10 +521,16 @@ public class PrimaryController
 
     }
 
-    @FXML
-    public void initialize() {
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
         noseConeTypeEntry.getItems().setAll("Cone", "Elliptical",
             "Tangent Ogive", "Secant Ogive", "Parabolic", "3/4 Power", "Haack");
+
+        noseConeTypeEntry.setValue("Cone");
+
+        numberOfFinsEntry.getItems().setAll(0,2,3,4);
+
+        numberOfFinsEntry.setValue(3);
     }
 
 }

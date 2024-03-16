@@ -1,8 +1,5 @@
 package com.mardpop.jrocket.vehicle;
 
-import com.mardpop.jrocket.util.Matrix3;
-import com.mardpop.jrocket.util.Vec3;
-
 /**
  *
  * @author mariu

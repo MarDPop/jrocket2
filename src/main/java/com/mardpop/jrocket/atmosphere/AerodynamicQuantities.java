@@ -33,11 +33,11 @@ public class AerodynamicQuantities
         
         this.unitVectorBody.scale(1.0/(this.airspeed + 1e-24));
         
-        double offXcomponent = unitVectorBody.y()*unitVectorBody.y() + unitVectorBody.z()*unitVectorBody.z();
+        double offXcomponent = unitVectorBody.y*unitVectorBody.y + unitVectorBody.z*unitVectorBody.z;
         this.zeta = Math.sqrt(offXcomponent + 1e-32); // note this is not angle of attack
         double t = 1.0/this.zeta;
-        this.momentVectorBody.y(this.unitVectorBody.z()*t);
-        this.momentVectorBody.z(-this.unitVectorBody.y()*t);
+        this.momentVectorBody.y = this.unitVectorBody.z*t;
+        this.momentVectorBody.z = -this.unitVectorBody.y*t;
         
         this.liftVectorBody.fromCross(this.momentVectorBody, this.unitVectorBody);
     }
@@ -54,7 +54,7 @@ public class AerodynamicQuantities
 
     public double getAngleOfAttack()
     {
-        return Math.atan2(this.unitVectorBody.z(), this.unitVectorBody.x());
+        return Math.atan2(this.unitVectorBody.z, this.unitVectorBody.x);
     }
     
     public double getDynamicPressure()

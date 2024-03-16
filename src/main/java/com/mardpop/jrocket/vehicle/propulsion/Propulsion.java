@@ -1,4 +1,6 @@
-package com.mardpop.jrocket.vehicle;
+package com.mardpop.jrocket.vehicle.propulsion;
+
+import com.mardpop.jrocket.vehicle.Action;
 
 /**
  *
@@ -30,9 +32,9 @@ public class Propulsion extends Action
         this.vectorControl.update(time, dt);
         
         double thrust = this.thruster.getThrust();
-        this.force.x(thrust*this.vectorControl.thrustVector.x());
-        this.force.y(thrust*this.vectorControl.thrustVector.y());
-        this.force.z(thrust*this.vectorControl.thrustVector.z());
+        this.force.x = thrust*this.vectorControl.thrustVector.x;
+        this.force.y = thrust*this.vectorControl.thrustVector.y;
+        this.force.z = thrust*this.vectorControl.thrustVector.z;
 
         this.propellant.takePropellant(this.thruster.getMassRate()*dt);
     }

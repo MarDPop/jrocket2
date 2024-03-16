@@ -1,4 +1,4 @@
-package com.mardpop.jrocket.vehicle;
+package com.mardpop.jrocket.vehicle.propulsion;
 
 /**
  *
@@ -45,6 +45,10 @@ public class StRobertsSolidFuel extends SolidFuel
                 break;
             case DEXTROSE:
                 output = new StRobertsSolidFuel(1e-3, 2e-3, 0.3, 1.824, 3e6, 1.3, 0.042);
+                break;
+            case SORBITOL:
+                break;
+            default:
                 break;
         }
         return output;

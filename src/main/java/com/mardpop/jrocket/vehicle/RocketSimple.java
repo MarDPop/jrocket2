@@ -3,7 +3,9 @@ package com.mardpop.jrocket.vehicle;
 import com.mardpop.jrocket.atmosphere.AerodynamicQuantities;
 import com.mardpop.jrocket.atmosphere.Atmosphere;
 import com.mardpop.jrocket.util.*;
+import com.mardpop.jrocket.vehicle.aerodynamics.Aerodynamics;
 import com.mardpop.jrocket.vehicle.gnc.SimpleGNC;
+import com.mardpop.jrocket.vehicle.propulsion.Thruster;
 
 /**
  *
@@ -67,7 +69,7 @@ public class RocketSimple extends State
         
         Matrix3 CS = new Matrix3(x,y,z);
         
-        this.coordinateSystem.copy(CS);
+        this.coordinateSystem.setFrom(CS);
         this.orientation.fromRotationMatrix(CS);
     }
     
@@ -87,7 +89,7 @@ public class RocketSimple extends State
         this.orientation.setRotationMatrixUnit(this.coordinateSystem);
         this.inertia.combine(this.inertiaEmpty, this.inertiaFuel);
         
-        this.atm.update(this.position.z(), time);
+        this.atm.update(this.position.z, time);
         this.aero.update(this.velocity, this.coordinateSystem, this.atm.air, this.atm.wind);
     }
     
@@ -99,7 +101,7 @@ public class RocketSimple extends State
         if(this.hasFuel)
         {
             this.thruster.update(this.atm.air.getPressure(), time);
-            this.forces.x(this.forces.x() + this.thruster.getThrust());
+            this.forces.x = this.forces.x + this.thruster.getThrust();
         }
         // add damping
         final double damping = 0.001;
@@ -110,14 +112,14 @@ public class RocketSimple extends State
     Vec3 getAngularAcceleration()
     {
         double invIrr = 1.0/this.inertiaEmpty.Irr;
-        return new Vec3(this.moments.x()/this.inertiaEmpty.Ixx,this.moments.y()*invIrr, this.moments.z()*invIrr);
+        return new Vec3(this.moments.x/this.inertiaEmpty.Ixx,this.moments.y*invIrr, this.moments.z*invIrr);
     }
     
     void step(double dt)
     {
         Vec3 acceleration0 = this.coordinateSystem.transposeMult(this.forces);
         acceleration0.scale(1.0/this.inertia.mass);
-        acceleration0.z(acceleration0.z() - this.g0);
+        acceleration0.z = acceleration0.z - this.g0;
         acceleration0.scale(dt*0.5);
         
         this.velocity.add(acceleration0);

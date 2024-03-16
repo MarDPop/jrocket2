@@ -3,7 +3,12 @@ package com.mardpop.jrocket;
 import com.mardpop.jrocket.util.Quaternion;
 import com.mardpop.jrocket.util.Vec3;
 import com.mardpop.jrocket.vehicle.*;
+import com.mardpop.jrocket.vehicle.aerodynamics.Aerodynamics;
+import com.mardpop.jrocket.vehicle.aerodynamics.AerodynamicsBallistic;
+import com.mardpop.jrocket.vehicle.aerodynamics.AerodynamicsBasicCoefficients;
 import com.mardpop.jrocket.vehicle.gnc.SimpleGNC;
+import com.mardpop.jrocket.vehicle.propulsion.Thruster;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -195,7 +200,7 @@ public class SimulationSimpleRocket
                 timeRecord += dtRecord;
 
                 rocket.getPosition(position);
-                if(position.z() < -1.0)
+                if(position.z < -1.0)
                 {
                     break;
                 }
@@ -225,8 +230,8 @@ public class SimulationSimpleRocket
                 s.getOrientation(orientation);
                 s.getAngularVelocity(angularVelocity);
                 writer.write(String.format("%8.3f %10.4f %+16.6f %+16.6f %+16.6f %+14.6f %+14.6f %+14.6f %+12.10f %+12.10f %+12.10f %+12.10f %+9.6f %+9.6f %+9.6f %n", 
-                        this.times.get(i), this.masses.get(i), position.x(), position.y(), position.z(), velocity.x(), velocity.y(), velocity.z(),
-                        orientation.w(), orientation.x(), orientation.y(), orientation.z(), angularVelocity.x(), angularVelocity.y(), angularVelocity.z()));
+                        this.times.get(i), this.masses.get(i), position.x, position.y, position.z, velocity.x, velocity.y, velocity.z,
+                        orientation.w, orientation.x, orientation.y, orientation.z, angularVelocity.x, angularVelocity.y, angularVelocity.z));
             }
 
         }

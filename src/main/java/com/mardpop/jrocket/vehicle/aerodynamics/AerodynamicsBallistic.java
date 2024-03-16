@@ -1,4 +1,4 @@
-package com.mardpop.jrocket.vehicle;
+package com.mardpop.jrocket.vehicle.aerodynamics;
 
 import com.mardpop.jrocket.atmosphere.AerodynamicQuantities;
 import com.mardpop.jrocket.util.Vec3;
@@ -21,8 +21,8 @@ public class AerodynamicsBallistic extends Aerodynamics
     {
         double drag = this.CDA*aero.getDynamicPressure();
         Vec3 wind = aero.getUnitVectorBody();
-        this.force.x(wind.x()*drag);
-        this.force.y(wind.y()*drag);
-        this.force.z(wind.z()*drag);
+        this.force.x = wind.x*drag;
+        this.force.y = wind.y*drag;
+        this.force.z = wind.z*drag;
     }
 }

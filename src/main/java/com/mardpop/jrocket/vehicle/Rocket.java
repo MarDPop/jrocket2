@@ -2,6 +2,8 @@ package com.mardpop.jrocket.vehicle;
 
 import com.mardpop.jrocket.vehicle.gnc.Guidance;
 import com.mardpop.jrocket.vehicle.gnc.Navigation;
+import com.mardpop.jrocket.vehicle.propulsion.Propulsion;
+import com.mardpop.jrocket.vehicle.aerodynamics.Aerodynamics;
 import com.mardpop.jrocket.vehicle.gnc.Control;
 import com.mardpop.jrocket.atmosphere.Atmosphere;
 import com.mardpop.jrocket.atmosphere.AerodynamicQuantities;
@@ -71,7 +73,7 @@ public class Rocket extends State
         this.orientation.setRotationMatrixUnit(this.CS);
         this.inertia.combine(this.inertiaEmpty, this.propulsion.propellant.getInertia());
         
-        this.atm.update(this.position.z(), time);
+        this.atm.update(this.position.z, time);
         this.aero.update(this.velocity, this.CS, this.atm.air, this.atm.wind);
         
         this.gnc.update(time);
@@ -101,7 +103,7 @@ public class Rocket extends State
         Vec3 angularRate0 = new Vec3(this.angular_velocity);
         
         Vec3 acceleration0 = Vec3.mult(this.forces, 1.0/this.inertia.mass);
-        acceleration0.add(this.frameAcceleration.getAcceleration(this.position.z(), this.velocity));
+        acceleration0.add(this.frameAcceleration.getAcceleration(this.position.z, this.velocity));
         
         Vec3 angularAcceleration0 = this.getAngularAcceleration();
 
@@ -116,7 +118,7 @@ public class Rocket extends State
         this.updateForces(time, 0);
 
         Vec3 acceleration1 = Vec3.mult(this.forces, 1.0/this.inertia.mass);
-        acceleration1.add(this.frameAcceleration.getAcceleration(this.position.z(), this.velocity));
+        acceleration1.add(this.frameAcceleration.getAcceleration(this.position.z, this.velocity));
         
         Vec3 angularAcceleration1 = this.getAngularAcceleration();
 

@@ -1,4 +1,4 @@
-package com.mardpop.jrocket.vehicle;
+package com.mardpop.jrocket.vehicle.propulsion;
 
 import com.mardpop.jrocket.util.Vec3;
 

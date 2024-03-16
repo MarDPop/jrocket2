@@ -1,4 +1,4 @@
-package com.mardpop.jrocket.vehicle;
+package com.mardpop.jrocket.vehicle.propulsion;
 
 import com.mardpop.jrocket.util.Util;
 import java.util.ArrayList;
@@ -90,7 +90,7 @@ public class PropellantTankInterpolated extends PropellantTank
         double dM = mass - this.fuelMasses[this.mIdx];
         this.inertia.Ixx = this.fuelInertias[idx] + this.deltaInertia[idx]*dM;
         this.inertia.Izz = this.inertia.Iyy = this.fuelInertias[idx + 1] + this.deltaInertia[idx + 1]*dM;
-        this.centerOfMassChange.x(this.fuelInertias[idx + 2] + this.deltaInertia[idx + 2]*dM);
+        this.centerOfMassChange.x = this.fuelInertias[idx + 2] + this.deltaInertia[idx + 2]*dM;
     }
     
 }

@@ -1,4 +1,4 @@
-package com.mardpop.jrocket.vehicle;
+package com.mardpop.jrocket.vehicle.propulsion;
 
 import com.mardpop.jrocket.util.Vec3;
 
@@ -34,8 +34,8 @@ public class DualGimbalPropulsionVectorControl extends PropulsionVectorControl {
     @Override
     public void setDesiredThrustVector(Vec3 thrust)
     {
-        this.commandedGimbalY = Math.asin(thrust.z());
-        this.commandedGimbalZ = Math.asin(thrust.y()/thrust.x());
+        this.commandedGimbalY = Math.asin(thrust.z);
+        this.commandedGimbalZ = Math.asin(thrust.y/thrust.x);
 
         this.commandedGimbalY = Math.clamp(this.commandedGimbalY, this.minGimbalAngle, this.maxGimbalAngle);
         this.commandedGimbalZ = Math.clamp(this.commandedGimbalZ, this.minGimbalAngle, this.maxGimbalAngle);

@@ -1,102 +1,112 @@
 package com.mardpop.jrocket.util;
 
-import java.util.Arrays;
-
 /**
  *
  * @author mariu
  */
 public class Vec3 {
     
-    final double[] data = new double[3];
+    public double x;
+
+    public double y;
+
+    public double z;
     
     public Vec3(){}
     
     public Vec3(double x, double y, double z)
     {
-        this.data[0] = x;
-        this.data[1] = y;
-        this.data[2] = z;
+        this.x = x;
+        this.y = y;
+        this.z = z;
     }
     
     public Vec3(double[] v)
     {
-        System.arraycopy(v, 0, this.data, 0, 3);
+        this.x = v[0];
+        this.y = v[1];
+        this.z = v[2];
     }
     
     public Vec3(Vec3 v)
     {
-        System.arraycopy(v.data, 0, this.data, 0, 3);
+        this.x = v.x;
+        this.y = v.y;
+        this.z = v.z;
     }
     
     public void zero()
     {
-        Arrays.fill(this.data, 0);
+        this.x = 0;
+        this.y = 0;
+        this.z = 0;
     }
     
     public void set(Vec3 v)
     {
-        System.arraycopy(v.data, 0, this.data, 0, 3);
+        this.x = v.x;
+        this.y = v.y;
+        this.z = v.z;
     }
     
     public void add(Vec3 v)
     {
-        data[0] += v.data[0];
-        data[1] += v.data[1];
-        data[2] += v.data[2];
+        this.x += v.x;
+        this.y += v.y;
+        this.z += v.z;
     }
     
     public void subtract(Vec3 v)
     {
-        data[0] -= v.data[0];
-        data[1] -= v.data[1];
-        data[2] -= v.data[2];
+        this.x -= v.x;
+        this.y -= v.y;
+        this.z -= v.z;
     }
     
     public void scale(double scalar)
     {
-        data[0] *= scalar;
-        data[1] *= scalar;
-        data[2] *= scalar;
+        this.x *= scalar;
+        this.x *= scalar;
+        this.x *= scalar;
     }
     
     public static Vec3 add(Vec3 a, Vec3 b) 
     {
-        return new Vec3(a.data[0] + b.data[0], a.data[1] + b.data[1], a.data[2] + b.data[2]);
+        return new Vec3(a.x + b.x, a.y + b.y, a.z + b.z);
     }
     
     public static Vec3 subtract(Vec3 a, Vec3 b)
     {
-        return new Vec3(a.data[0] - b.data[0], a.data[1] - b.data[1], a.data[2] - b.data[2]);
+        return new Vec3(a.x - b.x, a.y - b.y, a.z - b.z);
     }
     
     public static Vec3 mult(Vec3 a, double m)
     {
-        return new Vec3(a.data[0]*m, a.data[1]*m, a.data[2]*m);
+        return new Vec3(a.x*m, a.y*m, a.z*m);
     }
     
     public static Vec3 cross(Vec3 a, Vec3 b) 
     {
-        return new Vec3(a.data[1]*b.data[2] - a.data[2]*b.data[1],
-            a.data[2]*b.data[0] - a.data[0]*b.data[2],
-            a.data[0]*b.data[1] - a.data[1]*b.data[0]);
+        return new Vec3(a.y*b.z - a.z*b.y,
+            a.z*b.x - a.x*b.z,
+            a.x*b.y - a.y*b.x);
     }
     
     public void fromCross(Vec3 a, Vec3 b) 
     {
-        this.data[0] = a.data[1]*b.data[2] - a.data[2]*b.data[1];
-        this.data[1] = a.data[2]*b.data[0] - a.data[0]*b.data[2];
-        this.data[2] = a.data[0]*b.data[1] - a.data[1]*b.data[0];
+        this.x = a.y*b.z - a.z*b.y;
+        this.y = a.z*b.x - a.x*b.z;
+        this.z = a.x*b.y - a.y*b.x;
     }
     
     public double dot(Vec3 v)
     {
-        return v.data[0]*this.data[0] + v.data[1]*this.data[1] + v.data[2]*this.data[2];
+        return v.x*this.x + v.y*this.y + v.z*this.z;
     }
     
     public double magnitude()
     {
-        return Math.sqrt(data[0]*data[0] + data[1]*data[1] + data[2]*data[2]);
+        return Math.sqrt(x*x + y*y + z*z);
     }
     
     public void normalize() 
@@ -106,42 +116,12 @@ public class Vec3 {
     
     public double[] data()
     {
-        return this.data;
-    }
-    
-    public double x()
-    {
-        return this.data[0];
-    }
-    
-    public double y() 
-    {
-        return this.data[1];
-    }
-    
-    public double z() 
-    {
-        return this.data[2];
-    }
-    
-    public void x(double x) 
-    {
-        this.data[0] = x;
-    }
-    
-    public void y(double y)
-    {
-        this.data[1] = y;
-    }
-    
-    public void z(double z)
-    {
-        this.data[2] = z;
+        return new double[]{x,y,z};
     }
     
     @Override
     public String toString()
     {
-        return String.format("[%f, %f, %f]", this.data[0], this.data[1], this.data[2]);
+        return String.format("[%f, %f, %f]", this.x, this.y, this.z);
     }
 }

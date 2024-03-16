@@ -1,4 +1,4 @@
-package com.mardpop.jrocket.vehicle;
+package com.mardpop.jrocket.vehicle.aerodynamics;
 
 import com.mardpop.jrocket.atmosphere.AerodynamicQuantities;
 import com.mardpop.jrocket.util.Vec3;
@@ -49,13 +49,13 @@ public class AerodynamicsBasicCoefficients extends Aerodynamics {
         Vec3 liftVector = aero.getLiftVectorBody();
         Vec3 momentVector = aero.getMomentVectorBody();
 
-        this.force.x(liftVector.x()*lift + windVector.x()*drag);
-        this.force.y(liftVector.y()*lift + windVector.y()*drag);
-        this.force.z(liftVector.z()*lift + windVector.z()*drag);
+        this.force.x = liftVector.x*lift + windVector.x*drag;
+        this.force.y = liftVector.y*lift + windVector.y*drag;
+        this.force.z = liftVector.z*lift + windVector.z*drag;
 
-        this.moment.x(momentVector.x()*moment);
-        this.moment.y(momentVector.y()*moment);
-        this.moment.z(momentVector.z()*moment);
+        this.moment.x = momentVector.x*moment;
+        this.moment.y = momentVector.y*moment;
+        this.moment.z = momentVector.z*moment;
     }
     
 }

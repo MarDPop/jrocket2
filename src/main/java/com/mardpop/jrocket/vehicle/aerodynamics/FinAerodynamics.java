@@ -1,4 +1,4 @@
-package com.mardpop.jrocket.vehicle;
+package com.mardpop.jrocket.vehicle.aerodynamics;
 
 import com.mardpop.jrocket.atmosphere.AerodynamicQuantities;
 import com.mardpop.jrocket.util.Vec3;
@@ -95,17 +95,17 @@ public class FinAerodynamics extends Aerodynamics
             double finTorque = this.dCMdel*angleDyn;
             double finXTorque = this.dCRdel*angleDyn;
 
-            this.force.x(finDrag);
-            this.force.y(-finLift*this.finDirectionZ[iFin]);
-            this.force.z(finLift*this.finDirectionY[iFin]);
+            this.force.x = finDrag;
+            this.force.y = -finLift*this.finDirectionZ[iFin];
+            this.force.z = finLift*this.finDirectionY[iFin];
             
-            this.moment.x(finXTorque);
-            this.moment.y(finTorque*this.finDirectionY[iFin]);
-            this.moment.z(finTorque*this.finDirectionZ[iFin]);
+            this.moment.x = finXTorque;
+            this.moment.y = finTorque*this.finDirectionY[iFin];
+            this.moment.z = finTorque*this.finDirectionZ[iFin];
         }
         
-        double momentArmY = -aero.getUnitVectorBody().z();
-        double momentArmZ = aero.getUnitVectorBody().y();
+        double momentArmY = -aero.getUnitVectorBody().z;
+        double momentArmZ = aero.getUnitVectorBody().y;
         double alpha = Math.sqrt(momentArmY*momentArmY + momentArmZ*momentArmZ);
         double CL = this.dCLdalpha*alpha;
         double CD = this.CD0 + this.K*CL*CL;
@@ -119,8 +119,8 @@ public class FinAerodynamics extends Aerodynamics
         this.force.add(lift);
         
         double bMoment = CM*aero.getDynamicPressure();
-        this.moment.y(this.moment.y() + bMoment*momentArmY);
-        this.moment.z(this.moment.z() + bMoment*momentArmZ);
+        this.moment.y = this.moment.y + bMoment*momentArmY;
+        this.moment.z = this.moment.z + bMoment*momentArmZ;
         
         
     }

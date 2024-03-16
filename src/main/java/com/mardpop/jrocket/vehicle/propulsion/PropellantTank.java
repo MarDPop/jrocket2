@@ -1,6 +1,8 @@
-package com.mardpop.jrocket.vehicle;
+package com.mardpop.jrocket.vehicle.propulsion;
 
 import com.mardpop.jrocket.util.Vec3;
+import com.mardpop.jrocket.vehicle.Component;
+import com.mardpop.jrocket.vehicle.Inertia;
 
 /**
  *

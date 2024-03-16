@@ -1,7 +1,9 @@
-package com.mardpop.jrocket.vehicle;
+package com.mardpop.jrocket.vehicle.propulsion;
 
 import java.util.ArrayList;
 import com.mardpop.jrocket.atmosphere.Air;
+import com.mardpop.jrocket.vehicle.Inertia;
+
 import java.io.*;
 
 /**
