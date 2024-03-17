@@ -1,6 +1,6 @@
 package com.mardpop.jrocket.designer;
 
-import java.util.ArrayList;
+import com.mardpop.jrocket.designer.Curve.CurvePoint;
 
 public class RocketShape 
 {
@@ -29,47 +29,56 @@ public class RocketShape
         public double motorLength;
         public double finBaseChord;
         public double finTipChord;
+        public double finChordOffset;
         public double finSpan;
         public double finSweep;
+        public double fuelRadius;
+        public double fuelLength;
+        public double fuelBore;
+        public double fuelGap;
+        public int numFuelSections;
         public int numFins;
         public NoseConeType noseConeType;
     }
 
     Curve body;
+
     Curve fin;
+
+    CurvePoint motorCorner1;
+    CurvePoint motorCorner2;
 
     RocketShape() {}
 
-    RocketShape(RocketShapeParameters params, double sResolution)
+    public RocketShape(RocketShapeParameters params)
     {
+        double sResolution = params.payloadRadius*0.05;
         this.body = generateNoseCone(params.payloadRadius, params.noseConeLength, params.noseConeType,
                 params.noseConeSphericalRadius,sResolution);
         double x = params.noseConeLength;
-        Curve c = generateFlangedSection(params.payloadRadius, x, 
-            params.payloadRadius, x + params.payloadLength, sResolution);
-        this.body.add(c);
+        x += params.payloadLength;
+        this.body.points.add(new CurvePoint(x, params.payloadRadius));
+        x += params.payloadFlangeLength;
+        this.body.points.add(new CurvePoint(x, params.tubeRadius));
+        x += params.tubeLength;
+        this.body.points.add(new CurvePoint(x, params.tubeRadius));
+        x += params.tubeFlangeLength;
+        this.body.points.add(new CurvePoint(x, params.motorRadius));
+        x += params.motorLength;
+        this.body.points.add(new CurvePoint(x, params.motorRadius));
 
-        x = this.body.x.getLast();
-        c = generateFlangedSection(x, params.payloadRadius, x + params.payloadFlangeLength,
-            params.tubeRadius, sResolution);
-        this.body.add(c);
+        final double xFinal = x;
 
-        x = this.body.x.getLast();
-        c = generateFlangedSection(x, params.tubeRadius, x + params.tubeLength,
-            params.tubeRadius, sResolution);
-        this.body.add(c);
-        
-        x = this.body.x.getLast();
-        c = generateFlangedSection(x, params.tubeRadius, x + params.tubeFlangeLength,
-            params.motorRadius, sResolution);
-        this.body.add(c);
+        this.fin = generateFin(params.finBaseChord, params.finTipChord, params.finSpan, params.finSweep);
 
-        x = this.body.x.getLast();
-        c = generateFlangedSection(x, params.motorRadius, x + params.motorLength,
-            params.motorRadius, sResolution);
-        this.body.add(c);
+        x -= (params.finBaseChord + params.finChordOffset);
+        for(CurvePoint p : fin.points) {
+            p.x += x;
+            p.r += params.motorRadius;
+        }
 
-        this.fin = generateFin(params.finBaseChord, params.finTipChord, params.finSpan, params.finSweep,sResolution);
+        this.motorCorner1 = new CurvePoint(xFinal, params.fuelBore);
+        this.motorCorner2 = new CurvePoint(xFinal - params.fuelLength, params.fuelRadius);
     }
 
     public static Curve generateConicalNose(double radius, double length, double sphericalRadius, double sResolution)
@@ -108,49 +117,72 @@ public class RocketShape
             {
                 x = sphericalRadius*(1 - Math.cos(theta));
                 r = sphericalRadius*Math.sin(theta);
-                curve.x.add(x);
-                curve.r.add(r);
+                curve.points.add(new CurvePoint(x,r));
                 theta += dTheta;
             }
 
-            curve.x.add(xSphere);
-            curve.r.add(a);
+            curve.points.add(new CurvePoint(xSphere, a));
         }
 
         double dx = sResolution/Math.sqrt(1.0 + drdx*drdx);
         double dr = dx*drdx;
         while(x < length)
         {
-            curve.x.add(x);
-            curve.r.add(r);
+            curve.points.add(new CurvePoint(x, r));
             x += dx;
             r += dr;
         }
-        curve.x.add(length);
-        curve.r.add(radius);
+        curve.points.add(new CurvePoint(length, radius));
         return curve;
     }
 
     public static Curve generateEllipticalNose(double radius, double length, double sphericalRadius, double sResolution)
     {
         Curve curve = new Curve();
+
+        CurvePoint focalPoint = new CurvePoint(sphericalRadius, 0);
         double x = 0;
         double r = 0;
 
-        curve.x.add(x);
-        curve.r.add(r);
+        final double b_sq = radius*radius;
+        final double a_sq = length*length;
 
+        curve.points.add(new CurvePoint(x, r));
+
+        r = sResolution;
+        x = Math.sqrt(a_sq - r*r/b_sq);
         while(x < length)
         {
-
-            curve.x.add(x);
-            curve.r.add(r);
+            curve.points.add(new CurvePoint(x, r));
             double dx = 10;
             x += dx;
         }
-        curve.x.add(length);
-        curve.r.add(radius);
+        curve.points.add(new CurvePoint(length, radius));
 
+
+        return curve;
+    }
+
+    public static Curve generateParbolicCurve(double radius, double length, double sphericalRadius, double sResolution)
+    {
+        Curve curve = new Curve();
+        curve.points.add(new CurvePoint(0, 0));
+
+        if(sphericalRadius < sResolution) {
+            final double a = radius/Math.sqrt(length);
+            double x = sResolution/a;
+            x *= x;
+            curve.points.add(new CurvePoint(x, sResolution));
+            while(x < length)
+            {
+                double drdx = 0.5*a/Math.sqrt(x);
+                double dx = sResolution/(1.0 + drdx*drdx);
+                double r = a*Math.sqrt(x);
+                curve.points.add(new CurvePoint(x, r));
+                x += dx;
+            }
+            curve.points.add(new CurvePoint(length, radius));
+        }
 
         return curve;
     }
@@ -164,41 +196,52 @@ public class RocketShape
                 return generateConicalNose(radius, length, sphericalRadius, sResolution);
             case ELLIPTICAL:
                 return generateEllipticalNose(radius, length, sphericalRadius, sResolution);
+            case PARABOLIC:
+                return generateParbolicCurve(radius, length, sphericalRadius, sResolution);
             default:
                 return generateConicalNose(radius, length, sphericalRadius, sResolution);
         }
     }
 
-    public static Curve generateFlangedSection(double x1, double r1, double x2,
-        double r2, double sResolution) 
-    {
-        Curve curve = new Curve();
-        double x = x1;
-        double r = r1;
-        final double drdx = (r2 - r1)/(x2 - x1);
-        final double dx = sResolution/Math.sqrt(1.0 + drdx*drdx);
-        final double dr = dx*drdx;
-        while(x < x2)
-        {
-            curve.x.add(x);
-            curve.r.add(r);
-            x += dx;
-            r += dr;
-        }
-        curve.x.add(x2);
-        curve.r.add(r2);
-        return curve;
-    }
-
     public static Curve generateFin(double baseChord, double tipChord, double span,
-         double sweep, double sResolution)
+        double sweep)
     {
         Curve curve = new Curve();
+        curve.points.add(new CurvePoint(0, 0));
+
+        double dxdr = Math.tan(sweep);
+        double xShift = dxdr*span;
+        double midChord = baseChord*0.5;
+        double tipMidChord = midChord + xShift;
+
+        curve.points.add(new CurvePoint(tipMidChord - tipChord*0.5, span));
+        curve.points.add(new CurvePoint(tipMidChord + tipChord*0.5, span));
+        curve.points.add(new CurvePoint(baseChord, 0));
 
         return curve;
     }
 
-    Mesh toMesh() 
+    public Curve getBody()
+    {
+        return this.body;
+    }
+
+    public Curve getFin()
+    {
+        return this.fin;
+    }
+
+    public CurvePoint getMotorCorner1()
+    {
+        return this.motorCorner1;
+    }
+
+    public CurvePoint getMotorCorner2()
+    {
+        return this.motorCorner2;
+    }
+
+    public Mesh toMesh() 
     {
         Mesh mesh = new Mesh();
 

@@ -18,6 +18,8 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart.*;
@@ -28,10 +30,16 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 
 import org.json.*;
 
+import com.mardpop.jrocket.designer.Curve;
+import com.mardpop.jrocket.designer.Curve.CurvePoint;
+import com.mardpop.jrocket.designer.RocketShape;
+import com.mardpop.jrocket.designer.RocketShape.NoseConeType;
+import com.mardpop.jrocket.designer.RocketShape.RocketShapeParameters;
 import com.mardpop.jrocket.util.*;
 
 public class PrimaryController implements Initializable
@@ -99,7 +107,7 @@ public class PrimaryController implements Initializable
     TextField headingEntry;
 
     @FXML
-    TextField noseConeLengthEntry, noseSphericalRadiusEntry;
+    TextField noseConeLengthEntry, noseSphericalEntry;
 
     @FXML
     ChoiceBox<String> noseConeTypeEntry;
@@ -114,7 +122,7 @@ public class PrimaryController implements Initializable
     TextField motorRadiusEntry, motorLengthEntry;
 
     @FXML
-    TextField finBaseChordEntry, finTipChordEntry, finSweepEntry, finSpanEntry;
+    TextField finBaseChordEntry, finTipChordEntry, finChordOffsetEntry, finSweepEntry, finSpanEntry;
 
     @FXML
     ChoiceBox<Integer> numberOfFinsEntry;
@@ -129,6 +137,9 @@ public class PrimaryController implements Initializable
     TextField throatRadiusEntry, nozzleRadiusEntry, halfAngleEntry;
 
     @FXML
+    TextField payloadMassEntry, payloadCOMEntry;
+
+    @FXML
     Button designerRunButton;
 
     @FXML
@@ -139,6 +150,9 @@ public class PrimaryController implements Initializable
 
     @FXML
     Label deltaVLabel;
+
+    @FXML
+    Canvas designCanvas;
 
     @FXML
     VBox SimpleRocketForm;
@@ -246,6 +260,123 @@ public class PrimaryController implements Initializable
         {
             e.printStackTrace();
         }
+    }
+
+    RocketShapeParameters getParams()
+    {
+        RocketShapeParameters params = new RocketShapeParameters();
+        params.finBaseChord = Double.parseDouble(this.finBaseChordEntry.getText());
+        params.finTipChord = Double.parseDouble(this.finTipChordEntry.getText());
+        params.finChordOffset = Double.parseDouble(this.finChordOffsetEntry.getText());
+        params.finSpan = Double.parseDouble(this.finSpanEntry.getText());
+        params.finSweep = Double.parseDouble(this.finSweepEntry.getText());
+        params.numFins = this.numberOfFinsEntry.getValue();
+        params.motorLength = Double.parseDouble(this.motorLengthEntry.getText());
+        params.motorRadius = Double.parseDouble(this.motorRadiusEntry.getText());
+        params.noseConeLength = Double.parseDouble(this.noseConeLengthEntry.getText());
+        params.noseConeSphericalRadius = Double.parseDouble(this.noseSphericalEntry.getText());
+        params.payloadFlangeLength = Double.parseDouble(this.payloadFlangeLengthEntry.getText());
+        params.payloadLength = Double.parseDouble(this.payloadLengthEntry.getText());
+        params.payloadRadius = Double.parseDouble(this.payloadRadiusEntry.getText());
+        params.tubeFlangeLength = Double.parseDouble(this.tubeFlangeLengthEntry.getText());
+        params.tubeLength = Double.parseDouble(this.tubeLengthEntry.getText());
+        params.tubeRadius = Double.parseDouble(this.tubeRadiusEntry.getText());
+        params.fuelRadius = Double.parseDouble(this.fuelRadiusEntry.getText());
+        params.fuelLength = Double.parseDouble(this.fuelLengthEntry.getText());
+        params.fuelBore = Double.parseDouble(this.fuelBoreEntry.getText());
+        params.fuelGap = Double.parseDouble(this.fuelSectionGapEntry.getText());
+        params.numFuelSections = Integer.parseInt(this.numberFuelSectionsEntry.getText());
+        switch(this.noseConeTypeEntry.getValue())
+        {
+            case "Spherical":
+                params.noseConeType = RocketShape.NoseConeType.CONICAL;
+                break;
+            case "Elliptical":
+                params.noseConeType = RocketShape.NoseConeType.ELLIPTICAL;
+                break;
+            case "Parabolic":
+                params.noseConeType = RocketShape.NoseConeType.PARABOLIC;
+                break;
+            default:    
+                params.noseConeType = RocketShape.NoseConeType.CONICAL;
+                break;
+        }
+
+        return params;
+    }
+
+    @FXML
+    void runDesignTool() 
+    {
+        GraphicsContext g = this.designCanvas.getGraphicsContext2D();
+        g.clearRect(0, 0, designCanvas.getWidth(), designCanvas.getHeight());
+        g.setFill(Color.WHITE);
+        g.fillRect(0, 0, designCanvas.getWidth(), designCanvas.getHeight());
+        g.setStroke(Color.BLACK);
+
+        RocketShapeParameters params = this.getParams();
+        RocketShape rs = new RocketShape(params);
+        Curve body = rs.getBody();
+        Curve fin = rs.getFin();
+
+        double xScale = designCanvas.getWidth()*0.95 / body.points.getLast().x;
+        double yScale = designCanvas.getHeight()*0.45 / fin.points.get(2).r;
+
+        double scale = Math.min(xScale, yScale);
+
+        double center = designCanvas.getHeight()*0.5;
+        double xOffset = designCanvas.getWidth()*0.025;
+
+        g.beginPath();
+        g.moveTo(xOffset + scale*body.points.get(0).x, center + scale*body.points.get(0).r);
+        for(CurvePoint point : body.points)
+        {
+            g.lineTo(xOffset + scale*point.x, center + scale*point.r);
+        }
+        g.lineTo(xOffset + scale*body.points.getLast().x, center);
+        g.stroke();
+
+        g.beginPath();
+        g.moveTo(xOffset + scale*fin.points.get(0).x, center + scale*fin.points.get(0).r);
+        for(CurvePoint point : fin.points)
+        {
+            g.lineTo(xOffset + scale*point.x, center + scale*point.r);
+        }
+        g.stroke();
+
+        g.beginPath();
+        g.moveTo(xOffset + scale*body.points.get(0).x, center - scale*body.points.get(0).r);
+        for(CurvePoint point : body.points)
+        {
+            g.lineTo(xOffset + scale*point.x, center - scale*point.r);
+        }
+        g.lineTo(xOffset + scale*body.points.getLast().x, center);
+        g.stroke();
+
+        g.beginPath();
+        g.moveTo(xOffset + scale*fin.points.get(0).x, center - scale*fin.points.get(0).r);
+        for(CurvePoint point : fin.points)
+        {
+            g.lineTo(xOffset + scale*point.x, center - scale*point.r);
+        }
+        g.stroke();
+
+        // Motor
+        g.setFill(Color.BROWN);
+        double h = scale*(params.fuelRadius - params.fuelBore);
+        double w = scale*params.fuelLength;
+        g.fillRect(xOffset + scale*rs.getMotorCorner2().x, center + scale*rs.getMotorCorner1().r, 
+            w, h); 
+    
+        g.fillRect(xOffset + scale*rs.getMotorCorner2().x, center - scale*rs.getMotorCorner2().r,
+            w, h);
+
+        g.setFill(Color.MEDIUMSEAGREEN);
+        double xPayload = params.noseConeLength + params.payloadLength*0.5;
+        double xStroke = xOffset + scale*xPayload;
+        double yStroke = center;
+        double radius = 10;
+        g.fillOval(xStroke - radius, yStroke - radius, radius*2, radius*2);
     }
 
     @FXML
