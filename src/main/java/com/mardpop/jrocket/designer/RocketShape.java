@@ -15,32 +15,6 @@ public class RocketShape
         HAACK
     }
 
-    public static class RocketShapeParameters
-    {
-        public double noseConeLength;
-        public double noseConeSphericalRadius;
-        public double payloadRadius;
-        public double payloadLength;
-        public double payloadFlangeLength;
-        public double tubeRadius;
-        public double tubeLength;
-        public double tubeFlangeLength;
-        public double motorRadius;
-        public double motorLength;
-        public double finBaseChord;
-        public double finTipChord;
-        public double finChordOffset;
-        public double finSpan;
-        public double finSweep;
-        public double fuelRadius;
-        public double fuelLength;
-        public double fuelBore;
-        public double fuelGap;
-        public int numFuelSections;
-        public int numFins;
-        public NoseConeType noseConeType;
-    }
-
     Curve body;
 
     Curve fin;
@@ -50,7 +24,7 @@ public class RocketShape
 
     RocketShape() {}
 
-    public RocketShape(RocketShapeParameters params)
+    public RocketShape(RocketParameters params)
     {
         double sResolution = params.payloadRadius*0.05;
         this.body = generateNoseCone(params.payloadRadius, params.noseConeLength, params.noseConeType,
@@ -140,22 +114,26 @@ public class RocketShape
     {
         Curve curve = new Curve();
 
-        CurvePoint focalPoint = new CurvePoint(sphericalRadius, 0);
         double x = 0;
         double r = 0;
 
-        final double b_sq = radius*radius;
         final double a_sq = length*length;
+        final double b_sq = radius*radius;
 
         curve.points.add(new CurvePoint(x, r));
 
         r = sResolution;
-        x = Math.sqrt(a_sq - r*r/b_sq);
+        double x_positive = Math.sqrt(a_sq - r*r/b_sq);
+        x = length - x_positive;
         while(x < length)
         {
             curve.points.add(new CurvePoint(x, r));
-            double dx = 10;
-            x += dx;
+
+            double drdx = radius*x_positive/Math.sqrt(a_sq*a_sq - x_positive*x_positive*a_sq);
+            double dx = sResolution/Math.sqrt(1.0 + drdx*drdx);
+            x_positive -= dx;
+            x = length - x_positive;
+            r = radius*Math.sqrt(1.0 - x_positive*x_positive/a_sq);
         }
         curve.points.add(new CurvePoint(length, radius));
 
@@ -176,7 +154,7 @@ public class RocketShape
             while(x < length)
             {
                 double drdx = 0.5*a/Math.sqrt(x);
-                double dx = sResolution/(1.0 + drdx*drdx);
+                double dx = sResolution/Math.sqrt(1.0 + drdx*drdx);
                 double r = a*Math.sqrt(x);
                 curve.points.add(new CurvePoint(x, r));
                 x += dx;

@@ -17,17 +17,14 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -36,10 +33,9 @@ import javafx.stage.FileChooser;
 import org.json.*;
 
 import com.mardpop.jrocket.designer.Curve;
+import com.mardpop.jrocket.designer.RocketParameters;
 import com.mardpop.jrocket.designer.Curve.CurvePoint;
 import com.mardpop.jrocket.designer.RocketShape;
-import com.mardpop.jrocket.designer.RocketShape.NoseConeType;
-import com.mardpop.jrocket.designer.RocketShape.RocketShapeParameters;
 import com.mardpop.jrocket.util.*;
 
 public class PrimaryController implements Initializable
@@ -128,16 +124,19 @@ public class PrimaryController implements Initializable
     ChoiceBox<Integer> numberOfFinsEntry;
 
     @FXML
-    TextField fuelRadiusEntry, fuelLengthEntry, fuelBoreEntry, numberFuelSectionsEntry, fuelSectionGapEntry;
+    TextField fuelRadiusEntry, fuelLengthEntry, fuelBoreEntry, numberFuelSectionsEntry;
 
     @FXML
-    ChoiceBox<String> fuelTypeEntry;
+    ChoiceBox<String> fuelTypeEntry, fuelGrainShapeEntry;
 
     @FXML
     TextField throatRadiusEntry, nozzleRadiusEntry, halfAngleEntry;
 
     @FXML
     TextField payloadMassEntry, payloadCOMEntry;
+
+    @FXML
+    ChoiceBox<String> structureMaterialEntry;
 
     @FXML
     Button designerRunButton;
@@ -262,9 +261,9 @@ public class PrimaryController implements Initializable
         }
     }
 
-    RocketShapeParameters getParams()
+    RocketParameters getParams()
     {
-        RocketShapeParameters params = new RocketShapeParameters();
+        RocketParameters params = new RocketParameters();
         params.finBaseChord = Double.parseDouble(this.finBaseChordEntry.getText());
         params.finTipChord = Double.parseDouble(this.finTipChordEntry.getText());
         params.finChordOffset = Double.parseDouble(this.finChordOffsetEntry.getText());
@@ -284,7 +283,6 @@ public class PrimaryController implements Initializable
         params.fuelRadius = Double.parseDouble(this.fuelRadiusEntry.getText());
         params.fuelLength = Double.parseDouble(this.fuelLengthEntry.getText());
         params.fuelBore = Double.parseDouble(this.fuelBoreEntry.getText());
-        params.fuelGap = Double.parseDouble(this.fuelSectionGapEntry.getText());
         params.numFuelSections = Integer.parseInt(this.numberFuelSectionsEntry.getText());
         switch(this.noseConeTypeEntry.getValue())
         {
@@ -302,22 +300,45 @@ public class PrimaryController implements Initializable
                 break;
         }
 
+        switch(this.structureMaterialEntry.getValue())
+        {
+            case "Cardboard":
+                params.structureMaterial = 0;
+                break;
+            case "Plastic":
+                params.structureMaterial = 1;
+                break;
+            case "Aluminum":
+                params.structureMaterial = 2;
+                break;
+            case "Fiberglass":
+                params.structureMaterial = 3;
+                break;
+            case "Carbon Fiber":
+                params.structureMaterial = 2;
+                break;
+            default:
+                params.structureMaterial = 0;
+                break;
+        }
+
         return params;
     }
 
-    @FXML
-    void runDesignTool() 
+    void drawRocket(RocketParameters params)
     {
+        RocketShape rs = new RocketShape(params);
+        Curve body = rs.getBody();
+        Curve fin = rs.getFin();
+        CurvePoint motor1  = rs.getMotorCorner1();
+        CurvePoint motor2  = rs.getMotorCorner2();
+
         GraphicsContext g = this.designCanvas.getGraphicsContext2D();
+
         g.clearRect(0, 0, designCanvas.getWidth(), designCanvas.getHeight());
         g.setFill(Color.WHITE);
         g.fillRect(0, 0, designCanvas.getWidth(), designCanvas.getHeight());
         g.setStroke(Color.BLACK);
-
-        RocketShapeParameters params = this.getParams();
-        RocketShape rs = new RocketShape(params);
-        Curve body = rs.getBody();
-        Curve fin = rs.getFin();
 
         double xScale = designCanvas.getWidth()*0.95 / body.points.getLast().x;
         double yScale = designCanvas.getHeight()*0.45 / fin.points.get(2).r;
@@ -365,10 +386,10 @@ public class PrimaryController implements Initializable
         g.setFill(Color.BROWN);
         double h = scale*(params.fuelRadius - params.fuelBore);
         double w = scale*params.fuelLength;
-        g.fillRect(xOffset + scale*rs.getMotorCorner2().x, center + scale*rs.getMotorCorner1().r, 
+        g.fillRect(xOffset + scale*motor2.x, center + scale*motor1.r, 
             w, h); 
     
-        g.fillRect(xOffset + scale*rs.getMotorCorner2().x, center - scale*rs.getMotorCorner2().r,
+        g.fillRect(xOffset + scale*motor2.x, center - scale*motor2.r,
             w, h);
 
         g.setFill(Color.MEDIUMSEAGREEN);
@@ -377,6 +398,19 @@ public class PrimaryController implements Initializable
         double yStroke = center;
         double radius = 10;
         g.fillOval(xStroke - radius, yStroke - radius, radius*2, radius*2);
+    }
+
+    void computeInertia(RocketParameters params)
+    {
+        
+    }
+
+    @FXML
+    void runDesignTool() 
+    {
+        RocketParameters params = this.getParams();
+        this.drawRocket(params);
+        this.computeInertia(params);
     }
 
     @FXML
@@ -654,14 +688,23 @@ public class PrimaryController implements Initializable
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        noseConeTypeEntry.getItems().setAll("Cone", "Elliptical",
+        this.noseConeTypeEntry.getItems().setAll("Cone", "Elliptical",
             "Tangent Ogive", "Secant Ogive", "Parabolic", "3/4 Power", "Haack");
 
-        noseConeTypeEntry.setValue("Cone");
+        this.noseConeTypeEntry.setValue("Cone");
 
-        numberOfFinsEntry.getItems().setAll(0,2,3,4);
+        this.fuelGrainShapeEntry.getItems().addAll( "End Burning","Full Tube", "Partial Tube", "Full Cross");
 
-        numberOfFinsEntry.setValue(3);
+        this.fuelGrainShapeEntry.getSelectionModel().selectFirst();
+
+        this.numberOfFinsEntry.getItems().setAll(0,2,3,4);
+
+        this.numberOfFinsEntry.setValue(3);
+
+        this.structureMaterialEntry.getItems().setAll("Cardboard", "Plastic",
+             "Aluminum", "Fiberglass", "Carbon Fiber");
+
+        this.structureMaterialEntry.getSelectionModel().selectFirst();
     }
 
 }

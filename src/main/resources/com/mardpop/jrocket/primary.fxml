@@ -265,6 +265,7 @@
                               <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                               <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                               <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                           </rowConstraints>
                            <children>
                               <TextField fx:id="noseConeLengthEntry" text="5" GridPane.columnIndex="1" />
@@ -299,16 +300,12 @@
                               <ChoiceBox fx:id="numberOfFinsEntry" prefWidth="150.0" GridPane.columnIndex="5" GridPane.rowIndex="4" />
                               <Label text="Fuel Radius (cm): " GridPane.rowIndex="6" />
                               <Label text="Fuel Length (cm): " GridPane.columnIndex="2" GridPane.rowIndex="6" />
-                              <Label text="Fuel Bore (cm): " GridPane.columnIndex="4" GridPane.rowIndex="6" />
-                              <Label text="Fuel Sections" GridPane.rowIndex="7" />
-                              <Label text="Fuel Section Gap (cm): " GridPane.columnIndex="2" GridPane.rowIndex="7" />
+                              <Label text="Fuel Bore (cm): " GridPane.columnIndex="4" GridPane.rowIndex="7" />
+                              <Label text="Fuel Sections" GridPane.columnIndex="2" GridPane.rowIndex="7" />
                               <TextField fx:id="fuelRadiusEntry" text="1.5" GridPane.columnIndex="1" GridPane.rowIndex="6" />
                               <TextField fx:id="fuelLengthEntry" text="9" GridPane.columnIndex="3" GridPane.rowIndex="6" />
-                              <TextField fx:id="fuelBoreEntry" text="0.5" GridPane.columnIndex="5" GridPane.rowIndex="6" />
-                              <TextField fx:id="numberFuelSectionsEntry" text="1" GridPane.columnIndex="1" GridPane.rowIndex="7" />
-                              <TextField fx:id="fuelSectionGapEntry" text="0" GridPane.columnIndex="3" GridPane.rowIndex="7" />
-                              <ChoiceBox fx:id="fuelTypeEntry" prefWidth="150.0" GridPane.columnIndex="5" GridPane.rowIndex="7" />
-                              <Label text="Fuel Type: " GridPane.columnIndex="4" GridPane.rowIndex="7" />
+                              <TextField fx:id="numberFuelSectionsEntry" text="1" GridPane.columnIndex="3" GridPane.rowIndex="7" />
+                              <ChoiceBox fx:id="fuelTypeEntry" prefWidth="150.0" GridPane.columnIndex="5" GridPane.rowIndex="6" />
                               <Label text="Throat Radius (cm): " GridPane.rowIndex="8" />
                               <Label text="Nozzle Radius (cm): " GridPane.columnIndex="2" GridPane.rowIndex="8" />
                               <Label text="Half Angle (deg): " GridPane.columnIndex="4" GridPane.rowIndex="8" />
@@ -323,9 +320,17 @@
                               <TextField fx:id="payloadMassEntry" text="0" GridPane.columnIndex="1" GridPane.rowIndex="9" />
                               <TextField fx:id="payloadCOMEntry" text="0" GridPane.columnIndex="3" GridPane.rowIndex="9" />
                               <Label text="Payload Center Offset (cm): " GridPane.columnIndex="2" GridPane.rowIndex="9" />
+                              <Label text="Structure Material: " GridPane.rowIndex="10" />
+                              <ChoiceBox fx:id="structureMaterialEntry" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="10" />
+                              <TextField fx:id="structureThicknessEntry" GridPane.columnIndex="3" GridPane.rowIndex="10" />
+                              <Label text="Structure Thickness (mm): " GridPane.columnIndex="2" GridPane.rowIndex="10" />
+                              <Label text="Fuel Type: " GridPane.columnIndex="4" GridPane.rowIndex="6" />
+                              <TextField fx:id="fuelBoreEntry" text="0.5" GridPane.columnIndex="5" GridPane.rowIndex="7" />
+                              <Label text="Fuel Grain Shape: " GridPane.rowIndex="7" />
+                              <ChoiceBox fx:id="fuelGrainShapeEntry" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="7" />
                            </children>
                         </GridPane>
-                        <Button fx:id="designerRunButton" layoutX="14.0" layoutY="626.0" mnemonicParsing="false" onAction="#runDesignTool" text="Compute" />
+                        <Button fx:id="designerRunButton" layoutX="15.0" layoutY="660.0" mnemonicParsing="false" onAction="#runDesignTool" text="Compute" />
                      </children></AnchorPane>
               </content>
             </Tab>
