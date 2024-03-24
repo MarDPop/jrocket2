@@ -13,7 +13,7 @@ import com.mardpop.jrocket.vehicle.propulsion.Thruster;
  */
 public class RocketSimple extends State 
 {
-    private final InertiaSimple inertia = new InertiaSimple();
+    private InertiaSimple inertia = new InertiaSimple();
     
     
     private final Vec3 forces = new Vec3();
@@ -87,7 +87,7 @@ public class RocketSimple extends State
     public void computeEnvironment(double time)
     {
         this.orientation.setRotationMatrixUnit(this.coordinateSystem);
-        this.inertia.combine(this.inertiaEmpty, this.inertiaFuel);
+        this.inertia = new InertiaSimple(this.inertiaEmpty, this.inertiaFuel);
         
         this.atm.update(this.position.z, time);
         this.aero.update(this.velocity, this.coordinateSystem, this.atm.air, this.atm.wind);

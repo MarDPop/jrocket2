@@ -300,27 +300,7 @@ public class PrimaryController implements Initializable
                 break;
         }
 
-        switch(this.structureMaterialEntry.getValue())
-        {
-            case "Cardboard":
-                params.structureMaterial = 0;
-                break;
-            case "Plastic":
-                params.structureMaterial = 1;
-                break;
-            case "Aluminum":
-                params.structureMaterial = 2;
-                break;
-            case "Fiberglass":
-                params.structureMaterial = 3;
-                break;
-            case "Carbon Fiber":
-                params.structureMaterial = 2;
-                break;
-            default:
-                params.structureMaterial = 0;
-                break;
-        }
+        params.structureMaterial = this.structureMaterialEntry.getSelectionModel().getSelectedIndex();
 
         return params;
     }
