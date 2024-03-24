@@ -6,8 +6,8 @@ public class RocketParameters
 {
     public double noseConeLength;
     public double noseConeSphericalRadius;
-    public double payloadRadius;
-    public double payloadLength;
+    public double payloadTubeRadius;
+    public double payloadTubeLength;
     public double payloadFlangeLength;
     public double tubeRadius;
     public double tubeLength;
@@ -22,6 +22,8 @@ public class RocketParameters
     public double fuelRadius;
     public double fuelLength;
     public double fuelBore;
+    public double payloadMass;
+    public double payloadCOM;
     public int numFuelSections;
     public int fuelGrainShape;
     public int numFins;

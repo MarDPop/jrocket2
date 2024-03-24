@@ -111,6 +111,12 @@
                               </HBox>
                               <HBox prefWidth="200.0">
                                  <children>
+                                    <Label text="Empty CG (cm): " />
+                                    <TextField id="irrEntry" fx:id="cGxEmptyEntry" promptText="Moment of Inertia Perpendicular to Axis" text="0.0" />
+                                 </children>
+                              </HBox>
+                              <HBox prefWidth="200.0">
+                                 <children>
                                     <Label text="Propellant Mass (kg): " />
                                     <TextField id="propellantMassEntry" fx:id="propellantEntry" promptText="Mass of the fuel" text="5" />
                                  </children>
@@ -125,6 +131,12 @@
                                  <children>
                                     <Label text="Propellant Irr (kg m2): " />
                                     <TextField id="irrEntry" fx:id="irrPropEntry" promptText="Moment of Inertia Perpendicular to Axis" text="0.5" />
+                                 </children>
+                              </HBox>
+                              <HBox prefWidth="200.0">
+                                 <children>
+                                    <Label text="Propellent CG (cm): " />
+                                    <TextField id="irrEntry" fx:id="cGxPropEntry" promptText="Moment of Inertia Perpendicular to Axis" text="0.0" />
                                  </children>
                               </HBox>
                               <Label text="Aerodynamics">
@@ -319,7 +331,7 @@
                               <Label text="Payload Mass (g): " GridPane.rowIndex="9" />
                               <TextField fx:id="payloadMassEntry" text="0" GridPane.columnIndex="1" GridPane.rowIndex="9" />
                               <TextField fx:id="payloadCOMEntry" text="0" GridPane.columnIndex="3" GridPane.rowIndex="9" />
-                              <Label text="Payload Center Offset (cm): " GridPane.columnIndex="2" GridPane.rowIndex="9" />
+                              <Label text="Payload Center (cm): " GridPane.columnIndex="2" GridPane.rowIndex="9" />
                               <Label text="Structure Material: " GridPane.rowIndex="10" />
                               <ChoiceBox fx:id="structureMaterialEntry" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="10" />
                               <TextField fx:id="structureThicknessEntry" GridPane.columnIndex="3" GridPane.rowIndex="10" />

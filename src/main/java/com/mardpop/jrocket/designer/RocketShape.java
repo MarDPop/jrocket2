@@ -26,12 +26,12 @@ public class RocketShape
 
     public RocketShape(RocketParameters params)
     {
-        double sResolution = params.payloadRadius*0.05;
-        this.body = generateNoseCone(params.payloadRadius, params.noseConeLength, params.noseConeType,
+        double sResolution = params.payloadTubeRadius*0.05;
+        this.body = generateNoseCone(params.payloadTubeRadius, params.noseConeLength, params.noseConeType,
                 params.noseConeSphericalRadius,sResolution);
         double x = params.noseConeLength;
-        x += params.payloadLength;
-        this.body.points.add(new CurvePoint(x, params.payloadRadius));
+        x += params.payloadTubeLength;
+        this.body.points.add(new CurvePoint(x, params.payloadTubeRadius));
         x += params.payloadFlangeLength;
         this.body.points.add(new CurvePoint(x, params.tubeRadius));
         x += params.tubeLength;

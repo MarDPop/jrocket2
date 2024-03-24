@@ -33,10 +33,12 @@ import javafx.stage.FileChooser;
 import org.json.*;
 
 import com.mardpop.jrocket.designer.Curve;
+import com.mardpop.jrocket.designer.InertiaCalc;
 import com.mardpop.jrocket.designer.RocketParameters;
 import com.mardpop.jrocket.designer.Curve.CurvePoint;
 import com.mardpop.jrocket.designer.RocketShape;
 import com.mardpop.jrocket.util.*;
+import com.mardpop.jrocket.vehicle.InertiaSimple;
 
 public class PrimaryController implements Initializable
 {
@@ -59,6 +61,12 @@ public class PrimaryController implements Initializable
 
     @FXML
     TextField irrEmptyEntry;
+
+    @FXML
+    TextField cGxEmptyEntry;
+
+    @FXML
+    TextField cGxPropEntry;
 
     @FXML
     TextField propellantEntry;
@@ -275,8 +283,8 @@ public class PrimaryController implements Initializable
         params.noseConeLength = Double.parseDouble(this.noseConeLengthEntry.getText());
         params.noseConeSphericalRadius = Double.parseDouble(this.noseSphericalEntry.getText());
         params.payloadFlangeLength = Double.parseDouble(this.payloadFlangeLengthEntry.getText());
-        params.payloadLength = Double.parseDouble(this.payloadLengthEntry.getText());
-        params.payloadRadius = Double.parseDouble(this.payloadRadiusEntry.getText());
+        params.payloadTubeLength = Double.parseDouble(this.payloadLengthEntry.getText());
+        params.payloadTubeRadius = Double.parseDouble(this.payloadRadiusEntry.getText());
         params.tubeFlangeLength = Double.parseDouble(this.tubeFlangeLengthEntry.getText());
         params.tubeLength = Double.parseDouble(this.tubeLengthEntry.getText());
         params.tubeRadius = Double.parseDouble(this.tubeRadiusEntry.getText());
@@ -299,6 +307,9 @@ public class PrimaryController implements Initializable
                 params.noseConeType = RocketShape.NoseConeType.CONICAL;
                 break;
         }
+
+        params.payloadMass = Double.parseDouble(this.payloadMassEntry.getText());
+        params.payloadCOM = Double.parseDouble(this.payloadCOMEntry.getText());
 
         params.structureMaterial = this.structureMaterialEntry.getSelectionModel().getSelectedIndex();
 
@@ -373,16 +384,31 @@ public class PrimaryController implements Initializable
             w, h);
 
         g.setFill(Color.MEDIUMSEAGREEN);
-        double xPayload = params.noseConeLength + params.payloadLength*0.5;
+        double xPayload = params.noseConeLength + params.payloadTubeLength*0.5;
         double xStroke = xOffset + scale*xPayload;
         double yStroke = center;
         double radius = 10;
         g.fillOval(xStroke - radius, yStroke - radius, radius*2, radius*2);
     }
 
-    void computeInertia(RocketParameters params)
+    InertiaSimple computeEmptyInertia(RocketParameters params)
     {
-        
+        return InertiaCalc.computeEmptyInertiaFromParams(params);
+    }
+
+    InertiaSimple computeFuelInertia(RocketParameters params)
+    {
+        final double fullLength = params.noseConeLength + params.payloadTubeLength 
+            + params.payloadFlangeLength + params.tubeLength + params.tubeFlangeLength + params.motorLength;
+
+        double fuelDensity = 1800;
+
+        InertiaSimple fuelInertia = InertiaCalc.tubeInertia(params.fuelRadius, params.fuelBore, 
+            params.fuelLength, fuelDensity);
+
+        fuelInertia.setCGx(fullLength - params.fuelLength*0.5);
+
+        return fuelInertia;
     }
 
     @FXML
@@ -390,7 +416,17 @@ public class PrimaryController implements Initializable
     {
         RocketParameters params = this.getParams();
         this.drawRocket(params);
-        this.computeInertia(params);
+        InertiaSimple empty = this.computeEmptyInertia(params);
+        InertiaSimple fuel = this.computeFuelInertia(params);
+
+        this.irrEmptyEntry.setText(Double.toString(empty.getIrr()));
+        this.irrPropEntry.setText(Double.toString(fuel.getIrr()));
+        this.ixxEmptyEntry.setText(Double.toString(empty.getIxx()));
+        this.ixxPropEntry.setText(Double.toString(fuel.getIxx()));
+        this.emptyMassEntry.setText(Double.toString(empty.getMass()));
+        this.propellantEntry.setText(Double.toString(fuel.getMass()));
+        this.cGxEmptyEntry.setText(Double.toString(empty.getCGx()));
+        this.cGxPropEntry.setText(Double.toString(fuel.getCGx()));
     }
 
     @FXML
@@ -490,7 +526,6 @@ public class PrimaryController implements Initializable
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void loadCharts(String fileName)
     {
         this.massChart.getData().clear();

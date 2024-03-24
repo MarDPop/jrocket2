@@ -386,32 +386,32 @@ public class InertiaCalc
         return new InertiaSimple(massFin*number, Ixx*number, Irr*number, xOffsetBase + xCGfin);
     }
 
-    public static InertiaSimple computeEmptyInertiaFromParams(RocketParameters params, 
+    public static InertiaSimple computeStructureInertiaFromParams(RocketParameters params, 
         double materialDensity, double materialThickness, 
         double noseConeMaterialDensity, double noseConeThickness,
         double finMaterialDensity, double finThickness)
     {
-        Curve noseCone = RocketShape.generateNoseCone(params.payloadRadius, params.noseConeLength, params.noseConeType,
+        Curve noseCone = RocketShape.generateNoseCone(params.payloadTubeRadius, params.noseConeLength, params.noseConeType,
                 params.noseConeSphericalRadius, 0.1);
 
         InertiaSimple noseInertia = thinWallInertia(noseCone, noseConeThickness, noseConeMaterialDensity);
 
-        InertiaSimple payloadInertia = tubeInertia(params.payloadRadius, params.payloadRadius - materialThickness,
+        InertiaSimple payloadInertia = tubeInertia(params.payloadTubeRadius, params.payloadTubeRadius - materialThickness,
             materialThickness, materialDensity);
 
         payloadInertia.setCGx(payloadInertia.getCGx() + params.noseConeLength);
 
-        double xLoc = params.noseConeLength + params.payloadLength;
+        double xLoc = params.noseConeLength + params.payloadTubeLength;
         InertiaSimple payloadFlangeInertia;
-        if(params.tubeRadius > params.payloadRadius)
+        if(params.tubeRadius > params.payloadTubeRadius)
         {
-            payloadFlangeInertia = thinWalledTruncatedConeInertia( params.payloadRadius, params.tubeRadius, materialThickness,
+            payloadFlangeInertia = thinWalledTruncatedConeInertia( params.payloadTubeRadius, params.tubeRadius, materialThickness,
                 params.payloadFlangeLength, materialDensity);
             payloadFlangeInertia.setCGx(xLoc + payloadFlangeInertia.getCGx());
         }
         else
         {
-            payloadFlangeInertia = thinWalledTruncatedConeInertia( params.tubeRadius, params.payloadRadius, materialThickness,
+            payloadFlangeInertia = thinWalledTruncatedConeInertia( params.tubeRadius, params.payloadTubeRadius, materialThickness,
                 params.payloadFlangeLength, materialDensity);
             
                 payloadFlangeInertia.setCGx(xLoc + params.payloadFlangeLength -payloadInertia.getCGx());
@@ -481,5 +481,44 @@ public class InertiaCalc
             motorTube.getMass()*dxMotor*dxMotor + finInertia.getMass()*dxFin*dxFin;
 
         return new InertiaSimple(mass, Ixx, Irr, CGx);
+    }
+
+    public static InertiaSimple computeEmptyInertiaFromParams(RocketParameters params)
+    {
+        double materialDensity = 1300;
+        double materialThickness = 0.001;
+        double noseConeDensity = 1000;
+        double noseConeThickness = 0.0005;
+        double finDensity = 1000;
+        double finThickness = 0.001;
+
+        InertiaSimple structureMass = InertiaCalc.computeStructureInertiaFromParams(params, 
+            materialDensity, materialThickness, noseConeDensity, noseConeThickness, finDensity, finThickness);
+
+        double payloadIxx = params.payloadMass*((0.25*params.payloadTubeRadius*params.payloadTubeRadius 
+            + params.payloadTubeLength*params.payloadTubeLength) + params.payloadCOM*params.payloadCOM);
+        double payloadIrr = 0.5*params.payloadMass*params.payloadTubeRadius*params.payloadTubeRadius;
+
+        InertiaSimple payloadInertia = new InertiaSimple(params.payloadMass, payloadIxx, payloadIrr, params.payloadCOM);
+
+        InertiaSimple emptyInertia = new InertiaSimple(structureMass, payloadInertia);
+
+        final double fullLength = params.noseConeLength + params.payloadTubeLength 
+            + params.payloadFlangeLength + params.tubeLength + params.tubeFlangeLength + params.motorLength;
+
+        final double SAFETY_MARGIN = 3.0;
+        final double ALUMINUMT6_YIELD = 276e6;
+        final double MAXCHAMBERPRESSURE = 1e7;
+        double motorHousingThickness = MAXCHAMBERPRESSURE*params.fuelRadius*SAFETY_MARGIN/ALUMINUMT6_YIELD;
+        InertiaSimple motorHousingInertia = InertiaCalc.tubeInertia(params.fuelRadius, 
+            params.fuelRadius + motorHousingThickness, payloadIrr, finDensity);
+
+        motorHousingInertia.setCGx(fullLength - params.fuelLength*0.5);
+
+        emptyInertia = new InertiaSimple(emptyInertia, motorHousingInertia);
+
+        final double MASS_MARGIN = 1.25;
+        return new InertiaSimple(emptyInertia.getMass()*MASS_MARGIN, emptyInertia.getIxx()*MASS_MARGIN,
+            emptyInertia.getIrr()*MASS_MARGIN, emptyInertia.getCGx());
     }
 }
