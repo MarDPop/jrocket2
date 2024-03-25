@@ -141,7 +141,7 @@ public class RocketShape
         return curve;
     }
 
-    public static Curve generateParbolicCurve(double radius, double length, double sphericalRadius, double sResolution)
+    public static Curve generateParabolicCurve(double radius, double length, double sphericalRadius, double sResolution)
     {
         Curve curve = new Curve();
         curve.points.add(new CurvePoint(0, 0));
@@ -165,6 +165,49 @@ public class RocketShape
         return curve;
     }
 
+    public static Curve generateTangentOgiveCurve(double radius, double length, double sphericalRadius, double sResolution)
+    {
+        Curve curve = new Curve();
+        curve.points.add(new CurvePoint(0, 0));
+
+        double theta;
+        double dTheta;
+        double radiusOgive;
+        double L;
+        if(sphericalRadius < sResolution)
+        {
+            radiusOgive = (length*length + radius*radius)/(2*radius);
+            L = radiusOgive - radius;
+            theta = Math.PI*0.5 - Math.acos(L/radiusOgive);
+        }
+        else
+        {
+            L = 0.5*(length*length + 2*sphericalRadius*(radius - length) - radius*radius)/(radius - sphericalRadius);
+            radiusOgive = L + radius;
+            final double THETA_TRANSITION = Math.PI*0.5 - Math.acos(L/radiusOgive);
+            // final double D = length - sphericalRadius;
+            theta = 0;
+            dTheta = sResolution/sphericalRadius;
+            while(theta < THETA_TRANSITION)
+            {
+                curve.points.add(new CurvePoint(sphericalRadius*(1 - Math.cos(theta)), sphericalRadius*Math.sin(theta)));
+                theta += dTheta;
+            }
+    
+            
+        }
+        dTheta = sResolution/radiusOgive;
+        while(theta < Math.PI*0.5)
+        {
+            curve.points.add(new CurvePoint(length - radiusOgive*Math.cos(theta),
+                radiusOgive*Math.sin(theta) - L));
+            theta += dTheta;
+        }
+
+        curve.points.add(new CurvePoint(length, radius));
+        return curve;
+    }
+
     public static Curve generateNoseCone(double radius, double length, NoseConeType type, 
         double sphericalRadius, double sResolution)
     {
@@ -175,7 +218,9 @@ public class RocketShape
             case ELLIPTICAL:
                 return generateEllipticalNose(radius, length, sphericalRadius, sResolution);
             case PARABOLIC:
-                return generateParbolicCurve(radius, length, sphericalRadius, sResolution);
+                return generateParabolicCurve(radius, length, sphericalRadius, sResolution);
+            case TANGENT_OGIVE:
+                return generateTangentOgiveCurve(radius, length, sphericalRadius, sResolution);
             default:
                 return generateConicalNose(radius, length, sphericalRadius, sResolution);
         }

@@ -303,6 +303,9 @@ public class PrimaryController implements Initializable
             case "Parabolic":
                 params.noseConeType = RocketShape.NoseConeType.PARABOLIC;
                 break;
+            case "Tangent Ogive":
+                params.noseConeType = RocketShape.NoseConeType.TANGENT_OGIVE;
+                break;
             default:    
                 params.noseConeType = RocketShape.NoseConeType.CONICAL;
                 break;
