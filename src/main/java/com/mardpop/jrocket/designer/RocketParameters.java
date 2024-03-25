@@ -24,6 +24,7 @@ public class RocketParameters
     public double fuelBore;
     public double payloadMass;
     public double payloadCOM;
+    public double structureThickness;
     public int numFuelSections;
     public int fuelGrainShape;
     public int numFins;

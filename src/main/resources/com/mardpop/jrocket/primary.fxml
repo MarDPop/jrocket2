@@ -334,7 +334,7 @@
                               <Label text="Payload Center (cm): " GridPane.columnIndex="2" GridPane.rowIndex="9" />
                               <Label text="Structure Material: " GridPane.rowIndex="10" />
                               <ChoiceBox fx:id="structureMaterialEntry" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="10" />
-                              <TextField fx:id="structureThicknessEntry" GridPane.columnIndex="3" GridPane.rowIndex="10" />
+                              <TextField fx:id="structureThicknessEntry" text="1" GridPane.columnIndex="3" GridPane.rowIndex="10" />
                               <Label text="Structure Thickness (mm): " GridPane.columnIndex="2" GridPane.rowIndex="10" />
                               <Label text="Fuel Type: " GridPane.columnIndex="4" GridPane.rowIndex="6" />
                               <TextField fx:id="fuelBoreEntry" text="0.5" GridPane.columnIndex="5" GridPane.rowIndex="7" />

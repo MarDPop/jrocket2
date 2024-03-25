@@ -147,6 +147,9 @@ public class PrimaryController implements Initializable
     ChoiceBox<String> structureMaterialEntry;
 
     @FXML
+    TextField structureThicknessEntry;
+
+    @FXML
     Button designerRunButton;
 
     @FXML
@@ -271,26 +274,28 @@ public class PrimaryController implements Initializable
 
     RocketParameters getParams()
     {
+        final double CM2M = 0.01;
+        final double MM2M = 0.001;
         RocketParameters params = new RocketParameters();
-        params.finBaseChord = Double.parseDouble(this.finBaseChordEntry.getText());
-        params.finTipChord = Double.parseDouble(this.finTipChordEntry.getText());
-        params.finChordOffset = Double.parseDouble(this.finChordOffsetEntry.getText());
-        params.finSpan = Double.parseDouble(this.finSpanEntry.getText());
-        params.finSweep = Double.parseDouble(this.finSweepEntry.getText());
+        params.finBaseChord = Double.parseDouble(this.finBaseChordEntry.getText())*CM2M;
+        params.finTipChord = Double.parseDouble(this.finTipChordEntry.getText())*CM2M;
+        params.finChordOffset = Double.parseDouble(this.finChordOffsetEntry.getText())*CM2M;
+        params.finSpan = Double.parseDouble(this.finSpanEntry.getText())*CM2M;
+        params.finSweep = Math.toRadians(Double.parseDouble(this.finSweepEntry.getText()));
         params.numFins = this.numberOfFinsEntry.getValue();
-        params.motorLength = Double.parseDouble(this.motorLengthEntry.getText());
-        params.motorRadius = Double.parseDouble(this.motorRadiusEntry.getText());
-        params.noseConeLength = Double.parseDouble(this.noseConeLengthEntry.getText());
-        params.noseConeSphericalRadius = Double.parseDouble(this.noseSphericalEntry.getText());
-        params.payloadFlangeLength = Double.parseDouble(this.payloadFlangeLengthEntry.getText());
-        params.payloadTubeLength = Double.parseDouble(this.payloadLengthEntry.getText());
-        params.payloadTubeRadius = Double.parseDouble(this.payloadRadiusEntry.getText());
-        params.tubeFlangeLength = Double.parseDouble(this.tubeFlangeLengthEntry.getText());
-        params.tubeLength = Double.parseDouble(this.tubeLengthEntry.getText());
-        params.tubeRadius = Double.parseDouble(this.tubeRadiusEntry.getText());
-        params.fuelRadius = Double.parseDouble(this.fuelRadiusEntry.getText());
-        params.fuelLength = Double.parseDouble(this.fuelLengthEntry.getText());
-        params.fuelBore = Double.parseDouble(this.fuelBoreEntry.getText());
+        params.motorLength = Double.parseDouble(this.motorLengthEntry.getText())*CM2M;
+        params.motorRadius = Double.parseDouble(this.motorRadiusEntry.getText())*CM2M;
+        params.noseConeLength = Double.parseDouble(this.noseConeLengthEntry.getText())*CM2M;
+        params.noseConeSphericalRadius = Double.parseDouble(this.noseSphericalEntry.getText())*CM2M;
+        params.payloadFlangeLength = Double.parseDouble(this.payloadFlangeLengthEntry.getText())*CM2M;
+        params.payloadTubeLength = Double.parseDouble(this.payloadLengthEntry.getText())*CM2M;
+        params.payloadTubeRadius = Double.parseDouble(this.payloadRadiusEntry.getText())*CM2M;
+        params.tubeFlangeLength = Double.parseDouble(this.tubeFlangeLengthEntry.getText())*CM2M;
+        params.tubeLength = Double.parseDouble(this.tubeLengthEntry.getText())*CM2M;
+        params.tubeRadius = Double.parseDouble(this.tubeRadiusEntry.getText())*CM2M;
+        params.fuelRadius = Double.parseDouble(this.fuelRadiusEntry.getText())*CM2M;
+        params.fuelLength = Double.parseDouble(this.fuelLengthEntry.getText())*CM2M;
+        params.fuelBore = Double.parseDouble(this.fuelBoreEntry.getText())*CM2M;
         params.numFuelSections = Integer.parseInt(this.numberFuelSectionsEntry.getText());
         switch(this.noseConeTypeEntry.getValue())
         {
@@ -312,9 +317,10 @@ public class PrimaryController implements Initializable
         }
 
         params.payloadMass = Double.parseDouble(this.payloadMassEntry.getText());
-        params.payloadCOM = Double.parseDouble(this.payloadCOMEntry.getText());
+        params.payloadCOM = Double.parseDouble(this.payloadCOMEntry.getText())*CM2M;
 
         params.structureMaterial = this.structureMaterialEntry.getSelectionModel().getSelectedIndex();
+        params.structureThickness = Double.parseDouble(this.structureThicknessEntry.getText())*MM2M;
 
         return params;
     }

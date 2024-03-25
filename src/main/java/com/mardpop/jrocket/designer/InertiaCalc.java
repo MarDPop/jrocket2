@@ -77,6 +77,12 @@ public class InertiaCalc
 
     public static InertiaSimple tubeInertia(double innerRadius, double outerRadius, double length, double density)
     {
+        if(innerRadius > outerRadius)
+        {
+            double temp = innerRadius;
+            innerRadius = outerRadius;
+            outerRadius = temp;
+        }
         double mass = Math.PI*(outerRadius*outerRadius - innerRadius*innerRadius)*density*length;
         double Irr = mass*(outerRadius*outerRadius + innerRadius*innerRadius)*0.5;
         double Ixx = mass/12*(3*(outerRadius*outerRadius + innerRadius*innerRadius)+ length*length);
@@ -297,14 +303,15 @@ public class InertiaCalc
         for(int i = 1; i < curve.points.size(); i++)
         {
             CurvePoint point = curve.points.get(i);
-            double dx = point.x - prev.x;
-            double dr = point.r - prev.r;
-            double ds = Math.sqrt(dx*dx + dr*dr);
-            dm[i-1] = density*thickness*ds;
-            xavg[i-1] = (point.x + prev.x)*0.5;
-            ravg[i-1] = (point.r + prev.r)*0.5;
-            CGx += xavg[i-1]*dm[i-1];
-            mass += dm[i-1];
+            final double dx = point.x - prev.x;
+            final double dr = point.r - prev.r;
+            final double ds = Math.sqrt(dx*dx + dr*dr);
+            final int i1 = i-1;
+            xavg[i1] = (point.x + prev.x)*0.5;
+            ravg[i1] = (point.r + prev.r)*0.5;
+            dm[i1] = density*thickness*ds*ravg[i1]*Math.PI*2;
+            CGx += xavg[i1]*dm[i1];
+            mass += dm[i1];
             prev = point;
         }
 
@@ -392,18 +399,25 @@ public class InertiaCalc
         double finMaterialDensity, double finThickness)
     {
         Curve noseCone = RocketShape.generateNoseCone(params.payloadTubeRadius, params.noseConeLength, params.noseConeType,
-                params.noseConeSphericalRadius, 0.1);
+                params.noseConeSphericalRadius, 0.0001);
 
         InertiaSimple noseInertia = thinWallInertia(noseCone, noseConeThickness, noseConeMaterialDensity);
 
-        InertiaSimple payloadInertia = tubeInertia(params.payloadTubeRadius, params.payloadTubeRadius - materialThickness,
-            materialThickness, materialDensity);
+        InertiaSimple payloadInertia = tubeInertia(params.payloadTubeRadius - materialThickness, params.payloadTubeRadius,
+            params.payloadTubeLength, materialDensity);
 
         payloadInertia.setCGx(payloadInertia.getCGx() + params.noseConeLength);
 
         double xLoc = params.noseConeLength + params.payloadTubeLength;
         InertiaSimple payloadFlangeInertia;
-        if(params.tubeRadius > params.payloadTubeRadius)
+        if(Math.abs(params.tubeRadius - params.payloadTubeRadius) < 0.0001)
+        {
+            payloadFlangeInertia = tubeInertia(params.tubeRadius - materialThickness, params.tubeRadius,
+                params.payloadFlangeLength, materialDensity);
+
+            payloadFlangeInertia.setCGx(xLoc + payloadFlangeInertia.getCGx());
+        }
+        else if(params.tubeRadius > params.payloadTubeRadius)
         {
             payloadFlangeInertia = thinWalledTruncatedConeInertia( params.payloadTubeRadius, params.tubeRadius, materialThickness,
                 params.payloadFlangeLength, materialDensity);
@@ -419,29 +433,37 @@ public class InertiaCalc
 
         xLoc += params.payloadFlangeLength;
 
-        InertiaSimple tubeInertia = tubeInertia(params.tubeRadius, params.tubeRadius - materialThickness,
-            materialThickness, materialDensity);
+        InertiaSimple tubeInertia = tubeInertia(params.tubeRadius - materialThickness, params.tubeRadius,
+            params.tubeLength, materialDensity);
 
         tubeInertia.setCGx(xLoc + tubeInertia.getCGx());
 
         xLoc += params.tubeLength;
         InertiaSimple tubeFlangeInertia;
-        if(params.tubeRadius > params.motorRadius)
+        if(Math.abs(params.tubeRadius - params.motorRadius) < 0.0001)
+        {
+            tubeFlangeInertia = tubeInertia(params.tubeRadius - materialThickness, params.tubeRadius,
+                params.tubeFlangeLength, materialDensity);
+
+            tubeFlangeInertia.setCGx(xLoc + tubeFlangeInertia.getCGx());
+        }
+        else if(params.tubeRadius > params.motorRadius)
         {
             tubeFlangeInertia = thinWalledTruncatedConeInertia( params.tubeRadius, params.motorRadius, materialThickness,
                 params.tubeFlangeLength, materialDensity);
-                payloadFlangeInertia.setCGx(xLoc + tubeFlangeInertia.getCGx());
+                
+            tubeFlangeInertia.setCGx(xLoc + tubeFlangeInertia.getCGx());
         }
         else
         {
             tubeFlangeInertia = thinWalledTruncatedConeInertia( params.motorRadius, params.tubeRadius, materialThickness,
                 params.tubeFlangeLength, materialDensity);
-                payloadFlangeInertia.setCGx(xLoc + params.tubeFlangeLength - tubeFlangeInertia.getCGx());
+            tubeFlangeInertia.setCGx(xLoc + params.tubeFlangeLength - tubeFlangeInertia.getCGx());
         }
 
         xLoc += params.tubeFlangeLength;
-        InertiaSimple motorTube = tubeInertia(params.motorRadius, params.motorRadius - materialThickness,
-            materialThickness, materialDensity);
+        InertiaSimple motorTube = tubeInertia(params.motorRadius - materialThickness, params.motorRadius,
+            params.motorLength, materialDensity);
 
         motorTube.setCGx(xLoc + motorTube.getCGx());
 
@@ -486,14 +508,13 @@ public class InertiaCalc
     public static InertiaSimple computeEmptyInertiaFromParams(RocketParameters params)
     {
         double materialDensity = 1300;
-        double materialThickness = 0.001;
         double noseConeDensity = 1000;
         double noseConeThickness = 0.0005;
         double finDensity = 1000;
         double finThickness = 0.001;
 
         InertiaSimple structureMass = InertiaCalc.computeStructureInertiaFromParams(params, 
-            materialDensity, materialThickness, noseConeDensity, noseConeThickness, finDensity, finThickness);
+            materialDensity, params.structureThickness, noseConeDensity, noseConeThickness, finDensity, finThickness);
 
         double payloadIxx = params.payloadMass*((0.25*params.payloadTubeRadius*params.payloadTubeRadius 
             + params.payloadTubeLength*params.payloadTubeLength) + params.payloadCOM*params.payloadCOM);
