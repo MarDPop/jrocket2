@@ -158,8 +158,8 @@
                               </HBox>
                               <HBox prefWidth="200.0">
                                  <children>
-                                    <Label text="CM_alpha: " />
-                                    <TextField id="cmAlphaEntry" fx:id="cmAlphaEntry" promptText="Pitch Moment Coefficient" text="-0.001" />
+                                    <Label text="Center Of Pressure (cm): " />
+                                    <TextField id="cmAlphaEntry" fx:id="centerOfPressureEntry" promptText="Pitch Moment Coefficient" text="-0.001" />
                                  </children>
                               </HBox>
                               <HBox prefWidth="200.0">

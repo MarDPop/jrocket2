@@ -16,10 +16,7 @@ public class Action
     
     public Vec3 getTorque(Vec3 CG)
     {
-        Vec3 arm = Vec3.subtract(this.position, CG);
-        Vec3 torque = Vec3.cross(arm, this.force);
-        torque.add(this.moment);
-        return torque;
+        return Vec3.add(this.moment,Vec3.cross(Vec3.subtract(this.position, CG), this.force));
     }
     
 }

@@ -451,7 +451,7 @@ public class InertiaCalc
         {
             tubeFlangeInertia = thinWalledTruncatedConeInertia( params.tubeRadius, params.motorRadius, materialThickness,
                 params.tubeFlangeLength, materialDensity);
-                
+
             tubeFlangeInertia.setCGx(xLoc + tubeFlangeInertia.getCGx());
         }
         else
@@ -509,7 +509,7 @@ public class InertiaCalc
     {
         double materialDensity = 1300;
         double noseConeDensity = 1000;
-        double noseConeThickness = 0.0005;
+        double noseConeThickness = 0.001;
         double finDensity = 1000;
         double finThickness = 0.001;
 

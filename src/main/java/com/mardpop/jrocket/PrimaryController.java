@@ -81,10 +81,10 @@ public class PrimaryController implements Initializable
     TextField cdEntry;
 
     @FXML
-    TextField clAlphaEntry;
+    TextField cnAlphaEntry;
 
     @FXML
-    TextField cmAlphaEntry;
+    TextField centerOfPressureEntry;
 
     @FXML
     TextField referenceAreaEntry;
@@ -247,15 +247,11 @@ public class PrimaryController implements Initializable
         } catch (Exception e) {}
 
         try {
-            aerodynamics.put("CL_alpha", Double.parseDouble(clAlphaEntry.getText()));
+            aerodynamics.put("CN_alpha", Double.parseDouble(cnAlphaEntry.getText()));
         } catch (Exception e) {}
 
         try {
-            aerodynamics.put("CM_alpha", Double.parseDouble(cmAlphaEntry.getText()));
-        } catch (Exception e) {}
-
-        try {
-            aerodynamics.put("LiftInducedDrag", Double.parseDouble(liftInducedDragEntry.getText()));
+            aerodynamics.put("COP", Double.parseDouble(centerOfPressureEntry.getText()));
         } catch (Exception e) {}
 
         try {
@@ -306,7 +302,7 @@ public class PrimaryController implements Initializable
                 params.noseConeType = RocketShape.NoseConeType.ELLIPTICAL;
                 break;
             case "Parabolic":
-                params.noseConeType = RocketShape.NoseConeType.PARABOLIC;
+                params.noseConeType = RocketShape.NoseConeType.HALF_POWER;
                 break;
             case "Tangent Ogive":
                 params.noseConeType = RocketShape.NoseConeType.TANGENT_OGIVE;
@@ -420,6 +416,11 @@ public class PrimaryController implements Initializable
         return fuelInertia;
     }
 
+    
+    private void computeAeroProperties(RocketParameters params) {
+        
+    }
+
     @FXML
     void runDesignTool() 
     {
@@ -436,7 +437,10 @@ public class PrimaryController implements Initializable
         this.propellantEntry.setText(Double.toString(fuel.getMass()));
         this.cGxEmptyEntry.setText(Double.toString(empty.getCGx()));
         this.cGxPropEntry.setText(Double.toString(fuel.getCGx()));
+
+        this.computeAeroProperties(params);
     }
+
 
     @FXML
     void loadSimpleRocket()
@@ -713,7 +717,7 @@ public class PrimaryController implements Initializable
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         this.noseConeTypeEntry.getItems().setAll("Cone", "Elliptical",
-            "Tangent Ogive", "Secant Ogive", "Parabolic", "3/4 Power", "Haack");
+            "Tangent Ogive", "Secant Ogive", "Parabolic", "1/2 Power", "3/4 Power", "Von Karman");
 
         this.noseConeTypeEntry.setValue("Cone");
 

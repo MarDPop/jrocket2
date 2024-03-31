@@ -11,8 +11,9 @@ public class RocketShape
         TANGENT_OGIVE,
         SECANT_OGIVE,
         PARABOLIC,
+        HALF_POWER,
         THREE_FOURTH_POWER,
-        HAACK
+        VON_KARMAN
     }
 
     Curve body;
@@ -141,7 +142,7 @@ public class RocketShape
         return curve;
     }
 
-    public static Curve generateParabolicCurve(double radius, double length, double sphericalRadius, double sResolution)
+    public static Curve generateSqrtCurve(double radius, double length, double sphericalRadius, double sResolution)
     {
         Curve curve = new Curve();
         curve.points.add(new CurvePoint(0, 0));
@@ -217,8 +218,8 @@ public class RocketShape
                 return generateConicalNose(radius, length, sphericalRadius, sResolution);
             case ELLIPTICAL:
                 return generateEllipticalNose(radius, length, sphericalRadius, sResolution);
-            case PARABOLIC:
-                return generateParabolicCurve(radius, length, sphericalRadius, sResolution);
+            case HALF_POWER:
+                return generateSqrtCurve(radius, length, sphericalRadius, sResolution);
             case TANGENT_OGIVE:
                 return generateTangentOgiveCurve(radius, length, sphericalRadius, sResolution);
             default:

@@ -106,6 +106,9 @@ public class RocketSimple extends State
         // add damping
         final double damping = 0.001;
         this.moments.set(Vec3.subtract(this.aerodynamics.moment, Vec3.mult(this.angular_velocity, damping)));
+        final double arm = this.aerodynamics.position.x - this.inertia.CGx;
+        this.moments.y += arm*this.aerodynamics.force.z;
+        this.moments.z -= arm*this.aerodynamics.force.y;
         this.moments.add(this.gnc.getControlMoment());
     }
     
