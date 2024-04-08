@@ -10,6 +10,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.ResourceBundle;
 
 // import javafx.swing.SwingNode;
@@ -22,6 +23,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart.*;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
@@ -41,19 +43,14 @@ import com.mardpop.jrocket.designer.Curve.CurvePoint;
 import com.mardpop.jrocket.designer.RocketShape;
 import com.mardpop.jrocket.util.*;
 import com.mardpop.jrocket.vehicle.InertiaSimple;
+import com.mardpop.jrocket.vehicle.propulsion.CommercialMotor;
 
 public class PrimaryController implements Initializable
 {
     String currentProjectName = "SimpleRocket";
 
     @FXML
-    CheckBox useDesignerToggle;
-
-    @FXML
-    TextField thrustEntry;
-
-    @FXML
-    TextField ispEntry;
+    CheckBox overrideValuesBox;
 
     @FXML
     TextField emptyMassEntry;
@@ -131,15 +128,6 @@ public class PrimaryController implements Initializable
     ChoiceBox<Integer> numberOfFinsEntry;
 
     @FXML
-    TextField fuelRadiusEntry, fuelLengthEntry, fuelBoreEntry, numberFuelSectionsEntry;
-
-    @FXML
-    ChoiceBox<String> fuelTypeEntry, fuelGrainShapeEntry;
-
-    @FXML
-    TextField throatRadiusEntry, nozzleRadiusEntry, halfAngleEntry;
-
-    @FXML
     TextField payloadMassEntry, payloadCOMEntry;
 
     @FXML
@@ -147,6 +135,11 @@ public class PrimaryController implements Initializable
 
     @FXML
     TextField structureThicknessEntry;
+
+    @FXML
+    ChoiceBox<String> motorSelection;
+
+    HashMap<String, CommercialMotor> motorMap = new HashMap<String, CommercialMotor>();
 
     @FXML
     Button designerRunButton;
@@ -267,6 +260,40 @@ public class PrimaryController implements Initializable
         }
     }
 
+    @FXML
+    void loadMotorFile()
+    {
+        FileChooser fileChooser = new FileChooser();
+        File selectedFile = fileChooser.showOpenDialog(null);
+        if(selectedFile != null)
+        {
+            try 
+            {
+                CommercialMotor motor = CommercialMotor.loadRASPFile(selectedFile.getAbsolutePath());
+                this.motorMap.put(motor.name, motor);
+                if(!motorSelection.getItems().contains(motor.name))
+                {
+                    motorSelection.getItems().add(motor.name);
+                    motorSelection.setValue(motor.name);
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                //Setting the content of the dialog
+                alert.setContentText("Unable to load the motor file: " + selectedFile.getAbsolutePath());
+                alert.showAndWait();
+            }
+        }
+    }
+
+    @FXML
+    void createMotorFile()
+    {
+        
+    }
+
     RocketParameters getParams()
     {
         final double CM2M = 0.01;
@@ -289,10 +316,7 @@ public class PrimaryController implements Initializable
         params.tubeFlangeLength = Double.parseDouble(this.tubeFlangeLengthEntry.getText())*CM2M;
         params.tubeLength = Double.parseDouble(this.tubeLengthEntry.getText())*CM2M;
         params.tubeRadius = Double.parseDouble(this.tubeRadiusEntry.getText())*CM2M;
-        params.fuelRadius = Double.parseDouble(this.fuelRadiusEntry.getText())*CM2M;
-        params.fuelLength = Double.parseDouble(this.fuelLengthEntry.getText())*CM2M;
-        params.fuelBore = Double.parseDouble(this.fuelBoreEntry.getText())*CM2M;
-        params.numFuelSections = Integer.parseInt(this.numberFuelSectionsEntry.getText());
+
         switch(this.noseConeTypeEntry.getValue())
         {
             case "Spherical":
@@ -318,10 +342,13 @@ public class PrimaryController implements Initializable
         params.structureMaterial = this.structureMaterialEntry.getSelectionModel().getSelectedIndex();
         params.structureThickness = Double.parseDouble(this.structureThicknessEntry.getText())*MM2M;
 
+        params.totalLength = params.noseConeLength + params.payloadTubeLength 
+            + params.payloadFlangeLength + params.tubeLength + params.tubeFlangeLength  + params.motorLength;
         return params;
     }
 
-    void drawRocket(RocketParameters params, double COM_empty, double COM_full, double COP)
+    void drawRocket(RocketParameters params, double COM_empty, double COM_full, 
+        double COP, double motorRadius, double motorLength)
     {
         RocketShape rs = new RocketShape(params);
         Curve body = rs.getBody();
@@ -380,8 +407,8 @@ public class PrimaryController implements Initializable
 
         // Motor
         g.setFill(Color.BROWN);
-        double h = scale*(params.fuelRadius - params.fuelBore);
-        double w = scale*params.fuelLength;
+        double h = scale*motorRadius;
+        double w = scale*motorLength;
         g.fillRect(xCenter + scale*motor2.x, yCenter + scale*motor1.r, 
             w, h); 
     
@@ -425,37 +452,35 @@ public class PrimaryController implements Initializable
         return InertiaCalc.computeEmptyInertiaFromParams(params);
     }
 
-    InertiaSimple computeFuelInertia(RocketParameters params)
-    {
-        final double fullLength = params.noseConeLength + params.payloadTubeLength 
-            + params.payloadFlangeLength + params.tubeLength + params.tubeFlangeLength + params.motorLength;
-
-        double fuelDensity = 1800;
-
-        InertiaSimple fuelInertia = InertiaCalc.tubeInertia(params.fuelRadius, params.fuelBore, 
-            params.fuelLength, fuelDensity);
-
-        fuelInertia.setCGx(fullLength - params.fuelLength*0.5);
-
-        return fuelInertia;
-    }
-
     @FXML
     void runDesignTool() 
     {
+        CommercialMotor motor = this.motorMap.get(this.motorSelection.getSelectionModel().getSelectedItem());
+
+        if(motor == null)
+        {   
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            //Setting the content of the dialog
+            alert.setContentText("motor not selected");
+            alert.showAndWait();
+            return;
+        }
+
         RocketParameters params = this.getParams();
         
         InertiaSimple empty = this.computeEmptyInertia(params);
-        InertiaSimple fuel = this.computeFuelInertia(params);
+
+        double[] values = motor.getValuesAtTime(0, 0);
+        double CGx_prop = params.totalLength - values[5];
 
         this.irrEmptyEntry.setText(Double.toString(empty.getIrr()));
-        this.irrPropEntry.setText(Double.toString(fuel.getIrr()));
+        this.irrPropEntry.setText(Double.toString(values[2]));
         this.ixxEmptyEntry.setText(Double.toString(empty.getIxx()));
-        this.ixxPropEntry.setText(Double.toString(fuel.getIxx()));
+        this.ixxPropEntry.setText(Double.toString(values[3]));
         this.emptyMassEntry.setText(Double.toString(empty.getMass()));
-        this.propellantEntry.setText(Double.toString(fuel.getMass()));
+        this.propellantEntry.setText(Double.toString(values[1]));
         this.cGxEmptyEntry.setText(Double.toString(empty.getCGx()));
-        this.cGxPropEntry.setText(Double.toString(fuel.getCGx()));
+        this.cGxPropEntry.setText(Double.toString(CGx_prop));
 
         double[] coef = AeroCalc.barrowmanCoef(params);
         this.centerOfPressureEntry.setText(Double.toString(coef[0]));
@@ -465,10 +490,10 @@ public class PrimaryController implements Initializable
         double cd  = AeroCalc.dragCoef(params);
         this.cdEntry.setText(Double.toString(cd));
 
-        double cGx_full = (empty.getCGx()*empty.getMass() + fuel.getCGx()*fuel.getMass())
-            / (empty.getMass() + fuel.getMass());
+        double cGx_full = (empty.getCGx()*empty.getMass() + CGx_prop*values[0])
+            / (empty.getMass() + values[0]);
 
-        this.drawRocket(params, empty.getCGx(), cGx_full, coef[0]);
+        this.drawRocket(params, empty.getCGx(), cGx_full, coef[0], motor.radius, motor.length);
     }
 
 
@@ -536,8 +561,20 @@ public class PrimaryController implements Initializable
                 if(rocket.has("Thruster"))
                 {
                     JSONObject obj = rocket.getJSONObject("Thruster");
-                    thrustEntry.setText(Double.toString(obj.getDouble("Thrust")));
-                    ispEntry.setText(Double.toString(obj.getDouble("ISP")));
+                    CommercialMotor motor = CommercialMotor.loadRASPFile(obj.getString("file"));
+                    if(motor != null)
+                    {
+                        if(motorSelection.getItems().contains(motor.name))
+                        {
+                            motorSelection.getSelectionModel().select(motor.name);
+                        }
+                        else
+                        {
+                            motorSelection.getItems().add(motor.name);
+                            motorSelection.getSelectionModel().select(motor.name);
+                            motorMap.put(motor.name, motor);
+                        }
+                    }
                 }
                 else
                 {
@@ -640,7 +677,7 @@ public class PrimaryController implements Initializable
             double maxDistance = 0;
             
             double massRatio = masses.get(0)/ masses.getLast();
-            double deltaV = Double.parseDouble(this.ispEntry.getText())*9.806*Math.log(massRatio);
+            double deltaV = 100*9.806*Math.log(massRatio);
 
             int tIdx = 0;
             final int tIdxFinal = times.size() - 1;
@@ -750,10 +787,6 @@ public class PrimaryController implements Initializable
 
         this.noseConeTypeEntry.setValue("Cone");
 
-        this.fuelGrainShapeEntry.getItems().addAll( "End Burning","Full Tube", "Partial Tube", "Full Cross");
-
-        this.fuelGrainShapeEntry.getSelectionModel().selectFirst();
-
         this.numberOfFinsEntry.getItems().setAll(0,2,3,4);
 
         this.numberOfFinsEntry.setValue(3);
@@ -762,9 +795,9 @@ public class PrimaryController implements Initializable
              "Aluminum", "Fiberglass", "Carbon Fiber");
 
         this.structureMaterialEntry.getSelectionModel().selectFirst();
-
-        this.useDesignerToggle.onActionProperty().setValue((event) -> {
-            boolean flag = useDesignerToggle.isSelected();
+        
+        this.overrideValuesBox.onActionProperty().setValue((event) -> {
+            boolean flag = !overrideValuesBox.isSelected();
             for(Node node : simpleRocketForm.getChildren())
             {
                 if(node instanceof TextField)
@@ -774,7 +807,9 @@ public class PrimaryController implements Initializable
             }
         });
 
-        this.useDesignerToggle.setSelected(true);
+        this.overrideValuesBox.setSelected(true);
+
+        this.motorSelection.getItems().setAll(null, "Small", "Large");
 
         /* 
         SwingNode node = new SwingNode();

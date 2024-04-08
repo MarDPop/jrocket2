@@ -19,14 +19,10 @@ public class RocketParameters
     public double finChordOffset;
     public double finSpan;
     public double finSweep;
-    public double fuelRadius;
-    public double fuelLength;
-    public double fuelBore;
     public double payloadMass;
     public double payloadCOM;
     public double structureThickness;
-    public int numFuelSections;
-    public int fuelGrainShape;
+    public double totalLength;
     public int numFins;
     public int structureMaterial;
     public NoseConeType noseConeType;

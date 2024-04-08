@@ -7,6 +7,7 @@ import com.mardpop.jrocket.vehicle.aerodynamics.Aerodynamics;
 import com.mardpop.jrocket.vehicle.aerodynamics.AerodynamicsBallistic;
 import com.mardpop.jrocket.vehicle.aerodynamics.AerodynamicsConstantCP;
 import com.mardpop.jrocket.vehicle.gnc.SimpleGNC;
+import com.mardpop.jrocket.vehicle.propulsion.CommercialMotor;
 import com.mardpop.jrocket.vehicle.propulsion.Thruster;
 
 import java.io.BufferedWriter;
@@ -48,7 +49,7 @@ public class SimulationSimpleRocket
     
     private Aerodynamics aerodynamics = new AerodynamicsBallistic(0.5, 0.1);
     
-    private Thruster thruster = new Thruster(80,0.1);
+    private CommercialMotor thruster;
     
     private SimpleGNC gnc = new SimpleGNC();
     
@@ -160,7 +161,18 @@ public class SimulationSimpleRocket
         if(rocket.has("Thruster"))
         {
             obj = rocket.getJSONObject("Thruster");
-            this.thruster = new Thruster(obj.getDouble("Thrust"), obj.getDouble("ISP"));
+            if(obj.has("format"))
+            {
+
+            }
+            else
+            {       
+                this.thruster = CommercialMotor.loadRASPFile(obj.getString("file"));
+                if(this.thruster == null)
+                {
+                    throw new Exception("Missing Thruster");
+                }
+            }
         }
         
         if(rocket.has("Aerodynamics"))
@@ -175,7 +187,7 @@ public class SimulationSimpleRocket
     {
         RocketSimple rocket = new RocketSimple(this.thruster, this.aerodynamics, this.gnc);
         rocket.setGround(this.groundPressure, this.groundTemperature, this.groundGravity, this.latitude);
-        rocket.setInertia(this.structureInertia, this.fuelInertia);
+        rocket.setInertia(this.structureInertia);
         rocket.setLaunchOrientation(this.pitch, this.heading);
         
         double time = 0;
@@ -188,7 +200,7 @@ public class SimulationSimpleRocket
         this.masses.clear();
         this.states.clear();
 
-        rocket.computeEnvironment(0);
+        rocket.init();
 
         while(time < this.timeFinal)
         {

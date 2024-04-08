@@ -51,198 +51,6 @@
          </BorderPane.margin>
       </MenuBar>
    </top>
-   <left>
-      <TabPane prefHeight="544.0" prefWidth="315.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
-        <tabs>
-          <Tab text="Simple Rocket">
-               <content>
-                  <ScrollPane prefHeight="666.0" prefWidth="333.0">
-                     <content>
-                        <VBox fx:id="simpleRocketForm" prefHeight="537.0" prefWidth="295.0" spacing="10.0">
-                           <children>
-                              <CheckBox id="useDesignerToggle" fx:id="useDesignerToggle" mnemonicParsing="false" text="Use Designer" />
-                              <Label text="Rocket Performance" textAlignment="CENTER">
-                                 <font>
-                                    <Font size="18.0" />
-                                 </font>
-                              </Label>
-                              <HBox prefWidth="200.0">
-                                 <children>
-                                    <Label text="Thrust (N): ">
-                                       <HBox.margin>
-                                          <Insets right="15.0" />
-                                       </HBox.margin>
-                                    </Label>
-                                    <TextField id="thrustEntry" fx:id="thrustEntry" promptText="Set thrust in newtons" text="1000">
-                                       <HBox.margin>
-                                          <Insets />
-                                       </HBox.margin>
-                                    </TextField>
-                                 </children>
-                              </HBox>
-                              <HBox prefWidth="200.0">
-                                 <children>
-                                    <Label text="Isp (s): " />
-                                    <TextField id="ispEntry" fx:id="ispEntry" promptText="Set Specific Impulse in Seconds" text="100" />
-                                 </children>
-                              </HBox>
-                              <Label text="Mass &amp; Inertia">
-                                 <font>
-                                    <Font size="18.0" />
-                                 </font>
-                              </Label>
-                              <HBox prefWidth="200.0">
-                                 <children>
-                                    <Label text="Empty Mass (kg): " />
-                                    <TextField id="emptyMassEntry" fx:id="emptyMassEntry" promptText="The mass of everything but the fuel" text="5" />
-                                 </children>
-                              </HBox>
-                              <HBox prefWidth="200.0">
-                                 <children>
-                                    <Label text="Empty Ixx (kg m2): " />
-                                    <TextField id="ixxEntry" fx:id="ixxEmptyEntry" promptText="Moment of Inertia about Axis" text="0.1" />
-                                 </children>
-                              </HBox>
-                              <HBox prefWidth="200.0">
-                                 <children>
-                                    <Label text="Empty Irr (kg m2): " />
-                                    <TextField id="irrEntry" fx:id="irrEmptyEntry" promptText="Moment of Inertia Perpendicular to Axis" text="0.5" />
-                                 </children>
-                              </HBox>
-                              <HBox prefWidth="200.0">
-                                 <children>
-                                    <Label text="Empty CG (cm): " />
-                                    <TextField id="irrEntry" fx:id="cGxEmptyEntry" promptText="Moment of Inertia Perpendicular to Axis" text="0.0" />
-                                 </children>
-                              </HBox>
-                              <HBox prefWidth="200.0">
-                                 <children>
-                                    <Label text="Propellant Mass (kg): " />
-                                    <TextField id="propellantMassEntry" fx:id="propellantEntry" promptText="Mass of the fuel" text="5" />
-                                 </children>
-                              </HBox>
-                              <HBox prefWidth="200.0">
-                                 <children>
-                                    <Label text="Propellant Ixx (kg m2): " />
-                                    <TextField id="ixxEntry" fx:id="ixxPropEntry" promptText="Moment of Inertia of fuel about axis" text="0.1" />
-                                 </children>
-                              </HBox>
-                              <HBox prefWidth="200.0">
-                                 <children>
-                                    <Label text="Propellant Irr (kg m2): " />
-                                    <TextField id="irrEntry" fx:id="irrPropEntry" promptText="Moment of Inertia Perpendicular to Axis" text="0.5" />
-                                 </children>
-                              </HBox>
-                              <HBox prefWidth="200.0">
-                                 <children>
-                                    <Label text="Propellent CG (cm): " />
-                                    <TextField id="irrEntry" fx:id="cGxPropEntry" promptText="Moment of Inertia Perpendicular to Axis" text="0.0" />
-                                 </children>
-                              </HBox>
-                              <Label text="Aerodynamics">
-                                 <font>
-                                    <Font size="18.0" />
-                                 </font>
-                              </Label>
-                              <HBox prefWidth="200.0">
-                                 <children>
-                                    <Label text="CD: " />
-                                    <TextField id="cdEntry" fx:id="cdEntry" promptText="Zero Lift Drag Coefficient" text="0.6" />
-                                 </children>
-                              </HBox>
-                              <HBox prefWidth="200.0">
-                                 <children>
-                                    <Label text="CN_alpha: " />
-                                    <TextField id="cnAlphaEntry" fx:id="cnAlphaEntry" promptText="Lift Curve Slope" text="1" />
-                                 </children>
-                              </HBox>
-                              <HBox prefWidth="200.0">
-                                 <children>
-                                    <Label text="Center Of Pressure (cm): " />
-                                    <TextField id="cmAlphaEntry" fx:id="centerOfPressureEntry" promptText="Pitch Moment Coefficient" text="0.0" />
-                                 </children>
-                              </HBox>
-                              <HBox prefWidth="200.0">
-                                 <children>
-                                    <Label text="Reference Area (m2): " />
-                                    <TextField id="referenceAreaEntry" fx:id="referenceAreaEntry" promptText="Reference Area for Coefficients (Cross Section Typical)" text="0.01" />
-                                 </children>
-                              </HBox>
-                              <Label text="Launch Conditions">
-                                 <font>
-                                    <Font size="18.0" />
-                                 </font>
-                              </Label>
-                              <HBox prefWidth="200.0">
-                                 <children>
-                                    <Label text="Ground Pressure (Pa): " />
-                                    <TextField id="altitudeEntry" fx:id="pressureEntry" promptText="Pressure At Ground" text="101325" />
-                                 </children>
-                              </HBox>
-                              <HBox prefWidth="200.0">
-                                 <children>
-                                    <Label text="Grount Temperature (C): " />
-                                    <TextField id="altitudeEntry" fx:id="temperatureEntry" promptText="Temperature in Celsius" text="18" />
-                                 </children>
-                              </HBox>
-                              <HBox prefWidth="200.0">
-                                 <children>
-                                    <Label text="Gravity (m/s2): " />
-                                    <TextField id="gravityEntry" fx:id="gravityEntry" promptText="Gravitational Acceleration on ground" text="9.8" />
-                                 </children>
-                              </HBox>
-                              <HBox prefWidth="200.0">
-                                 <children>
-                                    <Label text="Latitude (deg): " />
-                                    <TextField id="latitudeEntry" fx:id="latitudeEntry" promptText="Launch Latitude" text="0" />
-                                 </children>
-                              </HBox>
-                              <HBox prefWidth="200.0">
-                                 <children>
-                                    <Label text="Pitch (deg): " />
-                                    <TextField id="latitudeEntry" fx:id="pitchEntry" promptText="Off vertical launch pitch" text="0" />
-                                 </children>
-                              </HBox>
-                              <HBox prefWidth="200.0">
-                                 <children>
-                                    <Label text="Heading (deg): " />
-                                    <TextField id="headingEntry" fx:id="headingEntry" promptText="Direction of the pitch angle from north" text="0" />
-                                 </children>
-                              </HBox>
-                              <HBox prefWidth="200.0" spacing="15.0">
-                                 <children>
-                                    <Button id="loadSimple" fx:id="loadSimple" mnemonicParsing="false" onAction="#loadSimpleRocket" text="Load" />
-                                    <Button id="saveSimple" fx:id="saveSimple" mnemonicParsing="false" onAction="#saveSimpleRocket" text="Save" />
-                                 </children>
-                              </HBox>
-                              <HBox prefWidth="200.0">
-                                 <children>
-                                    <Button id="launchSimple" fx:id="launchSimple" mnemonicParsing="false" onAction="#launchSimpleRocket" text="Launch" />
-                                 </children>
-                              </HBox>
-                           </children>
-                           <opaqueInsets>
-                              <Insets />
-                           </opaqueInsets>
-                           <padding>
-                              <Insets left="10.0" top="10.0" />
-                           </padding>
-                        </VBox>
-                     </content>
-                     <opaqueInsets>
-                        <Insets top="10.0" />
-                     </opaqueInsets>
-                  </ScrollPane>
-               </content>
-          </Tab>
-          <Tab text="Full Feature Rocket">
-            <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-            </content>
-          </Tab>
-        </tabs>
-      </TabPane>
-   </left>
    <center>
       <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
         <tabs>
@@ -256,16 +64,14 @@
                             <ColumnConstraints hgrow="SOMETIMES" minWidth="100.0" prefWidth="160.0" />
                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="60.0" />
                               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="160.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="80.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="60.0" />
                               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="160.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="80.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="50.0" />
                           </columnConstraints>
                           <rowConstraints>
                             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                               <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                               <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                               <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -304,39 +110,25 @@
                               <TextField fx:id="finSweepEntry" text="0" GridPane.columnIndex="3" GridPane.rowIndex="5" />
                               <Label text="Number Fins:" GridPane.columnIndex="4" GridPane.rowIndex="4" />
                               <ChoiceBox fx:id="numberOfFinsEntry" prefWidth="150.0" GridPane.columnIndex="5" GridPane.rowIndex="4" />
-                              <Label text="Fuel Radius (cm): " GridPane.rowIndex="6" />
-                              <Label text="Fuel Length (cm): " GridPane.columnIndex="2" GridPane.rowIndex="6" />
-                              <Label text="Fuel Bore (cm): " GridPane.columnIndex="4" GridPane.rowIndex="7" />
-                              <Label text="Fuel Sections" GridPane.columnIndex="2" GridPane.rowIndex="7" />
-                              <TextField fx:id="fuelRadiusEntry" text="1.5" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-                              <TextField fx:id="fuelLengthEntry" text="9" GridPane.columnIndex="3" GridPane.rowIndex="6" />
-                              <TextField fx:id="numberFuelSectionsEntry" text="1" GridPane.columnIndex="3" GridPane.rowIndex="7" />
-                              <ChoiceBox fx:id="fuelTypeEntry" prefWidth="150.0" GridPane.columnIndex="5" GridPane.rowIndex="6" />
-                              <Label text="Throat Radius (cm): " GridPane.rowIndex="8" />
-                              <Label text="Nozzle Radius (cm): " GridPane.columnIndex="2" GridPane.rowIndex="8" />
-                              <Label text="Half Angle (deg): " GridPane.columnIndex="4" GridPane.rowIndex="8" />
-                              <TextField fx:id="throatRadiusEntry" text="0.25" GridPane.columnIndex="1" GridPane.rowIndex="8" />
-                              <TextField fx:id="nozzleRadiusEntry" text="0.5" GridPane.columnIndex="3" GridPane.rowIndex="8" />
-                              <TextField fx:id="halfAngleEntry" text="20" GridPane.columnIndex="5" GridPane.rowIndex="8" />
                               <Label text="Nose Spherical Radius (cm): " GridPane.columnIndex="4" />
                               <TextField fx:id="noseSphericalEntry" text="0" GridPane.columnIndex="5" />
                               <Label text="Fin Chord Offset (cm):" GridPane.columnIndex="4" GridPane.rowIndex="5" />
                               <TextField fx:id="finChordOffsetEntry" text="0" GridPane.columnIndex="5" GridPane.rowIndex="5" />
-                              <Label text="Payload Mass (g): " GridPane.rowIndex="9" />
-                              <TextField fx:id="payloadMassEntry" text="0" GridPane.columnIndex="1" GridPane.rowIndex="9" />
-                              <TextField fx:id="payloadCOMEntry" text="0" GridPane.columnIndex="3" GridPane.rowIndex="9" />
-                              <Label text="Payload Center (cm): " GridPane.columnIndex="2" GridPane.rowIndex="9" />
-                              <Label text="Structure Material: " GridPane.rowIndex="10" />
-                              <ChoiceBox fx:id="structureMaterialEntry" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="10" />
-                              <TextField fx:id="structureThicknessEntry" text="1" GridPane.columnIndex="3" GridPane.rowIndex="10" />
-                              <Label text="Structure Thickness (mm): " GridPane.columnIndex="2" GridPane.rowIndex="10" />
-                              <Label text="Fuel Type: " GridPane.columnIndex="4" GridPane.rowIndex="6" />
-                              <TextField fx:id="fuelBoreEntry" text="0.5" GridPane.columnIndex="5" GridPane.rowIndex="7" />
-                              <Label text="Fuel Grain Shape: " GridPane.rowIndex="7" />
-                              <ChoiceBox fx:id="fuelGrainShapeEntry" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                              <Label text="Payload Mass (g): " GridPane.rowIndex="7" />
+                              <TextField fx:id="payloadMassEntry" text="0" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                              <TextField fx:id="payloadCOMEntry" text="0" GridPane.columnIndex="3" GridPane.rowIndex="7" />
+                              <Label text="Payload Center (cm): " GridPane.columnIndex="2" GridPane.rowIndex="7" />
+                              <Label text="Structure Material: " GridPane.rowIndex="6" />
+                              <ChoiceBox fx:id="structureMaterialEntry" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                              <TextField fx:id="structureThicknessEntry" text="1" GridPane.columnIndex="3" GridPane.rowIndex="6" />
+                              <Label text="Structure Thickness (mm): " GridPane.columnIndex="2" GridPane.rowIndex="6" />
                            </children>
                         </GridPane>
                         <Button fx:id="designerRunButton" layoutX="15.0" layoutY="660.0" mnemonicParsing="false" onAction="#runDesignTool" text="Compute" />
+                        <Button layoutX="223.0" layoutY="595.0" mnemonicParsing="false" onAction="#loadMotorFile" text="Load File" />
+                        <ChoiceBox fx:id="motorSelection" layoutX="66.0" layoutY="595.0" prefWidth="150.0" />
+                        <Label layoutX="23.0" layoutY="599.0" text="Motor:" />
+                        <Button layoutX="293.0" layoutY="595.0" mnemonicParsing="false" onAction="#createMotorFile" text="Create" />
                      </children></AnchorPane>
               </content>
             </Tab>
@@ -412,4 +204,158 @@
         </tabs>
       </TabPane>
    </center>
+   <right>
+      <ScrollPane prefHeight="666.0" prefWidth="333.0" BorderPane.alignment="CENTER">
+         <content>
+            <VBox fx:id="simpleRocketForm" prefHeight="537.0" prefWidth="295.0" spacing="10.0">
+               <children>
+                  <CheckBox id="overrideValuesBox" fx:id="overrideValuesBox" mnemonicParsing="false" text="Override Values" />
+                  <Label text="Mass &amp; Inertia">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
+                  <HBox prefWidth="200.0">
+                     <children>
+                        <Label text="Empty Mass (kg): " />
+                        <TextField id="emptyMassEntry" fx:id="emptyMassEntry" promptText="The mass of everything but the fuel" text="5" />
+                     </children>
+                  </HBox>
+                  <HBox prefWidth="200.0">
+                     <children>
+                        <Label text="Empty Ixx (kg m2): " />
+                        <TextField id="ixxEntry" fx:id="ixxEmptyEntry" promptText="Moment of Inertia about Axis" text="0.1" />
+                     </children>
+                  </HBox>
+                  <HBox prefWidth="200.0">
+                     <children>
+                        <Label text="Empty Irr (kg m2): " />
+                        <TextField id="irrEntry" fx:id="irrEmptyEntry" promptText="Moment of Inertia Perpendicular to Axis" text="0.5" />
+                     </children>
+                  </HBox>
+                  <HBox prefWidth="200.0">
+                     <children>
+                        <Label text="Empty CG (cm): " />
+                        <TextField id="irrEntry" fx:id="cGxEmptyEntry" promptText="Moment of Inertia Perpendicular to Axis" text="0.0" />
+                     </children>
+                  </HBox>
+                  <HBox prefWidth="200.0">
+                     <children>
+                        <Label text="Propellant Mass (kg): " />
+                        <TextField id="propellantMassEntry" fx:id="propellantEntry" promptText="Mass of the fuel" text="5" />
+                     </children>
+                  </HBox>
+                  <HBox prefWidth="200.0">
+                     <children>
+                        <Label text="Propellant Ixx (kg m2): " />
+                        <TextField id="ixxEntry" fx:id="ixxPropEntry" promptText="Moment of Inertia of fuel about axis" text="0.1" />
+                     </children>
+                  </HBox>
+                  <HBox prefWidth="200.0">
+                     <children>
+                        <Label text="Propellant Irr (kg m2): " />
+                        <TextField id="irrEntry" fx:id="irrPropEntry" promptText="Moment of Inertia Perpendicular to Axis" text="0.5" />
+                     </children>
+                  </HBox>
+                  <HBox prefWidth="200.0">
+                     <children>
+                        <Label text="Propellent CG (cm): " />
+                        <TextField id="irrEntry" fx:id="cGxPropEntry" promptText="Moment of Inertia Perpendicular to Axis" text="0.0" />
+                     </children>
+                  </HBox>
+                  <Label text="Aerodynamics">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
+                  <HBox prefWidth="200.0">
+                     <children>
+                        <Label text="CD: " />
+                        <TextField id="cdEntry" fx:id="cdEntry" promptText="Zero Lift Drag Coefficient" text="0.6" />
+                     </children>
+                  </HBox>
+                  <HBox prefWidth="200.0">
+                     <children>
+                        <Label text="CN_alpha: " />
+                        <TextField id="cnAlphaEntry" fx:id="cnAlphaEntry" promptText="Lift Curve Slope" text="1" />
+                     </children>
+                  </HBox>
+                  <HBox prefWidth="200.0">
+                     <children>
+                        <Label text="Center Of Pressure (cm): " />
+                        <TextField id="cmAlphaEntry" fx:id="centerOfPressureEntry" promptText="Pitch Moment Coefficient" text="0.0" />
+                     </children>
+                  </HBox>
+                  <HBox prefWidth="200.0">
+                     <children>
+                        <Label text="Reference Area (m2): " />
+                        <TextField id="referenceAreaEntry" fx:id="referenceAreaEntry" promptText="Reference Area for Coefficients (Cross Section Typical)" text="0.01" />
+                     </children>
+                  </HBox>
+                  <Label text="Launch Conditions">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
+                  <HBox prefWidth="200.0">
+                     <children>
+                        <Label text="Ground Pressure (Pa): " />
+                        <TextField id="altitudeEntry" fx:id="pressureEntry" promptText="Pressure At Ground" text="101325" />
+                     </children>
+                  </HBox>
+                  <HBox prefWidth="200.0">
+                     <children>
+                        <Label text="Grount Temperature (C): " />
+                        <TextField id="altitudeEntry" fx:id="temperatureEntry" promptText="Temperature in Celsius" text="18" />
+                     </children>
+                  </HBox>
+                  <HBox prefWidth="200.0">
+                     <children>
+                        <Label text="Gravity (m/s2): " />
+                        <TextField id="gravityEntry" fx:id="gravityEntry" promptText="Gravitational Acceleration on ground" text="9.8" />
+                     </children>
+                  </HBox>
+                  <HBox prefWidth="200.0">
+                     <children>
+                        <Label text="Latitude (deg): " />
+                        <TextField id="latitudeEntry" fx:id="latitudeEntry" promptText="Launch Latitude" text="0" />
+                     </children>
+                  </HBox>
+                  <HBox prefWidth="200.0">
+                     <children>
+                        <Label text="Pitch (deg): " />
+                        <TextField id="latitudeEntry" fx:id="pitchEntry" promptText="Off vertical launch pitch" text="0" />
+                     </children>
+                  </HBox>
+                  <HBox prefWidth="200.0">
+                     <children>
+                        <Label text="Heading (deg): " />
+                        <TextField id="headingEntry" fx:id="headingEntry" promptText="Direction of the pitch angle from north" text="0" />
+                     </children>
+                  </HBox>
+                  <HBox prefWidth="200.0" spacing="15.0">
+                     <children>
+                        <Button id="loadSimple" fx:id="loadSimple" mnemonicParsing="false" onAction="#loadSimpleRocket" text="Load" />
+                        <Button id="saveSimple" fx:id="saveSimple" mnemonicParsing="false" onAction="#saveSimpleRocket" text="Save" />
+                     </children>
+                  </HBox>
+                  <HBox prefWidth="200.0">
+                     <children>
+                        <Button id="launchSimple" fx:id="launchSimple" mnemonicParsing="false" onAction="#launchSimpleRocket" text="Launch" />
+                     </children>
+                  </HBox>
+               </children>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+               <padding>
+                  <Insets left="10.0" top="10.0" />
+               </padding>
+            </VBox>
+         </content>
+         <opaqueInsets>
+            <Insets top="10.0" />
+         </opaqueInsets>
+      </ScrollPane>
+   </right>
 </BorderPane>

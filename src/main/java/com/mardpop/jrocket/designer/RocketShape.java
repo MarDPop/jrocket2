@@ -42,8 +42,6 @@ public class RocketShape
         x += params.motorLength;
         this.body.points.add(new CurvePoint(x, params.motorRadius));
 
-        final double xFinal = x;
-
         this.fin = generateFin(params.finBaseChord, params.finTipChord, params.finSpan, params.finSweep);
 
         x -= (params.finBaseChord + params.finChordOffset);
@@ -51,9 +49,6 @@ public class RocketShape
             p.x += x;
             p.r += params.motorRadius;
         }
-
-        this.motorCorner1 = new CurvePoint(xFinal, params.fuelBore);
-        this.motorCorner2 = new CurvePoint(xFinal - params.fuelLength, params.fuelRadius);
     }
 
     public static Curve generateConicalNose(double radius, double length, double sphericalRadius, double sResolution)

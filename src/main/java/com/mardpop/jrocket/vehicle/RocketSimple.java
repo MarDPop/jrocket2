@@ -5,7 +5,7 @@ import com.mardpop.jrocket.atmosphere.Atmosphere;
 import com.mardpop.jrocket.util.*;
 import com.mardpop.jrocket.vehicle.aerodynamics.Aerodynamics;
 import com.mardpop.jrocket.vehicle.gnc.SimpleGNC;
-import com.mardpop.jrocket.vehicle.propulsion.Thruster;
+import com.mardpop.jrocket.vehicle.propulsion.CommercialMotor;
 
 /**
  *
@@ -23,10 +23,6 @@ public class RocketSimple extends State
     
     private final InertiaSimple inertiaEmpty = new InertiaSimple();
     
-    private final InertiaSimple inertiaFuel = new InertiaSimple();
-    
-    private boolean hasFuel = true;
-    
         
     public final Matrix3 coordinateSystem = new Matrix3();
     
@@ -37,16 +33,19 @@ public class RocketSimple extends State
     private double g0;
     
     
-    public final Thruster thruster;
+    public final CommercialMotor thruster;
     
     public final Aerodynamics aerodynamics;
     
     public final SimpleGNC gnc;
 
     private final Vec3 wind = new Vec3();
+
+
+    private int thrusterTIdx = 0;
     
     
-    public RocketSimple(Thruster thruster, Aerodynamics aerodynamics, SimpleGNC gnc) 
+    public RocketSimple(CommercialMotor thruster, Aerodynamics aerodynamics, SimpleGNC gnc) 
     {
         this.thruster = thruster;
         this.aerodynamics = aerodynamics;
@@ -75,21 +74,27 @@ public class RocketSimple extends State
         this.orientation.fromRotationMatrix(CS);
     }
     
-    public void setInertia(InertiaSimple empty, InertiaSimple fuel)
+    public void setInertia(InertiaSimple empty)
     {
         this.inertiaEmpty.copy(empty);
-        this.inertiaFuel.copy(fuel);
     }
     
     public double getMass()
     {
         return this.inertia.mass;
     }
+
+    public void init()
+    {
+        this.thrusterTIdx = 0;
+        double[] values = this.thruster.getValuesAtTime(0, thrusterTIdx);
+        InertiaSimple propInertia = new InertiaSimple(values[1], values[2], values[3], values[4]);
+        this.inertia = new InertiaSimple(inertiaEmpty, propInertia);
+    }
     
     public void computeEnvironment(double time)
     {
         this.orientation.setRotationMatrixUnit(this.coordinateSystem);
-        this.inertia = new InertiaSimple(this.inertiaEmpty, this.inertiaFuel);
         
         this.atm.update(this.position.z, time);
         this.aero.update(this.velocity, this.coordinateSystem, this.atm.air, this.wind);
@@ -99,11 +104,18 @@ public class RocketSimple extends State
     {
         this.aerodynamics.update(aero);
         this.forces.set(this.aerodynamics.force);
-        
-        if(this.hasFuel)
+
+        if(time < this.thruster.time_final)
         {
-            this.thruster.update(this.atm.air.getPressure(), time);
-            this.forces.x = this.forces.x + this.thruster.getThrust();
+            while(this.thruster.getTimes()[this.thrusterTIdx + 1] < time)
+            {
+                this.thrusterTIdx++;
+            }
+
+            double[] values = this.thruster.getValuesAtTime(time, thrusterTIdx);
+            this.forces.x += values[0];
+            InertiaSimple propInertia = new InertiaSimple(values[1], values[2], values[3], values[4]);
+            this.inertia = new InertiaSimple(this.inertiaEmpty, propInertia);
         }
         // add damping
         final double damping = 0.001;
@@ -136,16 +148,6 @@ public class RocketSimple extends State
         this.angular_velocity.add(Vec3.mult(this.getAngularAcceleration(), dt));
         
         this.orientation.normalize();
-        
-        if(this.hasFuel)
-        {
-            double mass0 = this.inertiaFuel.mass;
-            this.inertiaFuel.mass -= this.thruster.getMassRate()*dt;
-            mass0 = this.inertiaFuel.mass / mass0;
-            this.inertiaFuel.Irr *= mass0;
-            this.inertiaFuel.Ixx *= mass0;
-            this.hasFuel = this.inertiaFuel.mass > 0;
-        }
     }
 
     public void push(double time, double dt)

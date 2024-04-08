@@ -524,20 +524,6 @@ public class InertiaCalc
 
         InertiaSimple emptyInertia = new InertiaSimple(structureMass, payloadInertia);
 
-        final double fullLength = params.noseConeLength + params.payloadTubeLength 
-            + params.payloadFlangeLength + params.tubeLength + params.tubeFlangeLength + params.motorLength;
-
-        final double SAFETY_MARGIN = 3.0;
-        final double ALUMINUMT6_YIELD = 276e6;
-        final double MAXCHAMBERPRESSURE = 1e7;
-        double motorHousingThickness = MAXCHAMBERPRESSURE*params.fuelRadius*SAFETY_MARGIN/ALUMINUMT6_YIELD;
-        InertiaSimple motorHousingInertia = InertiaCalc.tubeInertia(params.fuelRadius, 
-            params.fuelRadius + motorHousingThickness, payloadIrr, finDensity);
-
-        motorHousingInertia.setCGx(fullLength - params.fuelLength*0.5);
-
-        emptyInertia = new InertiaSimple(emptyInertia, motorHousingInertia);
-
         final double MASS_MARGIN = 1.25;
         return new InertiaSimple(emptyInertia.getMass()*MASS_MARGIN, emptyInertia.getIxx()*MASS_MARGIN,
             emptyInertia.getIrr()*MASS_MARGIN, emptyInertia.getCGx());

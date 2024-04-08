@@ -28,27 +28,6 @@ public class App extends Application {
         logger.info("Result " + A);
         logger.info("Result " + M);
     }
-    
-    public void runSim() throws IOException 
-    {
-        Logger logger 
-            = Logger.getLogger(App.class.getName()); 
-        logger.info("Running Sim.");
-        
-        SimulationSimpleRocket sim = new SimulationSimpleRocket();
-        try 
-        {
-            sim.load("SimpleRocket.sRocket");
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
-        
-        sim.run();
-        
-        sim.save("simple_rocket.testOutput");
-    }
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -56,9 +35,6 @@ public class App extends Application {
         stage.setScene(scene);
         stage.show();
         stage.setMaximized(true);
-        
-        runTests();
-        runSim();
     }
 
     private static Parent loadFXML(String fxml) throws IOException {

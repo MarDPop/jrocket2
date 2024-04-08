@@ -10,6 +10,8 @@ import com.mardpop.jrocket.vehicle.InertiaSimple;
 
 public class CommercialMotor 
 {
+    public final String name;
+
     private final InertiaSimple inertia_empty = new InertiaSimple();
 
     private final InertiaSimple inertia_delta = new InertiaSimple();
@@ -24,19 +26,27 @@ public class CommercialMotor
 
     private final double[] time_curve;
 
+    public final double time_final;
+
     public final double radius;
 
     public final double length;
 
-    public CommercialMotor(ArrayList<Double> thrust_curve, ArrayList<Double> time_curve,
+    public final int lastIndex;
+
+    public CommercialMotor(String name, ArrayList<Double> thrust_curve, ArrayList<Double> time_curve,
         final double mass_empty, final double mass_propellant, double radius, double length) 
     {
+        this.name = name;
         final int nEntry = thrust_curve.size();
+        this.lastIndex = nEntry-1;
         this.thrust_curve = new double[nEntry];
         this.mass_curve = new double[nEntry];
         this.thrust_curve_delta = new double[nEntry];
         this.mass_curve_delta = new double[nEntry];
         this.time_curve = new double[nEntry];
+
+        this.time_final = time_curve.get(this.lastIndex);
 
         this.radius = radius;
         this.length = length;
@@ -140,7 +150,7 @@ public class CommercialMotor
 
             double radius = mmDiameter*0.0005;
             double length = mmLength*0.001;
-            return new CommercialMotor(thrusts, times, kgFull - kgProp, kgProp, radius, length);
+            return new CommercialMotor(split[0], thrusts, times, kgFull - kgProp, kgProp, radius, length);
         }
         catch(Exception e)
         {
