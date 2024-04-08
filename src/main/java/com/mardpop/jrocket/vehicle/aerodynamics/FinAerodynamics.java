@@ -72,6 +72,26 @@ public class FinAerodynamics extends Aerodynamics
         this.finCOPRadial = finCOPRadial;
         this.dCRdel = this.dCLdalpha*finCOPRadial;
     }
+
+    public double getReferenceArea()
+    {
+        return this.sRef;
+    }
+
+    public double getFinReferenceArea()
+    {
+        return this.finARef;
+    }
+
+    public double getFinCOPRadial()
+    {
+        return this.finCOPRadial;
+    }
+
+    public double getFinXLoc()
+    {
+        return this.finXLoc;
+    }
     
     public void setDeflection(int i, double angle)
     {

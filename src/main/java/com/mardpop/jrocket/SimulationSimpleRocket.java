@@ -5,7 +5,7 @@ import com.mardpop.jrocket.util.Vec3;
 import com.mardpop.jrocket.vehicle.*;
 import com.mardpop.jrocket.vehicle.aerodynamics.Aerodynamics;
 import com.mardpop.jrocket.vehicle.aerodynamics.AerodynamicsBallistic;
-import com.mardpop.jrocket.vehicle.aerodynamics.AerodynamicsBasicCoefficients;
+import com.mardpop.jrocket.vehicle.aerodynamics.AerodynamicsConstantCP;
 import com.mardpop.jrocket.vehicle.gnc.SimpleGNC;
 import com.mardpop.jrocket.vehicle.propulsion.Thruster;
 
@@ -166,8 +166,8 @@ public class SimulationSimpleRocket
         if(rocket.has("Aerodynamics"))
         {
             obj = rocket.getJSONObject("Aerodynamics");
-            this.aerodynamics = new AerodynamicsBasicCoefficients(obj.getDouble("CD"), obj.getDouble("CL_alpha"),
-                    obj.getDouble("CM_alpha"), obj.getDouble("LiftInducedDrag"), obj.getDouble("Area"));
+            this.aerodynamics = new AerodynamicsConstantCP(obj.getDouble("CD"),
+                    obj.getDouble("CN_alpha"), obj.getDouble("COP_x"), obj.getDouble("Area"));
         }
     }
     

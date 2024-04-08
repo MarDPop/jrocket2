@@ -1,6 +1,5 @@
 package com.mardpop.jrocket.util;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**

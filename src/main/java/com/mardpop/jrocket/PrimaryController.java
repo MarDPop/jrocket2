@@ -12,11 +12,12 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
+// import javafx.swing.SwingNode;
+
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.chart.LineChart;
@@ -32,6 +33,7 @@ import javafx.stage.FileChooser;
 
 import org.json.*;
 
+import com.mardpop.jrocket.designer.AeroCalc;
 import com.mardpop.jrocket.designer.Curve;
 import com.mardpop.jrocket.designer.InertiaCalc;
 import com.mardpop.jrocket.designer.RocketParameters;
@@ -88,9 +90,6 @@ public class PrimaryController implements Initializable
 
     @FXML
     TextField referenceAreaEntry;
-
-    @FXML
-    TextField liftInducedDragEntry;
 
     @FXML
     TextField pressureEntry;
@@ -165,7 +164,7 @@ public class PrimaryController implements Initializable
     Canvas designCanvas;
 
     @FXML
-    VBox SimpleRocketForm;
+    VBox simpleRocketForm;
 
     @FXML
     LineChart<Double, Double> distanceChart;
@@ -251,7 +250,7 @@ public class PrimaryController implements Initializable
         } catch (Exception e) {}
 
         try {
-            aerodynamics.put("COP", Double.parseDouble(centerOfPressureEntry.getText()));
+            aerodynamics.put("COP_x", Double.parseDouble(centerOfPressureEntry.getText()));
         } catch (Exception e) {}
 
         try {
@@ -272,6 +271,7 @@ public class PrimaryController implements Initializable
     {
         final double CM2M = 0.01;
         final double MM2M = 0.001;
+        final double G2KG = 0.001;
         RocketParameters params = new RocketParameters();
         params.finBaseChord = Double.parseDouble(this.finBaseChordEntry.getText())*CM2M;
         params.finTipChord = Double.parseDouble(this.finTipChordEntry.getText())*CM2M;
@@ -312,7 +312,7 @@ public class PrimaryController implements Initializable
                 break;
         }
 
-        params.payloadMass = Double.parseDouble(this.payloadMassEntry.getText());
+        params.payloadMass = Double.parseDouble(this.payloadMassEntry.getText())*G2KG; // to kg
         params.payloadCOM = Double.parseDouble(this.payloadCOMEntry.getText())*CM2M;
 
         params.structureMaterial = this.structureMaterialEntry.getSelectionModel().getSelectedIndex();
@@ -321,7 +321,7 @@ public class PrimaryController implements Initializable
         return params;
     }
 
-    void drawRocket(RocketParameters params)
+    void drawRocket(RocketParameters params, double COM_empty, double COM_full, double COP)
     {
         RocketShape rs = new RocketShape(params);
         Curve body = rs.getBody();
@@ -341,40 +341,40 @@ public class PrimaryController implements Initializable
 
         double scale = Math.min(xScale, yScale);
 
-        double center = designCanvas.getHeight()*0.5;
-        double xOffset = designCanvas.getWidth()*0.025;
+        double yCenter = designCanvas.getHeight()*0.5;
+        double xCenter = designCanvas.getWidth()*0.025;
 
         g.beginPath();
-        g.moveTo(xOffset + scale*body.points.get(0).x, center + scale*body.points.get(0).r);
+        g.moveTo(xCenter + scale*body.points.get(0).x, yCenter + scale*body.points.get(0).r);
         for(CurvePoint point : body.points)
         {
-            g.lineTo(xOffset + scale*point.x, center + scale*point.r);
+            g.lineTo(xCenter + scale*point.x, yCenter + scale*point.r);
         }
-        g.lineTo(xOffset + scale*body.points.getLast().x, center);
+        g.lineTo(xCenter + scale*body.points.getLast().x, yCenter);
         g.stroke();
 
         g.beginPath();
-        g.moveTo(xOffset + scale*fin.points.get(0).x, center + scale*fin.points.get(0).r);
+        g.moveTo(xCenter + scale*fin.points.get(0).x, yCenter + scale*fin.points.get(0).r);
         for(CurvePoint point : fin.points)
         {
-            g.lineTo(xOffset + scale*point.x, center + scale*point.r);
+            g.lineTo(xCenter + scale*point.x, yCenter + scale*point.r);
         }
         g.stroke();
 
         g.beginPath();
-        g.moveTo(xOffset + scale*body.points.get(0).x, center - scale*body.points.get(0).r);
+        g.moveTo(xCenter + scale*body.points.get(0).x, yCenter - scale*body.points.get(0).r);
         for(CurvePoint point : body.points)
         {
-            g.lineTo(xOffset + scale*point.x, center - scale*point.r);
+            g.lineTo(xCenter + scale*point.x, yCenter - scale*point.r);
         }
-        g.lineTo(xOffset + scale*body.points.getLast().x, center);
+        g.lineTo(xCenter + scale*body.points.getLast().x, yCenter);
         g.stroke();
 
         g.beginPath();
-        g.moveTo(xOffset + scale*fin.points.get(0).x, center - scale*fin.points.get(0).r);
+        g.moveTo(xCenter + scale*fin.points.get(0).x, yCenter - scale*fin.points.get(0).r);
         for(CurvePoint point : fin.points)
         {
-            g.lineTo(xOffset + scale*point.x, center - scale*point.r);
+            g.lineTo(xCenter + scale*point.x, yCenter - scale*point.r);
         }
         g.stroke();
 
@@ -382,18 +382,42 @@ public class PrimaryController implements Initializable
         g.setFill(Color.BROWN);
         double h = scale*(params.fuelRadius - params.fuelBore);
         double w = scale*params.fuelLength;
-        g.fillRect(xOffset + scale*motor2.x, center + scale*motor1.r, 
+        g.fillRect(xCenter + scale*motor2.x, yCenter + scale*motor1.r, 
             w, h); 
     
-        g.fillRect(xOffset + scale*motor2.x, center - scale*motor2.r,
+        g.fillRect(xCenter + scale*motor2.x, yCenter - scale*motor2.r,
             w, h);
 
         g.setFill(Color.MEDIUMSEAGREEN);
         double xPayload = params.noseConeLength + params.payloadTubeLength*0.5;
-        double xStroke = xOffset + scale*xPayload;
-        double yStroke = center;
+        double xStroke = xCenter + scale*xPayload;
+        double yStroke = yCenter;
         double radius = 10;
         g.fillOval(xStroke - radius, yStroke - radius, radius*2, radius*2);
+
+        this.drawWeightBalance(COM_empty, COM_full, COP, xCenter, yCenter, scale);
+    }
+
+    void drawWeightBalance(final double COM_empty, final double COM_full, final double COP,
+        final double xCenter, final double yCenter, final double scale)
+    {
+        GraphicsContext g = this.designCanvas.getGraphicsContext2D();
+        double radius = 6;
+        double xStroke = xCenter + scale*COM_empty;
+        g.setStroke(Color.CORAL);
+        g.strokeOval(xStroke - radius, yCenter - radius, radius*2, radius*2);
+
+        xStroke = xCenter + scale*COP;
+        g.setFill(Color.BLUE);
+        g.fillOval(xStroke - radius, yCenter - radius, radius*2, radius*2);
+
+        radius = 10;
+        xStroke = xCenter + scale*COM_full;
+        g.setStroke(Color.RED);
+        g.strokeOval(xStroke - radius, yCenter - radius, radius*2, radius*2);
+        g.strokeLine(xStroke - radius, yCenter, xStroke + radius, yCenter);
+        g.strokeLine(xStroke, yCenter - radius, xStroke, yCenter + radius);
+
     }
 
     InertiaSimple computeEmptyInertia(RocketParameters params)
@@ -416,16 +440,11 @@ public class PrimaryController implements Initializable
         return fuelInertia;
     }
 
-    
-    private void computeAeroProperties(RocketParameters params) {
-        
-    }
-
     @FXML
     void runDesignTool() 
     {
         RocketParameters params = this.getParams();
-        this.drawRocket(params);
+        
         InertiaSimple empty = this.computeEmptyInertia(params);
         InertiaSimple fuel = this.computeFuelInertia(params);
 
@@ -438,7 +457,18 @@ public class PrimaryController implements Initializable
         this.cGxEmptyEntry.setText(Double.toString(empty.getCGx()));
         this.cGxPropEntry.setText(Double.toString(fuel.getCGx()));
 
-        this.computeAeroProperties(params);
+        double[] coef = AeroCalc.barrowmanCoef(params);
+        this.centerOfPressureEntry.setText(Double.toString(coef[0]));
+        this.cnAlphaEntry.setText(Double.toString(coef[1]));
+        this.referenceAreaEntry.setText(Double.toString(coef[2]));
+
+        double cd  = AeroCalc.dragCoef(params);
+        this.cdEntry.setText(Double.toString(cd));
+
+        double cGx_full = (empty.getCGx()*empty.getMass() + fuel.getCGx()*fuel.getMass())
+            / (empty.getMass() + fuel.getMass());
+
+        this.drawRocket(params, empty.getCGx(), cGx_full, coef[0]);
     }
 
 
@@ -519,9 +549,8 @@ public class PrimaryController implements Initializable
                     JSONObject obj = rocket.getJSONObject("Aerodynamics");
                     cdEntry.setText(Double.toString(obj.getDouble("CD")));
                     referenceAreaEntry.setText(Double.toString(obj.getDouble("Area")));
-                    clAlphaEntry.setText(Double.toString(obj.getDouble("CL_alpha")));
-                    cmAlphaEntry.setText(Double.toString(obj.getDouble("CM_alpha")));
-                    liftInducedDragEntry.setText(Double.toString(obj.getDouble("LiftInducedDrag")));
+                    cnAlphaEntry.setText(Double.toString(obj.getDouble("CN_alpha")));
+                    centerOfPressureEntry.setText(Double.toString(obj.getDouble("COP_x")));
                 }
                 else
                 {
@@ -733,6 +762,30 @@ public class PrimaryController implements Initializable
              "Aluminum", "Fiberglass", "Carbon Fiber");
 
         this.structureMaterialEntry.getSelectionModel().selectFirst();
+
+        this.useDesignerToggle.onActionProperty().setValue((event) -> {
+            boolean flag = useDesignerToggle.isSelected();
+            for(Node node : simpleRocketForm.getChildren())
+            {
+                if(node instanceof TextField)
+                {
+                    node.setDisable(flag);
+                }
+            }
+        });
+
+        this.useDesignerToggle.setSelected(true);
+
+        /* 
+        SwingNode node = new SwingNode();
+
+        Platform.runLater(() -> {
+            WorldWindowGLJPanel wwj = new WorldWindowGLJPanel();
+            Model m = (Model)WorldWind.createConfigurationComponent(AVKey.MODEL_CLASS_NAME);
+            wwj.setModel(m);
+            node.setContent(wwj);
+        });
+        */
     }
 
 }

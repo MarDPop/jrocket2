@@ -6,7 +6,7 @@ package com.mardpop.jrocket.vehicle.gnc;
  */
 public class Control 
 {
-    private final Guidance guidance;
+    protected final Guidance guidance;
     
     public Control(Guidance guidance)
     {

@@ -1,10 +1,7 @@
 package com.mardpop.jrocket.vehicle;
 
-import com.mardpop.jrocket.vehicle.gnc.Guidance;
-import com.mardpop.jrocket.vehicle.gnc.Navigation;
 import com.mardpop.jrocket.vehicle.propulsion.Propulsion;
 import com.mardpop.jrocket.vehicle.aerodynamics.Aerodynamics;
-import com.mardpop.jrocket.vehicle.gnc.Control;
 import com.mardpop.jrocket.atmosphere.Atmosphere;
 import com.mardpop.jrocket.atmosphere.AerodynamicQuantities;
 import com.mardpop.jrocket.util.Matrix3;
@@ -35,17 +32,18 @@ public class Rocket extends State
     private Atmosphere atm;
     
     public final AerodynamicQuantities aero = new AerodynamicQuantities();
+
+    private final Vec3 wind = new Vec3();
+
+    private FrameAccelerationLTP frameAcceleration = new FrameAccelerationLTP(0.0);
     
     
     public final Propulsion propulsion;
     
     public final Aerodynamics aerodynamics;
-    
-    public final FrameAcceleration frameAcceleration = new FrameAcceleration();
-    
-    
+
     public final GNC gnc;
-    
+
 
     Rocket(Propulsion propulsion, Aerodynamics aerodynamics, GNC gnc) 
     {
@@ -74,7 +72,11 @@ public class Rocket extends State
         this.inertia.combine(this.inertiaEmpty, this.propulsion.propellant.getInertia());
         
         this.atm.update(this.position.z, time);
-        this.aero.update(this.velocity, this.CS, this.atm.air, this.atm.wind);
+
+        this.wind.x = this.CS.a00*this.atm.wind.east + this.CS.a01*this.atm.wind.north;
+        this.wind.y = this.CS.a10*this.atm.wind.east + this.CS.a11*this.atm.wind.north;
+        this.wind.z = this.CS.a20*this.atm.wind.east + this.CS.a21*this.atm.wind.north;
+        this.aero.update(this.velocity, this.CS, this.atm.air, this.wind);
         
         this.gnc.update(time);
     }
@@ -103,7 +105,7 @@ public class Rocket extends State
         Vec3 angularRate0 = new Vec3(this.angular_velocity);
         
         Vec3 acceleration0 = Vec3.mult(this.forces, 1.0/this.inertia.mass);
-        acceleration0.add(this.frameAcceleration.getAcceleration(this.position.z, this.velocity));
+        acceleration0.add(this.frameAcceleration.computeAcceleration(this.position.z, this.velocity));
         
         Vec3 angularAcceleration0 = this.getAngularAcceleration();
 
@@ -118,7 +120,7 @@ public class Rocket extends State
         this.updateForces(time, 0);
 
         Vec3 acceleration1 = Vec3.mult(this.forces, 1.0/this.inertia.mass);
-        acceleration1.add(this.frameAcceleration.getAcceleration(this.position.z, this.velocity));
+        acceleration1.add(this.frameAcceleration.computeAcceleration(this.position.z, this.velocity));
         
         Vec3 angularAcceleration1 = this.getAngularAcceleration();
 

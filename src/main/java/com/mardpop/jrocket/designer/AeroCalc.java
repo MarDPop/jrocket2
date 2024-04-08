@@ -3,16 +3,22 @@ package com.mardpop.jrocket.designer;
 public class AeroCalc 
 {
     
-    double[] barrowmanMethod(RocketParameters params)
+    static double[] barrowmanMethod(RocketParameters params)
     {
+        // Compute CN
+
+        // Compute CN for nose cone
         double noseConeCN = 2.0;
 
+        // Compute CN for payload flange
         double payloadTransitionCN = 8*Math.PI*(params.tubeRadius*params.tubeRadius - 
             params.payloadTubeRadius*params.payloadTubeRadius);
         
+        // Compute CN for motor flange
         double motorTransitionCN = 8*Math.PI*(params.motorRadius*params.motorRadius - 
             params.tubeRadius*params.tubeRadius);
 
+        // Compute CN for fins
         final double interferenceF = params.numFins > 4 ? 0.5 : 1.0;
         final double midchordLength = params.finSpan/Math.cos(params.finSweep);
         final double s_d = params.finSpan*0.5/params.motorRadius;
@@ -20,6 +26,9 @@ public class AeroCalc
         double finCN = (1 + interferenceF*params.motorRadius/(params.motorRadius + params.finSpan))*
             ((4*params.numFins*s_d*s_d)/(1 + Math.sqrt(1 + denC*denC)));
 
+        // Compute CP 
+
+        // Compute CP for nose cone
         double noseCP = 0.5;
         switch ( params.noseConeType) {
             case CONICAL:
@@ -51,16 +60,28 @@ public class AeroCalc
         }
         noseCP *= params.noseConeLength;
 
+        // Compute CP for conical sections
+        // Payload Flange
         double X = params.noseConeLength + params.payloadTubeLength;
         double diameterRatio = params.payloadTubeRadius/params.tubeRadius;
-        double payloadTransitionCP = X + params.payloadFlangeLength*0.333333333333*
-            (1 + (1 - diameterRatio)/(1 - diameterRatio*diameterRatio));
+        double payloadTransitionCP = X;
+        if(Math.abs(diameterRatio - 1) > 0.001)
+        {
+            payloadTransitionCP += params.payloadFlangeLength*0.333333333333*
+                (1 + (1 - diameterRatio)/(1 - diameterRatio*diameterRatio));
+        }
 
+        // Motor Flange
         X = params.noseConeLength + params.payloadTubeLength + params.payloadFlangeLength + params.tubeLength;
         diameterRatio = params.tubeRadius/params.motorRadius;
-        double motorTransitionCP = X + params.payloadFlangeLength*0.333333333333*
-            (1 + (1 - diameterRatio)/(1 - diameterRatio*diameterRatio));
+        double motorTransitionCP = X; 
+        if(Math.abs(diameterRatio - 1) > 0.001)
+        {
+            motorTransitionCP += params.payloadFlangeLength*0.333333333333*
+                (1 + (1 - diameterRatio)/(1 - diameterRatio*diameterRatio));
+        }
 
+        // Compute CP for fin sections
         X = params.noseConeLength + params.payloadTubeLength + params.payloadFlangeLength + params.tubeLength
             + params.tubeFlangeLength + params.motorLength - params.finBaseChord - params.finChordOffset;
 
@@ -74,11 +95,11 @@ public class AeroCalc
             motorTransitionCN, motorTransitionCP, finCN, finCP};
     }
 
-    public double[] barrowmanCoef(RocketParameters params)
+    public static double[] barrowmanCoef(RocketParameters params)
     {
         final double referenceArea = params.motorRadius*params.motorRadius*Math.PI;
 
-        double[] barrowmanCoef = barrowmanMethod(params);
+        final double[] barrowmanCoef = barrowmanMethod(params);
         double num = 0;
         double den = 0;
         for(int i = 0; i < 8; i+=2)
@@ -86,7 +107,45 @@ public class AeroCalc
             num += barrowmanCoef[i]*barrowmanCoef[i+1];
             den += barrowmanCoef[i];
         }
+        // returns [CP, CN, Aref]
+        return new double[]{num/den, den, referenceArea};
+    }
 
-        return new double[]{num/den, den/referenceArea};
+    public static double dragCoef(RocketParameters params)
+    {
+        double noseCd = 0.66;
+        switch(params.noseConeType)
+        {
+            case TANGENT_OGIVE:
+                noseCd = 0.62;
+                break;
+            case PARABOLIC:
+                noseCd = 0.65;
+                break;
+            case CONICAL:
+                noseCd = 0.75;
+                break;
+            case ELLIPTICAL:
+                noseCd = 0.65;
+                break;
+            case HALF_POWER:
+                noseCd = 0.63;
+                break;
+            case SECANT_OGIVE:
+                noseCd = 0.67;
+                break;
+            case THREE_FOURTH_POWER:
+                noseCd = 0.65;
+                break;
+            case VON_KARMAN:
+                noseCd = 0.65;
+                break;
+            default:
+                break;
+        }
+        double finArea = (params.finBaseChord + params.finTipChord)*params.finSpan*0.5;
+        double finCD = 0.01*params.numFins*finArea/(params.motorRadius*params.motorRadius*Math.PI);
+
+        return noseCd + finCD;
     }
 }

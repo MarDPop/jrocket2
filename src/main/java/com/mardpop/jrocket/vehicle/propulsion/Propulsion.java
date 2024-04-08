@@ -27,6 +27,8 @@ public class Propulsion extends Action
     
     public void update(double pressure, double time, double dt)
     {
+        this.propellant.takePropellant(this.thruster.getMassRate()*dt);
+
         this.thruster.update(pressure, time);
         
         this.vectorControl.update(time, dt);
@@ -35,7 +37,5 @@ public class Propulsion extends Action
         this.force.x = thrust*this.vectorControl.thrustVector.x;
         this.force.y = thrust*this.vectorControl.thrustVector.y;
         this.force.z = thrust*this.vectorControl.thrustVector.z;
-
-        this.propellant.takePropellant(this.thruster.getMassRate()*dt);
     }
 }

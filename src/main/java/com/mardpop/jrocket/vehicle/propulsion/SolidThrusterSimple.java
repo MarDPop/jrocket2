@@ -23,12 +23,6 @@ public class SolidThrusterSimple extends SolidThruster
     
     private final double tFinal;
     
-    private final double mass_full;
-    
-    private final double Irr_full;
-    
-    private final double Ixx_full;
-    
     private int tIdx;
     
     public SolidThrusterSimple(double[] times, double[] thrusts, double[] massRates,
@@ -49,10 +43,8 @@ public class SolidThrusterSimple extends SolidThruster
             this.dMassRate[i-1] = (this.massRates[i] - this.massRates[i-1])/dT;
             massSum += (this.massRates[i-1]*dT);
         }
-        
-        this.Irr_full = Irr_full;
-        this.Ixx_full = Ixx_full;
-        this.mass_full = massSum;
+
+        this.solidFuel = new PropellantTankSimple(null, massSum, Irr_full, Ixx_full, 0);
     }
     
     public static SolidThrusterSimple load(String filename)

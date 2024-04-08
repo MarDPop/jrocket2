@@ -1,13 +1,17 @@
 package com.mardpop.jrocket.atmosphere;
 
-import com.mardpop.jrocket.util.Vec3;
-
 /**
  *
  * @author mariu
  */
 public class Atmosphere 
 {
+    public class Wind 
+    {
+        public float north = 0.0f;
+        public float east = 0.0f;
+    }
+
     private double[] heights;
     
     private double[] values;
@@ -18,7 +22,7 @@ public class Atmosphere
     
     public final Air air = new Air();
     
-    public final Vec3 wind = new Vec3(0,0,0);
+    public final Wind wind = new Wind();
     
     public static final Air VACUUM = new Air(0,0,1,1);
     
@@ -80,7 +84,6 @@ public class Atmosphere
         if(z >= heights[heights.length-1])
         {
             air.copy(VACUUM);
-            wind.zero();
             return;
         }
         

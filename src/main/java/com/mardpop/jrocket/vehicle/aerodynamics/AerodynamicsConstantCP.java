@@ -5,14 +5,14 @@ import com.mardpop.jrocket.util.Vec3;
 
 public class AerodynamicsConstantCP extends Aerodynamics
 {
-    private final double CN;
+    public final double CD0;
+    
+    public final double CN;
 
-    private final double CD0;
-
-    public AerodynamicsConstantCP(double CP, double CN, double CD0)
+    public AerodynamicsConstantCP(double CD0, double CP, double CN, double ReferenceArea)
     {
-        this.CN = CN;
-        this.CD0 = CD0;
+        this.CD0 = CD0*ReferenceArea;
+        this.CN = CN*ReferenceArea;
         this.position.x = CP;
     }
 

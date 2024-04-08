@@ -1,10 +1,13 @@
 module com.mardpop.jrocket {
     requires javafx.controls;
+    requires transitive javafx.graphics;
     requires javafx.fxml;
-    requires org.json;
+    requires javafx.swing;
+    requires transitive org.json;
     requires java.logging;
 
     opens com.mardpop.jrocket to javafx.fxml;
+
     exports com.mardpop.jrocket;
     exports com.mardpop.jrocket.vehicle;
     exports com.mardpop.jrocket.atmosphere;

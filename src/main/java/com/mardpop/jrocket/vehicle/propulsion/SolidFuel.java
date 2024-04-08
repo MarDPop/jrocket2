@@ -20,7 +20,7 @@ public abstract class SolidFuel extends Propellant
         SORBITOL
     }
     
-    SolidFuel(double density, 
+    protected SolidFuel(double density, 
             double heatingValue, double gasProductGamma, double gasProductMW)
     {
         super(1,density);
@@ -28,7 +28,7 @@ public abstract class SolidFuel extends Propellant
         this.gasProductGamma = gasProductGamma;
         this.gasProductMW = gasProductMW;
     }
-    
+
     /**
      * To be overridden by different burn rate
      * @param pressure

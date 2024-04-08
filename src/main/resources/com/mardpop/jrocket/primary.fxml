@@ -58,9 +58,9 @@
                <content>
                   <ScrollPane prefHeight="666.0" prefWidth="333.0">
                      <content>
-                        <VBox fx:id="SimpleRocketForm" prefHeight="537.0" prefWidth="295.0" spacing="10.0">
+                        <VBox fx:id="simpleRocketForm" prefHeight="537.0" prefWidth="295.0" spacing="10.0">
                            <children>
-                              <CheckBox id="useDesignerToggle" mnemonicParsing="false" text="Use Designer" />
+                              <CheckBox id="useDesignerToggle" fx:id="useDesignerToggle" mnemonicParsing="false" text="Use Designer" />
                               <Label text="Rocket Performance" textAlignment="CENTER">
                                  <font>
                                     <Font size="18.0" />
@@ -152,26 +152,20 @@
                               </HBox>
                               <HBox prefWidth="200.0">
                                  <children>
-                                    <Label text="CL_alpha: " />
-                                    <TextField id="clAlphaEntry" fx:id="clAlphaEntry" promptText="Lift Curve Slope" text="1" />
+                                    <Label text="CN_alpha: " />
+                                    <TextField id="cnAlphaEntry" fx:id="cnAlphaEntry" promptText="Lift Curve Slope" text="1" />
                                  </children>
                               </HBox>
                               <HBox prefWidth="200.0">
                                  <children>
                                     <Label text="Center Of Pressure (cm): " />
-                                    <TextField id="cmAlphaEntry" fx:id="centerOfPressureEntry" promptText="Pitch Moment Coefficient" text="-0.001" />
+                                    <TextField id="cmAlphaEntry" fx:id="centerOfPressureEntry" promptText="Pitch Moment Coefficient" text="0.0" />
                                  </children>
                               </HBox>
                               <HBox prefWidth="200.0">
                                  <children>
                                     <Label text="Reference Area (m2): " />
                                     <TextField id="referenceAreaEntry" fx:id="referenceAreaEntry" promptText="Reference Area for Coefficients (Cross Section Typical)" text="0.01" />
-                                 </children>
-                              </HBox>
-                              <HBox prefWidth="200.0">
-                                 <children>
-                                    <Label text="Lift Induced Drag K:" />
-                                    <TextField id="liftInducedDragEntry" fx:id="liftInducedDragEntry" promptText="Drag Polar Coefficient" text="0.1" />
                                  </children>
                               </HBox>
                               <Label text="Launch Conditions">

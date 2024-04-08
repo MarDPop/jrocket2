@@ -42,6 +42,8 @@ public class RocketSimple extends State
     public final Aerodynamics aerodynamics;
     
     public final SimpleGNC gnc;
+
+    private final Vec3 wind = new Vec3();
     
     
     public RocketSimple(Thruster thruster, Aerodynamics aerodynamics, SimpleGNC gnc) 
@@ -90,7 +92,7 @@ public class RocketSimple extends State
         this.inertia = new InertiaSimple(this.inertiaEmpty, this.inertiaFuel);
         
         this.atm.update(this.position.z, time);
-        this.aero.update(this.velocity, this.coordinateSystem, this.atm.air, this.atm.wind);
+        this.aero.update(this.velocity, this.coordinateSystem, this.atm.air, this.wind);
     }
     
     void updateForces(double time) 
@@ -121,9 +123,9 @@ public class RocketSimple extends State
     void step(double dt)
     {
         Vec3 acceleration0 = this.coordinateSystem.transposeMult(this.forces);
-        acceleration0.scale(1.0/this.inertia.mass);
-        acceleration0.z = acceleration0.z - this.g0;
-        acceleration0.scale(dt*0.5);
+
+        acceleration0.z -= this.g0*this.inertia.mass;
+        acceleration0.scale(dt*0.5/this.inertia.mass);
         
         this.velocity.add(acceleration0);
         this.position.add(Vec3.mult(this.velocity, dt));

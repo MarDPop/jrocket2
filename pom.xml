@@ -21,6 +21,21 @@
             <version>21</version>
         </dependency>
         <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <version>21</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-base</artifactId>
+            <version>21</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-swing</artifactId>
+            <version>21</version>
+        </dependency>
+        <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20231013</version>
@@ -31,7 +46,12 @@
             <artifactId>orekit</artifactId>
             <version>12.0.1</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.hipparchus</groupId>
+            <artifactId>hipparchus</artifactId>
+            <version>3.0</version>
+            <type>pom</type>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

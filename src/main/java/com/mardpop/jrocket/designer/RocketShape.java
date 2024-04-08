@@ -120,21 +120,24 @@ public class RocketShape
 
         final double a_sq = length*length;
         final double b_sq = radius*radius;
+        final double a_b_sq = a_sq/b_sq;
+        final double b_a_sq = b_sq/a_sq;
 
         curve.points.add(new CurvePoint(x, r));
 
         r = sResolution;
-        double x_positive = Math.sqrt(a_sq - r*r/b_sq);
+        double x_positive = Math.sqrt(a_sq - r*r*a_b_sq);
         x = length - x_positive;
         while(x < length)
         {
             curve.points.add(new CurvePoint(x, r));
 
-            double drdx = radius*x_positive/Math.sqrt(a_sq*a_sq - x_positive*x_positive*a_sq);
+            double radical = Math.sqrt(b_sq - x_positive*x_positive*b_a_sq);
+            double drdx = x_positive*b_a_sq/radical;
             double dx = sResolution/Math.sqrt(1.0 + drdx*drdx);
             x_positive -= dx;
             x = length - x_positive;
-            r = radius*Math.sqrt(1.0 - x_positive*x_positive/a_sq);
+            r = Math.sqrt(b_sq - x_positive*x_positive*b_a_sq);
         }
         curve.points.add(new CurvePoint(length, radius));
 
