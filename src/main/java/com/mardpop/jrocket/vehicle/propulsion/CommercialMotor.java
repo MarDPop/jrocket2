@@ -54,25 +54,27 @@ public class CommercialMotor
         double boreRadius = radius*0.3;
         double caseThickness = radius*0.9;
 
-        double Irr_case = (caseThickness*caseThickness + radius*radius)*0.5;
-        double Ixx_case  = 1.0/12*(3*(caseThickness*caseThickness 
+        this.inertia_empty.mass = mass_empty;
+
+        this.inertia_empty.Irr = (caseThickness*caseThickness + radius*radius)*0.5;
+        this.inertia_empty.Ixx  = mass_empty/12*(3*(caseThickness*caseThickness 
             + radius*radius) + length*length);
 
-        double Irr_prop = (caseThickness*caseThickness + boreRadius*boreRadius)*0.5;
-        double Ixx_prop  = 1.0/12*(3*(caseThickness*caseThickness 
+        double Irr_prop = mass_propellant*(caseThickness*caseThickness + boreRadius*boreRadius)*0.5;
+        double Ixx_prop  = mass_propellant/12*(3*(caseThickness*caseThickness 
             + boreRadius*boreRadius) + length*length);
 
-        double CGx = length*0.5;
+        this.inertia_empty.CGx = length*0.5;
 
-        this.inertia_empty.copy(new InertiaSimple(mass_empty, Ixx_case, Irr_case ,CGx));
         
-        InertiaSimple inertia_prop = new InertiaSimple(mass_propellant, Ixx_prop, Irr_prop, CGx);
+        InertiaSimple inertia_prop = new InertiaSimple(mass_propellant, Ixx_prop, Irr_prop, length*0.5);
         InertiaSimple inertia_full = new InertiaSimple(inertia_prop, this.inertia_empty);
         
         InertiaSimple delta = new InertiaSimple(0.0,
-            (inertia_full.getIxx() - inertia_empty.getIxx())/mass_propellant,
-            (inertia_full.getIrr() - inertia_empty.getIrr())/mass_propellant,
+            (inertia_full.Ixx - inertia_empty.Ixx)/mass_propellant,
+            (inertia_full.Irr - inertia_empty.Irr)/mass_propellant,
             mass_propellant);
+
         this.inertia_delta.copy(delta);
 
         for (int i = 0; i < nEntry; i++) 
@@ -89,7 +91,7 @@ public class CommercialMotor
         double factor = this.mass_curve[nEntry-1]/mass_propellant;
         for (int i = 0; i < nEntry; i++) 
         {
-            this.mass_curve[i] = mass_propellant - this.mass_curve[i]*factor;
+            this.mass_curve[i] = mass_propellant + mass_empty - this.mass_curve[i]*factor;
         }
 
         for (int i = 1; i < nEntry; i++) 
@@ -105,16 +107,46 @@ public class CommercialMotor
         return this.time_curve;
     }
 
+    public double getPropellantMass()
+    {
+        return this.mass_curve[0] - this.mass_curve[this.lastIndex];
+    }
+
+    public double[] getValuesAtTime(double time)
+    {
+        if(time < this.time_curve[0])
+        {
+            return this.getValuesAtTime(0.0, 0);
+        }
+        
+        if(time > this.time_curve[this.lastIndex])
+        {
+            return new double[] {this.thrust_curve[this.lastIndex],
+                this.mass_curve[this.lastIndex],
+                this.inertia_empty.Ixx,
+                this.inertia_empty.Irr,
+                this.inertia_empty.CGx};
+        }
+
+        int tIdx = 0;
+        while(this.time_curve[tIdx + 1] < time)
+        {
+            tIdx++;
+        }
+
+        return getValuesAtTime(time, tIdx);
+    }
+
     public double[] getValuesAtTime(double time, final int tIdx)
     {
-        final double dt = time - this.thrust_curve[tIdx];
         double[] values = new double[5];
+        final double dt = time - this.thrust_curve[tIdx];
         values[0] = this.thrust_curve[tIdx] + this.thrust_curve_delta[tIdx]*dt;
         values[1] = this.mass_curve[tIdx] + this.mass_curve_delta[tIdx]*dt;
-        final double dm = values[0] - this.inertia_empty.getMass();
-        values[2] = this.inertia_empty.getIxx() + this.inertia_delta.getIxx()*dm;
-        values[3] = this.inertia_empty.getIrr() + this.inertia_delta.getIrr()*dm;
-        values[4] = this.inertia_empty.getCGx() + this.inertia_delta.getCGx()*dm;
+        final double dm = values[1] - this.inertia_empty.mass;
+        values[2] = this.inertia_empty.Ixx + this.inertia_delta.Ixx*dm;
+        values[3] = this.inertia_empty.Irr + this.inertia_delta.Irr*dm;
+        values[4] = this.inertia_empty.CGx + this.inertia_delta.CGx*dm;
         return values;
     }
 
@@ -123,9 +155,8 @@ public class CommercialMotor
         try(BufferedReader br = new BufferedReader(new FileReader(filename)))
         {
             String line;
-            while(true)
+            while((line = br.readLine()) != null)
             {
-                line = br.readLine();
                 if(line.charAt(0) != ';')
                 {
                     break;
@@ -133,6 +164,7 @@ public class CommercialMotor
             }
             String[] split = line.trim().split("\\s+");
 
+            String name = split[0];
             double mmDiameter = Double.parseDouble(split[1]);
             double mmLength = Double.parseDouble(split[2]);
             double kgProp = Double.parseDouble(split[4]);
@@ -140,6 +172,9 @@ public class CommercialMotor
 
             ArrayList<Double> times = new ArrayList<>();
             ArrayList<Double> thrusts = new ArrayList<>();
+            
+            times.add(0.0);
+            thrusts.add(0.0);
             while((line = br.readLine()) != null)
             {
                 split = line.trim().split("\\s+");
@@ -150,7 +185,7 @@ public class CommercialMotor
 
             double radius = mmDiameter*0.0005;
             double length = mmLength*0.001;
-            return new CommercialMotor(split[0], thrusts, times, kgFull - kgProp, kgProp, radius, length);
+            return new CommercialMotor(name, thrusts, times, kgFull - kgProp, kgProp, radius, length);
         }
         catch(Exception e)
         {

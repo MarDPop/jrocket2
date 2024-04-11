@@ -6,14 +6,14 @@ package com.mardpop.jrocket.vehicle;
  */
 public class InertiaSimple 
 {
-    double mass;
+    public double mass;
     
-    double Ixx;
+    public double Ixx;
     
-    double Irr;
+    public double Irr;
     
-    double CGx;
-    
+    public double CGx;
+
     public InertiaSimple() {}
     
     public InertiaSimple(double mass, double Ixx, double Irr, double CGx)
@@ -41,30 +41,5 @@ public class InertiaSimple
         this.Ixx = other.Ixx;
         this.Irr = other.Irr;
         this.CGx = other.CGx;
-    }
-
-    public void setCGx(double x)
-    {
-        this.CGx = x;
-    }
-
-    public double getMass()
-    {
-        return mass;
-    }
-
-    public double getCGx()
-    {
-        return CGx;
-    }
-
-    public double getIrr()
-    {
-        return Irr;
-    }
-
-    public double getIxx()
-    {
-        return Ixx;
     }
 }

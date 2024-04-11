@@ -45,8 +45,6 @@ public class SimulationSimpleRocket
     
     private InertiaSimple structureInertia = new InertiaSimple(0.5,1.0,1.0,0.0);
     
-    private InertiaSimple fuelInertia = new InertiaSimple(0.5,1.0,1.0,0.0);
-    
     private Aerodynamics aerodynamics = new AerodynamicsBallistic(0.5, 0.1);
     
     private CommercialMotor thruster;
@@ -103,11 +101,6 @@ public class SimulationSimpleRocket
         this.structureInertia = inertia;
     }
     
-    public void setFuelInertia(InertiaSimple inertia)
-    {
-        this.fuelInertia = inertia;
-    }
-    
     public void load(String filename) throws Exception
     {
         String content = new String(Files.readAllBytes(Paths.get(filename)));
@@ -148,13 +141,6 @@ public class SimulationSimpleRocket
         {
             obj = rocket.getJSONObject("InertiaEmpty");
             this.structureInertia = new InertiaSimple(obj.getDouble("Mass"),obj.getDouble("Irr"),
-                    obj.getDouble("Ixx"),obj.getDouble("CGx"));
-        }
-        
-        if(rocket.has("InertiaFuel"))
-        {
-            obj = rocket.getJSONObject("InertiaFuel");
-            this.fuelInertia = new InertiaSimple(obj.getDouble("Mass"),obj.getDouble("Irr"),
                     obj.getDouble("Ixx"),obj.getDouble("CGx"));
         }
         

@@ -406,7 +406,7 @@ public class InertiaCalc
         InertiaSimple payloadInertia = tubeInertia(params.payloadTubeRadius - materialThickness, params.payloadTubeRadius,
             params.payloadTubeLength, materialDensity);
 
-        payloadInertia.setCGx(payloadInertia.getCGx() + params.noseConeLength);
+        payloadInertia.CGx =payloadInertia.CGx + params.noseConeLength;
 
         double xLoc = params.noseConeLength + params.payloadTubeLength;
         InertiaSimple payloadFlangeInertia;
@@ -415,20 +415,20 @@ public class InertiaCalc
             payloadFlangeInertia = tubeInertia(params.tubeRadius - materialThickness, params.tubeRadius,
                 params.payloadFlangeLength, materialDensity);
 
-            payloadFlangeInertia.setCGx(xLoc + payloadFlangeInertia.getCGx());
+            payloadFlangeInertia.CGx =xLoc + payloadFlangeInertia.CGx;
         }
         else if(params.tubeRadius > params.payloadTubeRadius)
         {
             payloadFlangeInertia = thinWalledTruncatedConeInertia( params.payloadTubeRadius, params.tubeRadius, materialThickness,
                 params.payloadFlangeLength, materialDensity);
-            payloadFlangeInertia.setCGx(xLoc + payloadFlangeInertia.getCGx());
+            payloadFlangeInertia.CGx =xLoc + payloadFlangeInertia.CGx;
         }
         else
         {
             payloadFlangeInertia = thinWalledTruncatedConeInertia( params.tubeRadius, params.payloadTubeRadius, materialThickness,
                 params.payloadFlangeLength, materialDensity);
             
-                payloadFlangeInertia.setCGx(xLoc + params.payloadFlangeLength -payloadInertia.getCGx());
+                payloadFlangeInertia.CGx =xLoc + params.payloadFlangeLength -payloadInertia.CGx;
         }
 
         xLoc += params.payloadFlangeLength;
@@ -436,7 +436,7 @@ public class InertiaCalc
         InertiaSimple tubeInertia = tubeInertia(params.tubeRadius - materialThickness, params.tubeRadius,
             params.tubeLength, materialDensity);
 
-        tubeInertia.setCGx(xLoc + tubeInertia.getCGx());
+        tubeInertia.CGx =xLoc + tubeInertia.CGx;
 
         xLoc += params.tubeLength;
         InertiaSimple tubeFlangeInertia;
@@ -445,62 +445,62 @@ public class InertiaCalc
             tubeFlangeInertia = tubeInertia(params.tubeRadius - materialThickness, params.tubeRadius,
                 params.tubeFlangeLength, materialDensity);
 
-            tubeFlangeInertia.setCGx(xLoc + tubeFlangeInertia.getCGx());
+            tubeFlangeInertia.CGx = xLoc + tubeFlangeInertia.CGx;
         }
         else if(params.tubeRadius > params.motorRadius)
         {
             tubeFlangeInertia = thinWalledTruncatedConeInertia( params.tubeRadius, params.motorRadius, materialThickness,
                 params.tubeFlangeLength, materialDensity);
 
-            tubeFlangeInertia.setCGx(xLoc + tubeFlangeInertia.getCGx());
+            tubeFlangeInertia.CGx = xLoc + tubeFlangeInertia.CGx;
         }
         else
         {
             tubeFlangeInertia = thinWalledTruncatedConeInertia( params.motorRadius, params.tubeRadius, materialThickness,
                 params.tubeFlangeLength, materialDensity);
-            tubeFlangeInertia.setCGx(xLoc + params.tubeFlangeLength - tubeFlangeInertia.getCGx());
+            tubeFlangeInertia.CGx =xLoc + params.tubeFlangeLength - tubeFlangeInertia.CGx;
         }
 
         xLoc += params.tubeFlangeLength;
         InertiaSimple motorTube = tubeInertia(params.motorRadius - materialThickness, params.motorRadius,
             params.motorLength, materialDensity);
 
-        motorTube.setCGx(xLoc + motorTube.getCGx());
+        motorTube.CGx = xLoc + motorTube.CGx;
 
         xLoc += params.motorLength;
         InertiaSimple finInertia = finInertia(params.finBaseChord, params.finTipChord, params.finSweep, params.finSpan,
             params.motorRadius, finThickness, finMaterialDensity, params.numFins, params.finChordOffset);
 
-        finInertia.setCGx(xLoc - finInertia.getCGx());
+        finInertia.CGx = xLoc - finInertia.CGx;
 
-        double mass = noseInertia.getMass() + payloadInertia.getMass() + payloadFlangeInertia.getMass() +
-            tubeInertia.getMass() + tubeFlangeInertia.getMass() + motorTube.getMass() + finInertia.getMass();
+        double mass = noseInertia.mass + payloadInertia.mass + payloadFlangeInertia.mass +
+            tubeInertia.mass + tubeFlangeInertia.mass + motorTube.mass + finInertia.mass;
 
-        double CGx = noseInertia.getCGx()*noseInertia.getMass() + payloadInertia.getCGx()*payloadInertia.getMass() +
-            payloadFlangeInertia.getCGx()*payloadFlangeInertia.getMass() +
-            tubeInertia.getCGx()*tubeInertia.getMass() + tubeFlangeInertia.getCGx()*tubeFlangeInertia.getMass() +
-            motorTube.getCGx()*motorTube.getMass() + finInertia.getCGx()*finInertia.getMass();
+        double CGx = noseInertia.CGx*noseInertia.mass + payloadInertia.CGx*payloadInertia.mass +
+            payloadFlangeInertia.CGx*payloadFlangeInertia.mass +
+            tubeInertia.CGx*tubeInertia.mass + tubeFlangeInertia.CGx*tubeFlangeInertia.mass +
+            motorTube.CGx*motorTube.mass + finInertia.CGx*finInertia.mass;
 
         CGx /= mass;
 
-        double Ixx = noseInertia.getIxx() + payloadInertia.getIxx() + payloadFlangeInertia.getIxx() +
-            tubeInertia.getIxx() + tubeFlangeInertia.getIxx() + motorTube.getIxx() + finInertia.getIxx();
+        double Ixx = noseInertia.Ixx + payloadInertia.Ixx + payloadFlangeInertia.Ixx +
+            tubeInertia.Ixx + tubeFlangeInertia.Ixx + motorTube.Ixx + finInertia.Ixx;
 
-        double Irr = noseInertia.getIrr() + payloadInertia.getIrr() + payloadFlangeInertia.getIrr() +
-            tubeInertia.getIrr() + tubeFlangeInertia.getIrr() + motorTube.getIrr() + finInertia.getIrr();
+        double Irr = noseInertia.Irr + payloadInertia.Irr + payloadFlangeInertia.Irr +
+            tubeInertia.Irr + tubeFlangeInertia.Irr + motorTube.Irr + finInertia.Irr;
 
-        double dxNose = noseInertia.getCGx() - CGx;
-        double dxPayload = payloadInertia.getCGx() - CGx;
-        double dxPayloadFlange = payloadFlangeInertia.getCGx() - CGx;
-        double dxTube = tubeInertia.getCGx() - CGx;
-        double dxTubeFlange = tubeFlangeInertia.getCGx() - CGx;
-        double dxMotor = motorTube.getCGx() - CGx;
-        double dxFin = finInertia.getCGx() - CGx;
+        double dxNose = noseInertia.CGx - CGx;
+        double dxPayload = payloadInertia.CGx - CGx;
+        double dxPayloadFlange = payloadFlangeInertia.CGx - CGx;
+        double dxTube = tubeInertia.CGx - CGx;
+        double dxTubeFlange = tubeFlangeInertia.CGx - CGx;
+        double dxMotor = motorTube.CGx - CGx;
+        double dxFin = finInertia.CGx - CGx;
 
-        Irr += noseInertia.getMass()*dxNose*dxNose + payloadInertia.getMass()*dxPayload*dxPayload +
-            payloadFlangeInertia.getMass()*dxPayloadFlange*dxPayloadFlange +
-            tubeInertia.getMass()*dxTube*dxTube + tubeFlangeInertia.getMass()*dxTubeFlange*dxTubeFlange +
-            motorTube.getMass()*dxMotor*dxMotor + finInertia.getMass()*dxFin*dxFin;
+        Irr += noseInertia.mass*dxNose*dxNose + payloadInertia.mass*dxPayload*dxPayload +
+            payloadFlangeInertia.mass*dxPayloadFlange*dxPayloadFlange +
+            tubeInertia.mass*dxTube*dxTube + tubeFlangeInertia.mass*dxTubeFlange*dxTubeFlange +
+            motorTube.mass*dxMotor*dxMotor + finInertia.mass*dxFin*dxFin;
 
         return new InertiaSimple(mass, Ixx, Irr, CGx);
     }
@@ -525,7 +525,7 @@ public class InertiaCalc
         InertiaSimple emptyInertia = new InertiaSimple(structureMass, payloadInertia);
 
         final double MASS_MARGIN = 1.25;
-        return new InertiaSimple(emptyInertia.getMass()*MASS_MARGIN, emptyInertia.getIxx()*MASS_MARGIN,
-            emptyInertia.getIrr()*MASS_MARGIN, emptyInertia.getCGx());
+        return new InertiaSimple(emptyInertia.mass*MASS_MARGIN, emptyInertia.Ixx*MASS_MARGIN,
+            emptyInertia.Irr*MASS_MARGIN, emptyInertia.CGx);
     }
 }

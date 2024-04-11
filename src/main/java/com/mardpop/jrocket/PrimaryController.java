@@ -12,6 +12,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 // import javafx.swing.SwingNode;
 
@@ -65,16 +68,10 @@ public class PrimaryController implements Initializable
     TextField cGxEmptyEntry;
 
     @FXML
-    TextField cGxPropEntry;
+    TextField cGxFullEntry;
 
     @FXML
-    TextField propellantEntry;
-
-    @FXML
-    TextField ixxPropEntry;
-
-    @FXML
-    TextField irrPropEntry;
+    TextField fullMassEntry;
 
     @FXML
     TextField cdEntry;
@@ -204,34 +201,6 @@ public class PrimaryController implements Initializable
 
         JSONObject rocket = json.getJSONObject("Rocket");
 
-        JSONObject inertiaEmpty = rocket.getJSONObject("InertiaEmpty");
-
-        try {
-            inertiaEmpty.put("Mass", Double.parseDouble(emptyMassEntry.getText()));
-        } catch (Exception e) {}
-
-        try {
-            inertiaEmpty.put("Ixx", Double.parseDouble(ixxEmptyEntry.getText()));
-        } catch (Exception e) {}
-
-        try {
-            inertiaEmpty.put("Irr", Double.parseDouble(irrEmptyEntry.getText()));
-        } catch (Exception e) {}
-
-        JSONObject inertiaPropellant = rocket.getJSONObject("InertiaFuel");
-
-        try {
-            inertiaPropellant.put("Mass", Double.parseDouble(propellantEntry.getText()));
-        } catch (Exception e) {}
-
-        try {
-            inertiaPropellant.put("Ixx", Double.parseDouble(ixxPropEntry.getText()));
-        } catch (Exception e) {}
-
-        try {
-            inertiaPropellant.put("Irr", Double.parseDouble(irrPropEntry.getText()));
-        } catch (Exception e) {}
-
         JSONObject aerodynamics = rocket.getJSONObject("Aerodynamics");
 
         try {
@@ -353,8 +322,6 @@ public class PrimaryController implements Initializable
         RocketShape rs = new RocketShape(params);
         Curve body = rs.getBody();
         Curve fin = rs.getFin();
-        CurvePoint motor1  = rs.getMotorCorner1();
-        CurvePoint motor2  = rs.getMotorCorner2();
 
         GraphicsContext g = this.designCanvas.getGraphicsContext2D();
 
@@ -406,14 +373,12 @@ public class PrimaryController implements Initializable
         g.stroke();
 
         // Motor
-        g.setFill(Color.BROWN);
+        g.setFill(Color.PALETURQUOISE);
         double h = scale*motorRadius;
         double w = scale*motorLength;
-        g.fillRect(xCenter + scale*motor2.x, yCenter + scale*motor1.r, 
-            w, h); 
-    
-        g.fillRect(xCenter + scale*motor2.x, yCenter - scale*motor2.r,
-            w, h);
+        double xStart = xCenter + scale*(params.totalLength - motorLength);
+        g.fillRect(xStart, yCenter - h, w, h); 
+        g.fillRect(xStart, yCenter, w, h);
 
         g.setFill(Color.MEDIUMSEAGREEN);
         double xPayload = params.noseConeLength + params.payloadTubeLength*0.5;
@@ -470,17 +435,19 @@ public class PrimaryController implements Initializable
         
         InertiaSimple empty = this.computeEmptyInertia(params);
 
-        double[] values = motor.getValuesAtTime(0, 0);
-        double CGx_prop = params.totalLength - values[5];
+        double[] values = motor.getValuesAtTime(0);
+        double CGx_prop = params.totalLength - values[4];
+        double mass_full = empty.mass + values[1];
 
-        this.irrEmptyEntry.setText(Double.toString(empty.getIrr()));
-        this.irrPropEntry.setText(Double.toString(values[2]));
-        this.ixxEmptyEntry.setText(Double.toString(empty.getIxx()));
-        this.ixxPropEntry.setText(Double.toString(values[3]));
-        this.emptyMassEntry.setText(Double.toString(empty.getMass()));
-        this.propellantEntry.setText(Double.toString(values[1]));
-        this.cGxEmptyEntry.setText(Double.toString(empty.getCGx()));
-        this.cGxPropEntry.setText(Double.toString(CGx_prop));
+        double cGx_full = (empty.CGx*empty.mass + CGx_prop*values[1])
+            / mass_full;
+
+        this.irrEmptyEntry.setText(Double.toString(empty.Irr));
+        this.ixxEmptyEntry.setText(Double.toString(empty.Ixx));
+        this.emptyMassEntry.setText(Double.toString(empty.mass));
+        this.fullMassEntry.setText(Double.toString(mass_full);
+        this.cGxEmptyEntry.setText(Double.toString(empty.CGx));
+        this.cGxFullEntry.setText(Double.toString(cGx_full));
 
         double[] coef = AeroCalc.barrowmanCoef(params);
         this.centerOfPressureEntry.setText(Double.toString(coef[0]));
@@ -490,10 +457,7 @@ public class PrimaryController implements Initializable
         double cd  = AeroCalc.dragCoef(params);
         this.cdEntry.setText(Double.toString(cd));
 
-        double cGx_full = (empty.getCGx()*empty.getMass() + CGx_prop*values[0])
-            / (empty.getMass() + values[0]);
-
-        this.drawRocket(params, empty.getCGx(), cGx_full, coef[0], motor.radius, motor.length);
+        this.drawRocket(params, empty.CGx, cGx_full, coef[0], motor.radius, motor.length);
     }
 
 
@@ -546,18 +510,6 @@ public class PrimaryController implements Initializable
                     throw new Exception("Missing InertiaEmpty");
                 }
 
-                if(rocket.has("InertiaFuel"))
-                {
-                    JSONObject obj = rocket.getJSONObject("InertiaFuel");
-                    propellantEntry.setText(Double.toString(obj.getDouble("Mass")));
-                    ixxPropEntry.setText(Double.toString(obj.getDouble("Ixx")));
-                    irrPropEntry.setText(Double.toString(obj.getDouble("Irr")));
-                }
-                else
-                {
-                    throw new Exception("Missing InertiaFuel");
-                }
-
                 if(rocket.has("Thruster"))
                 {
                     JSONObject obj = rocket.getJSONObject("Thruster");
@@ -575,6 +527,12 @@ public class PrimaryController implements Initializable
                             motorMap.put(motor.name, motor);
                         }
                     }
+                    else
+                    {
+                        throw new Exception("Couldn't load Thruster");
+                    }
+                    double massFull = motor.getPropellantMass() + obj.getDouble("Mass");
+                    this.fullMassEntry.setText(Double.toString(massFull));
                 }
                 else
                 {
@@ -809,7 +767,26 @@ public class PrimaryController implements Initializable
 
         this.overrideValuesBox.setSelected(true);
 
-        this.motorSelection.getItems().setAll(null, "Small", "Large");
+        Set<String> files = Stream.of(new File("./etc").listFiles())
+            .filter(file -> !file.isDirectory())
+            .filter(file -> file.getName().endsWith(".eng"))
+            .map(File::getName)
+            .collect(Collectors.toSet());
+
+        for(String file : files)
+        {
+            try
+            {
+                CommercialMotor motor = CommercialMotor.loadRASPFile("./etc/" + file);
+                this.motorMap.put(motor.name, motor);
+            }
+            catch(Exception e)  
+            {
+                e.printStackTrace();
+            }
+        }
+
+        this.motorSelection.getItems().setAll(this.motorMap.keySet());
 
         /* 
         SwingNode node = new SwingNode();

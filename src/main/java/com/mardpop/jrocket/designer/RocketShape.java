@@ -20,9 +20,6 @@ public class RocketShape
 
     Curve fin;
 
-    CurvePoint motorCorner1;
-    CurvePoint motorCorner2;
-
     RocketShape() {}
 
     public RocketShape(RocketParameters params)
@@ -251,16 +248,6 @@ public class RocketShape
     public Curve getFin()
     {
         return this.fin;
-    }
-
-    public CurvePoint getMotorCorner1()
-    {
-        return this.motorCorner1;
-    }
-
-    public CurvePoint getMotorCorner2()
-    {
-        return this.motorCorner2;
     }
 
     public Mesh toMesh() 
