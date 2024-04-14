@@ -100,7 +100,7 @@ public class RocketSimple extends State
         this.aero.update(this.velocity, this.coordinateSystem, this.atm.air, this.wind);
     }
     
-    void updateForces(double time) 
+    void updateForces(final double time) 
     {
         this.aerodynamics.update(aero);
         this.forces.set(this.aerodynamics.force);
@@ -118,11 +118,11 @@ public class RocketSimple extends State
             this.inertia = new InertiaSimple(this.inertiaEmpty, propInertia);
         }
         // add damping
-        final double damping = 0.001;
+        final double damping = 0.0*this.inertia.Irr;
         this.moments.set(Vec3.subtract(this.aerodynamics.moment, Vec3.mult(this.angular_velocity, damping)));
         final double arm = this.aerodynamics.position.x - this.inertia.CGx;
-        this.moments.y += arm*this.aerodynamics.force.z;
-        this.moments.z -= arm*this.aerodynamics.force.y;
+        this.moments.y -= arm*this.aerodynamics.force.z;
+        this.moments.z += arm*this.aerodynamics.force.y;
         this.moments.add(this.gnc.getControlMoment());
     }
     

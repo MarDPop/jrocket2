@@ -643,7 +643,7 @@ public class PrimaryController implements Initializable
                 masses.add(mass);
                 positions.add(new Vec3(X, Y, Z));
                 velocities.add(new Vec3(Vx, Vy, Vz));
-                orientations.add(new Quaternion(qw, qx, qy, qz));
+                orientations.add(new Quaternion(qx, qy, qz, qw));
                 angular_velocities.add(new Vec3(ax, ay, az));
             }
 
@@ -677,15 +677,15 @@ public class PrimaryController implements Initializable
             final int tIdxFinal = times.size() - 1;
             for(int i = 0; i < TIME_INTERVALS; i++)
             {
-                double time = i * timeIncrement;
+                final double time = i*timeIncrement;
                 while(tIdx < tIdxFinal && times.get(tIdx + 1) < time)
                 {
                     tIdx++;
                 }
 
-                double deltaT = time - times.get(tIdx);
+                final double deltaT = (time - times.get(tIdx))/(times.get(tIdx+1) - times.get(tIdx));
 
-                double mass = masses.get(tIdx) + deltaT*(masses.get(tIdx+1) - masses.get(tIdx));
+                final double mass = masses.get(tIdx) + deltaT*(masses.get(tIdx+1) - masses.get(tIdx));
                 massSeries.getData().add(new Data<Double,Double>(time, mass));
 
                 double speedlo = velocities.get(tIdx).magnitude();
@@ -713,8 +713,8 @@ public class PrimaryController implements Initializable
 
                 Matrix3 CSlo = orientations.get(tIdx).toRotationMatrix();
                 Matrix3 CShi = orientations.get(tIdx+1).toRotationMatrix();
-                Vec3 xAxislo = CSlo.getCol0();
-                Vec3 xAxishi = CShi.getCol0();
+                Vec3 xAxislo = CSlo.getRow0();
+                Vec3 xAxishi = CShi.getRow0();
                 double pitchlo = Math.acos(xAxislo.z);
                 double pitchhi = Math.acos(xAxishi.z);
                 double headinglo = Math.atan2(xAxislo.y, xAxislo.x);

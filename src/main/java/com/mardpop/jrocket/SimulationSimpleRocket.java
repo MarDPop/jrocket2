@@ -188,9 +188,9 @@ public class SimulationSimpleRocket
         rocket.setLaunchOrientation(this.pitch, this.heading);
         
         double time = 0;
-        double dt = 0.001;
+        double dt = 0.0005;
         double timeRecord = 0;
-        double dtRecord = 0.5;
+        double dtRecord = 0.25;
         
         final Vec3 position = new Vec3();
         this.times.clear();

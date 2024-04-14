@@ -25,18 +25,18 @@ public class Quaternion {
 
     public Quaternion(Quaternion p)
     {
-        this.w = p.w;
         this.x = p.x;
         this.y = p.y;
         this.z = p.z;
+        this.w = p.w;
     }
     
     public void set(Quaternion p) 
     {
-        this.w = p.w;
         this.x = p.x;
         this.y = p.y;
         this.z = p.z;
+        this.w = p.w;
     }
 
     public Vec3 vector() {

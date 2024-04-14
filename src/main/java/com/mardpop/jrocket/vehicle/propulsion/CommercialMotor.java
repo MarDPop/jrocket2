@@ -140,10 +140,10 @@ public class CommercialMotor
         return getValuesAtTime(time, tIdx);
     }
 
-    public double[] getValuesAtTime(double time, final int tIdx)
+    public double[] getValuesAtTime(final double time, final int tIdx)
     {
         double[] values = new double[5];
-        final double dt = time - this.thrust_curve[tIdx];
+        final double dt = time - this.time_curve[tIdx];
         values[0] = this.thrust_curve[tIdx] + this.thrust_curve_delta[tIdx]*dt;
         values[1] = this.mass_curve[tIdx] + this.mass_curve_delta[tIdx]*dt;
         final double dm = values[1] - this.inertia_empty.mass;
