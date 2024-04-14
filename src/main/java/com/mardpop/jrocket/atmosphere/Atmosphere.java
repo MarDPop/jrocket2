@@ -44,7 +44,7 @@ public class Atmosphere
         final double RT = Air.RGAS_DRY*temperature;
         final double constant = -groundGravity/RT;
         final double groundDensity = groundPressure/RT;
-        final double soundSpeed = Math.sqrt(Air.GAMMA*RT);
+        final double invSoundSpeed = 1.0/Math.sqrt(Air.GAMMA*RT);
         
         for(int i = 0; i < nHeights; i++)
         {
@@ -54,7 +54,7 @@ public class Atmosphere
             double factor = Math.exp(geopotentialHeight*constant);
             this.values[idx] = groundDensity*factor;
             this.values[idx + 1] = groundPressure*factor;
-            this.values[idx + 2] = soundSpeed;
+            this.values[idx + 2] = invSoundSpeed;
             this.values[idx + 3] = temperature;
         }
         

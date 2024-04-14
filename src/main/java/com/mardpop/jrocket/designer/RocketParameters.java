@@ -23,6 +23,7 @@ public class RocketParameters
     public double payloadCOM;
     public double structureThickness;
     public double totalLength;
+    public double motorXOffset;
     public int numFins;
     public int structureMaterial;
     public NoseConeType noseConeType;

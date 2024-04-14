@@ -9,11 +9,11 @@ public class AerodynamicsConstantCP extends Aerodynamics
     
     public final double CN;
 
-    public AerodynamicsConstantCP(double CD0, double CP, double CN, double ReferenceArea)
+    public AerodynamicsConstantCP(double CD0, double CN, double CPx, double ReferenceArea)
     {
         this.CD0 = CD0*ReferenceArea;
         this.CN = CN*ReferenceArea;
-        this.position.x = CP;
+        this.position.x = CPx;
     }
 
     @Override
@@ -24,8 +24,8 @@ public class AerodynamicsConstantCP extends Aerodynamics
 
         Vec3 wind = aero.getUnitVectorBody();
         Vec3 liftVector = aero.getLiftVectorBody();
-        this.force.x = wind.x*drag + liftVector.x*lift;
-        this.force.y = wind.y*drag + liftVector.y*lift;
-        this.force.z = wind.z*drag + liftVector.z*lift;
+        this.force.x = liftVector.x*lift + wind.x*drag;
+        this.force.y = liftVector.y*lift + wind.y*drag;
+        this.force.z = liftVector.z*lift + wind.z*drag;
     }
 }

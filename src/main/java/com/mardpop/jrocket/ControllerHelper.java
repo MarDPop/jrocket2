@@ -44,16 +44,10 @@ public class ControllerHelper {
         inertiaEmpty.put("Ixx", 0.1);
         inertiaEmpty.put("Mass", 2);
 
-        JSONObject inertiaFuel = new JSONObject();
-        inertiaFuel.put("CGx", 0);
-        inertiaFuel.put("Irr", 0.3);
-        inertiaFuel.put("Ixx", 0.1);
-        inertiaFuel.put("Mass", 14);
-
         JSONObject thruster = new JSONObject();
-        thruster.put("Type", 1);
-        thruster.put("Thrust", 1000.0);
-        thruster.put("ISP", 100.0);
+        thruster.put("Format", "RASP");
+        thruster.put("File", "");
+        thruster.put("Name", "");
 
         JSONObject aerodynamics = new JSONObject();
         aerodynamics.put("CD", 0.7);
@@ -63,7 +57,6 @@ public class ControllerHelper {
         aerodynamics.put("Area", 0.03);
 
         json.put("InertiaEmpty", inertiaEmpty);
-        json.put("InertiaFuel", inertiaFuel);
         json.put("Thruster", thruster);
         json.put("Aerodynamics", aerodynamics);
 

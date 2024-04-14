@@ -41,7 +41,7 @@ public class SimulationSimpleRocket
     
     private double heading = 0.0;
     
-    private double timeFinal = 600.0;
+    private double timeFinal = 300.0;
     
     private InertiaSimple structureInertia = new InertiaSimple(0.5,1.0,1.0,0.0);
     
@@ -147,17 +147,28 @@ public class SimulationSimpleRocket
         if(rocket.has("Thruster"))
         {
             obj = rocket.getJSONObject("Thruster");
-            if(obj.has("format"))
+            if(obj.has("Format"))
             {
-
+                if(obj.getString("Format").equals("RASP"))
+                {
+                    this.thruster = CommercialMotor.loadRASPFile(obj.getString("File"));
+                }
             }
             else
             {       
-                this.thruster = CommercialMotor.loadRASPFile(obj.getString("file"));
+                this.thruster = CommercialMotor.loadRASPFile(obj.getString("File"));
                 if(this.thruster == null)
                 {
                     throw new Exception("Missing Thruster");
                 }
+            }
+            if(obj.has("CG_Offset"))
+            {
+                this.thruster.thrusterXOffset = obj.getDouble("CG_Offset");
+            }
+            else
+            {
+                throw new Exception("Missing Thruster Offset");
             }
         }
         
@@ -196,6 +207,8 @@ public class SimulationSimpleRocket
                 masses.add(rocket.getMass());
                 states.add(rocket.copy());
                 timeRecord += dtRecord;
+
+                System.out.println(time);
 
                 rocket.getPosition(position);
                 if(position.z < -1.0)

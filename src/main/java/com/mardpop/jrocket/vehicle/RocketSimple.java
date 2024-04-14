@@ -128,7 +128,7 @@ public class RocketSimple extends State
     
     Vec3 getAngularAcceleration()
     {
-        double invIrr = 1.0/this.inertiaEmpty.Irr;
+        final double invIrr = 1.0/this.inertiaEmpty.Irr;
         return new Vec3(this.moments.x/this.inertiaEmpty.Ixx,this.moments.y*invIrr, this.moments.z*invIrr);
     }
     
@@ -136,8 +136,17 @@ public class RocketSimple extends State
     {
         Vec3 acceleration0 = this.coordinateSystem.transposeMult(this.forces);
 
-        acceleration0.z -= this.g0*this.inertia.mass;
-        acceleration0.scale(dt*0.5/this.inertia.mass);
+        final double gravity = this.g0*this.inertia.mass;
+        
+        if((this.position.z < 1e-6 && acceleration0.z < gravity))
+        {
+            acceleration0 = new Vec3();
+        }
+        else
+        {
+            acceleration0.z -= gravity;
+            acceleration0.scale(dt*0.5/this.inertia.mass);
+        }
         
         this.velocity.add(acceleration0);
         this.position.add(Vec3.mult(this.velocity, dt));

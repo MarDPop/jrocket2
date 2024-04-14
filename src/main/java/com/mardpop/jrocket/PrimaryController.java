@@ -71,7 +71,7 @@ public class PrimaryController implements Initializable
     TextField cGxFullEntry;
 
     @FXML
-    TextField fullMassEntry;
+    TextField propellantMassEntry;
 
     @FXML
     TextField cdEntry;
@@ -128,6 +128,9 @@ public class PrimaryController implements Initializable
     TextField payloadMassEntry, payloadCOMEntry;
 
     @FXML
+    TextField motorXOffsetEntry;
+
+    @FXML
     ChoiceBox<String> structureMaterialEntry;
 
     @FXML
@@ -136,7 +139,9 @@ public class PrimaryController implements Initializable
     @FXML
     ChoiceBox<String> motorSelection;
 
-    HashMap<String, CommercialMotor> motorMap = new HashMap<String, CommercialMotor>();
+    HashMap<String, String> motorFiles = new HashMap<>();
+
+    HashMap<String, CommercialMotor> motorMap = new HashMap<>();
 
     @FXML
     Button designerRunButton;
@@ -201,6 +206,25 @@ public class PrimaryController implements Initializable
 
         JSONObject rocket = json.getJSONObject("Rocket");
 
+        RocketParameters params = getParams();
+
+        JSONObject thruster = rocket.getJSONObject("Thruster");
+        try {
+            String motorName = this.motorSelection.getSelectionModel().getSelectedItem();
+            thruster.put("File", this.motorFiles.get(motorName));
+            thruster.put("Name" , motorName);  
+            thruster.put("CG_Offset", params.totalLength - params.motorXOffset);
+        } catch (Exception e) {}
+
+        JSONObject inertia = rocket.getJSONObject("InertiaEmpty");
+
+        try {
+            inertia.put("Mass", Double.parseDouble(emptyMassEntry.getText()));
+            inertia.put("CGx", Double.parseDouble(cGxEmptyEntry.getText()));
+            inertia.put("Irr", Double.parseDouble(irrEmptyEntry.getText()));
+            inertia.put("Ixx", Double.parseDouble(ixxEmptyEntry.getText()));
+        } catch (Exception e) {}
+
         JSONObject aerodynamics = rocket.getJSONObject("Aerodynamics");
 
         try {
@@ -238,8 +262,10 @@ public class PrimaryController implements Initializable
         {
             try 
             {
-                CommercialMotor motor = CommercialMotor.loadRASPFile(selectedFile.getAbsolutePath());
+                String filePath = selectedFile.getAbsolutePath();
+                CommercialMotor motor = CommercialMotor.loadRASPFile(this.motorFiles.get(filePath));
                 this.motorMap.put(motor.name, motor);
+                this.motorFiles.put(motor.name, filePath);
                 if(!motorSelection.getItems().contains(motor.name))
                 {
                     motorSelection.getItems().add(motor.name);
@@ -285,6 +311,7 @@ public class PrimaryController implements Initializable
         params.tubeFlangeLength = Double.parseDouble(this.tubeFlangeLengthEntry.getText())*CM2M;
         params.tubeLength = Double.parseDouble(this.tubeLengthEntry.getText())*CM2M;
         params.tubeRadius = Double.parseDouble(this.tubeRadiusEntry.getText())*CM2M;
+        params.motorXOffset = Double.parseDouble(this.motorXOffsetEntry.getText())*MM2M;
 
         switch(this.noseConeTypeEntry.getValue())
         {
@@ -435,17 +462,18 @@ public class PrimaryController implements Initializable
         
         InertiaSimple empty = this.computeEmptyInertia(params);
 
+        motor.thrusterXOffset = params.totalLength - params.motorXOffset;
+
         double[] values = motor.getValuesAtTime(0);
-        double CGx_prop = params.totalLength - values[4];
         double mass_full = empty.mass + values[1];
 
-        double cGx_full = (empty.CGx*empty.mass + CGx_prop*values[1])
+        double cGx_full = (empty.CGx*empty.mass + values[4]*values[1])
             / mass_full;
 
         this.irrEmptyEntry.setText(Double.toString(empty.Irr));
         this.ixxEmptyEntry.setText(Double.toString(empty.Ixx));
         this.emptyMassEntry.setText(Double.toString(empty.mass));
-        this.fullMassEntry.setText(Double.toString(mass_full);
+        this.propellantMassEntry.setText(Double.toString(values[1]));
         this.cGxEmptyEntry.setText(Double.toString(empty.CGx));
         this.cGxFullEntry.setText(Double.toString(cGx_full));
 
@@ -513,7 +541,16 @@ public class PrimaryController implements Initializable
                 if(rocket.has("Thruster"))
                 {
                     JSONObject obj = rocket.getJSONObject("Thruster");
-                    CommercialMotor motor = CommercialMotor.loadRASPFile(obj.getString("file"));
+                    CommercialMotor motor = null;
+                    if(obj.has("File") && obj.getString("File").length() > 0)
+                    {
+                        motor = CommercialMotor.loadRASPFile(obj.getString("File"));
+                    }
+                    else if(obj.has("Name") && obj.getString("Name").length() > 0)
+                    {
+                        motor = motorMap.get(obj.getString("Name"));
+                    }
+
                     if(motor != null)
                     {
                         if(motorSelection.getItems().contains(motor.name))
@@ -531,8 +568,7 @@ public class PrimaryController implements Initializable
                     {
                         throw new Exception("Couldn't load Thruster");
                     }
-                    double massFull = motor.getPropellantMass() + obj.getDouble("Mass");
-                    this.fullMassEntry.setText(Double.toString(massFull));
+                    this.propellantMassEntry.setText(Double.toString(motor.getPropellantMass()));
                 }
                 else
                 {
@@ -718,7 +754,11 @@ public class PrimaryController implements Initializable
         }
         catch(Exception e)
         {
-            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            //Setting the content of the dialog
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
+            return;
         }
         Platform.runLater(() -> {
             try
@@ -767,17 +807,17 @@ public class PrimaryController implements Initializable
 
         this.overrideValuesBox.setSelected(true);
 
-        Set<String> files = Stream.of(new File("./etc").listFiles())
+        Set<File> files = Stream.of(new File("./etc").listFiles())
             .filter(file -> !file.isDirectory())
             .filter(file -> file.getName().endsWith(".eng"))
-            .map(File::getName)
             .collect(Collectors.toSet());
 
-        for(String file : files)
+        for(File file : files)
         {
             try
             {
-                CommercialMotor motor = CommercialMotor.loadRASPFile("./etc/" + file);
+                CommercialMotor motor = CommercialMotor.loadRASPFile(file.getAbsolutePath());
+                this.motorFiles.put(motor.name, file.getAbsolutePath());
                 this.motorMap.put(motor.name, motor);
             }
             catch(Exception e)  

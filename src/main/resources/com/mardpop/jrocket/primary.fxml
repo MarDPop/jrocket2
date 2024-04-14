@@ -122,6 +122,8 @@
                               <ChoiceBox fx:id="structureMaterialEntry" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="6" />
                               <TextField fx:id="structureThicknessEntry" text="1" GridPane.columnIndex="3" GridPane.rowIndex="6" />
                               <Label text="Structure Thickness (mm): " GridPane.columnIndex="2" GridPane.rowIndex="6" />
+                              <TextField fx:id="motorXOffsetEntry" GridPane.columnIndex="5" GridPane.rowIndex="3" text="0" />
+                              <Label text="Motor Offset (mm):" GridPane.columnIndex="4" GridPane.rowIndex="3" />
                            </children>
                         </GridPane>
                         <Button fx:id="designerRunButton" layoutX="15.0" layoutY="660.0" mnemonicParsing="false" onAction="#runDesignTool" text="Compute" />
@@ -242,25 +244,13 @@
                   <HBox prefWidth="200.0">
                      <children>
                         <Label text="Propellant Mass (kg): " />
-                        <TextField id="propellantMassEntry" fx:id="propellantEntry" promptText="Mass of the fuel" text="5" />
+                        <TextField id="propellantMassEntry" fx:id="propellantMassEntry" promptText="Mass of the fuel" text="5" />
                      </children>
                   </HBox>
                   <HBox prefWidth="200.0">
                      <children>
-                        <Label text="Propellant Ixx (kg m2): " />
-                        <TextField id="ixxEntry" fx:id="ixxPropEntry" promptText="Moment of Inertia of fuel about axis" text="0.1" />
-                     </children>
-                  </HBox>
-                  <HBox prefWidth="200.0">
-                     <children>
-                        <Label text="Propellant Irr (kg m2): " />
-                        <TextField id="irrEntry" fx:id="irrPropEntry" promptText="Moment of Inertia Perpendicular to Axis" text="0.5" />
-                     </children>
-                  </HBox>
-                  <HBox prefWidth="200.0">
-                     <children>
-                        <Label text="Propellent CG (cm): " />
-                        <TextField id="irrEntry" fx:id="cGxPropEntry" promptText="Moment of Inertia Perpendicular to Axis" text="0.0" />
+                        <Label text="Full CG (cm): " />
+                        <TextField id="irrEntry" fx:id="cGxFullEntry" promptText="Moment of Inertia Perpendicular to Axis" text="0.0" />
                      </children>
                   </HBox>
                   <Label text="Aerodynamics">

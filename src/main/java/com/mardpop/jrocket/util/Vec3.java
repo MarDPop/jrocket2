@@ -66,8 +66,8 @@ public class Vec3 {
     public void scale(double scalar)
     {
         this.x *= scalar;
-        this.x *= scalar;
-        this.x *= scalar;
+        this.y *= scalar;
+        this.z *= scalar;
     }
     
     public static Vec3 add(Vec3 a, Vec3 b) 

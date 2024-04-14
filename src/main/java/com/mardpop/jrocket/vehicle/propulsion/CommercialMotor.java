@@ -32,6 +32,8 @@ public class CommercialMotor
 
     public final double length;
 
+    public double thrusterXOffset;
+
     public final int lastIndex;
 
     public CommercialMotor(String name, ArrayList<Double> thrust_curve, ArrayList<Double> time_curve,
@@ -70,10 +72,10 @@ public class CommercialMotor
         InertiaSimple inertia_prop = new InertiaSimple(mass_propellant, Ixx_prop, Irr_prop, length*0.5);
         InertiaSimple inertia_full = new InertiaSimple(inertia_prop, this.inertia_empty);
         
-        InertiaSimple delta = new InertiaSimple(0.0,
+        InertiaSimple delta = new InertiaSimple(mass_propellant,
             (inertia_full.Ixx - inertia_empty.Ixx)/mass_propellant,
             (inertia_full.Irr - inertia_empty.Irr)/mass_propellant,
-            mass_propellant);
+            0.0);
 
         this.inertia_delta.copy(delta);
 
@@ -85,20 +87,21 @@ public class CommercialMotor
 
         for (int i = 1; i < nEntry; i++) 
         {
-            this.mass_curve[i] = this.mass_curve[i-1] + thrust_curve.get(i);
+            this.mass_curve[i] = this.mass_curve[i-1] + 
+                (thrust_curve.get(i) + thrust_curve.get(i-1))*0.5*(this.time_curve[i] - this.time_curve[i-1]);
         }
 
-        double factor = this.mass_curve[nEntry-1]/mass_propellant;
+        double factor = mass_propellant/this.mass_curve[nEntry-1];
         for (int i = 0; i < nEntry; i++) 
         {
-            this.mass_curve[i] = mass_propellant + mass_empty - this.mass_curve[i]*factor;
+            this.mass_curve[i] = mass_empty + mass_propellant - this.mass_curve[i]*factor;
         }
 
         for (int i = 1; i < nEntry; i++) 
         {
             double dt = time_curve.get(i) - time_curve.get(i-1);
-            this.thrust_curve_delta[i] = (thrust_curve.get(i) - thrust_curve.get(i-1))/dt;
-            this.mass_curve_delta[i] = (mass_curve[i] - mass_curve[i-1])/dt;
+            this.thrust_curve_delta[i-1] = (thrust_curve.get(i) - thrust_curve.get(i-1))/dt;
+            this.mass_curve_delta[i-1] = (mass_curve[i] - mass_curve[i-1])/dt;
         }
     }
 
@@ -146,7 +149,7 @@ public class CommercialMotor
         final double dm = values[1] - this.inertia_empty.mass;
         values[2] = this.inertia_empty.Ixx + this.inertia_delta.Ixx*dm;
         values[3] = this.inertia_empty.Irr + this.inertia_delta.Irr*dm;
-        values[4] = this.inertia_empty.CGx + this.inertia_delta.CGx*dm;
+        values[4] = this.thrusterXOffset - (this.inertia_empty.CGx + this.inertia_delta.CGx*dm);
         return values;
     }
 
