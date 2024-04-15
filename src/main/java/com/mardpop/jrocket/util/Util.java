@@ -33,7 +33,7 @@ public class Util
         return lo;
     }
     
-    public static Quaternion getQuaternionDelta(Quaternion q, Vec3 angular_velocity, double dt)
+    public static Quaternion getQuaternionDelta(final Quaternion q, final Vec3 angular_velocity, double dt)
     {
         dt *= 0.5;
         Quaternion q_dot = new Quaternion();

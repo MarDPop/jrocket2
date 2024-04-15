@@ -203,6 +203,8 @@ public class PrimaryController implements Initializable
         try {
             launch.put("Heading", Double.parseDouble(headingEntry.getText()));
         } catch (Exception e) {}
+        
+        launch.put("LaunchRailHeight",1.0);
 
         JSONObject rocket = json.getJSONObject("Rocket");
 
@@ -517,6 +519,7 @@ public class PrimaryController implements Initializable
                     latitudeEntry.setText(Double.toString(obj.getDouble("Latitude")));
                     pitchEntry.setText(Double.toString(obj.getDouble("Pitch")));
                     headingEntry.setText(Double.toString(obj.getDouble("Heading")));
+
                 }
 
                 if(!json.has("Rocket"))

@@ -143,6 +143,14 @@ public class Matrix3 {
     {
         return new double[] {a00, a01, a02, a10, a11, a12, a20, a21, a22};
     }
+
+    public final double getDeterminant()
+    {
+        // return a00*a11*a22 + a01*a12*a20 + a02*a10*a21 - a02*a11*a20 - a01*a10*a22 - a00*a12*a21;
+        return a00 * (a11 * a22 - a21 * a12) -
+             a01 * (a10 * a22 - a12 * a20) +
+             a02 * (a10 * a21 - a11 * a20);
+    }
     
     /**
      * Multiply a 3x3 matrix by a 3D vector and store the result in another 3D vector.

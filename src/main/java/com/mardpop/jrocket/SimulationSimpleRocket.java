@@ -1,5 +1,6 @@
 package com.mardpop.jrocket;
 
+import com.mardpop.jrocket.util.Matrix3;
 import com.mardpop.jrocket.util.Quaternion;
 import com.mardpop.jrocket.util.Vec3;
 import com.mardpop.jrocket.vehicle.*;
@@ -40,6 +41,8 @@ public class SimulationSimpleRocket
     private double pitch = 0.0;
     
     private double heading = 0.0;
+
+    private double launchRailHeight = 1.0;
     
     private double timeFinal = 300.0;
     
@@ -85,10 +88,11 @@ public class SimulationSimpleRocket
         this.altitude = altitude;
     }
 
-    public void setLaunchOrientation(double pitch, double heading)
+    public void setLaunchOrientation(double pitch, double heading, double launchRailHeight)
     {
         this.pitch = Math.toRadians(pitch);
         this.heading = Math.toRadians(heading);
+        this.launchRailHeight = launchRailHeight;
     }
     
     public void setSimulationRunTime(double runTime)
@@ -127,7 +131,9 @@ public class SimulationSimpleRocket
             this.setLaunchSite(obj.getDouble("Latitude"),
                     obj.getDouble("Longitude"),
                     obj.getDouble("Altitude"));
-            this.setLaunchOrientation(obj.getDouble("Pitch"),obj.getDouble("Heading"));
+            this.setLaunchOrientation(obj.getDouble("Pitch"),
+                obj.getDouble("Heading"), 
+                obj.getDouble("LaunchRailHeight"));
         }
 
         if(!json.has("Rocket"))
@@ -179,13 +185,24 @@ public class SimulationSimpleRocket
                     obj.getDouble("CN_alpha"), obj.getDouble("COP_x"), obj.getDouble("Area"));
         }
     }
+
+    public static Matrix3 launchOrientation(double pitch, double heading)
+    {
+        double s = Math.cos(pitch);
+        double c = Math.sqrt(1.0 - s*s);
+        double ct = Math.cos(heading);
+        double st = Math.sin(heading);
+        Vec3 x = new Vec3(c*ct,c*st,s);
+        Vec3 y = new Vec3(-st,ct,0);
+        Vec3 z = Vec3.cross(x, y);
+        
+        return new Matrix3(x,y,z);
+    }
     
     public void run() 
     {
-        RocketSimple rocket = new RocketSimple(this.thruster, this.aerodynamics, this.gnc);
-        rocket.setGround(this.groundPressure, this.groundTemperature, this.groundGravity, this.latitude);
-        rocket.setInertia(this.structureInertia);
-        rocket.setLaunchOrientation(this.pitch, this.heading);
+        RocketSimple rocket = new RocketSimple(this.thruster, this.aerodynamics, this.gnc, this.structureInertia);
+        Matrix3 CS = launchOrientation(this.pitch, this.heading);
         
         double time = 0;
         double dt = 0.0005;
@@ -197,7 +214,8 @@ public class SimulationSimpleRocket
         this.masses.clear();
         this.states.clear();
 
-        rocket.init();
+        rocket.init(CS, this.groundPressure, this.groundTemperature, this.groundGravity, 
+            this.latitude, this.launchRailHeight);
 
         while(time < this.timeFinal)
         {

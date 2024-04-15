@@ -16,7 +16,8 @@ public class Quaternion {
 
     public Quaternion() {}
 
-    public Quaternion(double i, double j, double k, double w) {
+    public Quaternion(double i, double j, double k, double w) 
+    {
         this.x = i;
         this.y = j;
         this.z = k;
@@ -49,7 +50,7 @@ public class Quaternion {
     
     public double[] data()
     {
-        return new double[]{w,x,y,z};
+        return new double[]{x,y,z,w};
     }
 
     public Quaternion conjugate() 
@@ -220,6 +221,19 @@ public class Quaternion {
         Matrix3 a = new Matrix3();
         this.setRotationMatrix(a);
         return a;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Quaternion that = (Quaternion) o;
+
+        if (Double.compare(that.x, x) != 0) return false;
+        if (Double.compare(that.y, y) != 0) return false;
+        if (Double.compare(that.z, z) != 0) return false;
+        if (Double.compare(that.w, w) != 0) return false;
+        return true;
     }
     
     @Override

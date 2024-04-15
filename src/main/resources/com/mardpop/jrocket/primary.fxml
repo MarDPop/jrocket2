@@ -93,20 +93,20 @@
                               <Label text="Payload Section Length (cm): " GridPane.columnIndex="2" GridPane.rowIndex="1" />
                               <Label text="Payload Flange Length (cm): " GridPane.columnIndex="4" GridPane.rowIndex="1" />
                               <Label text="Tube Length (cm): " GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                              <TextField fx:id="tubeLengthEntry" text="2" GridPane.columnIndex="3" GridPane.rowIndex="2" />
                               <Label text="Motor Housing Radius (cm):" GridPane.rowIndex="3" />
                               <Label text="Nose Cone Type:" GridPane.columnIndex="2" />
-                              <TextField fx:id="tubeLengthEntry" text="2" GridPane.columnIndex="3" GridPane.rowIndex="2" />
                               <TextField fx:id="motorLengthEntry" text="10" GridPane.columnIndex="3" GridPane.rowIndex="3" />
                               <Label text="Motor Housing Length (cm):" GridPane.columnIndex="2" GridPane.rowIndex="3" />
                               <Label text="Tube Flange Length (cm):" GridPane.columnIndex="4" GridPane.rowIndex="2" />
                               <TextField fx:id="tubeFlangeLengthEntry" text="1" GridPane.columnIndex="5" GridPane.rowIndex="2" />
                               <Label text="Fin Base Chord (cm): " GridPane.rowIndex="4" />
-                              <Label text="Fin Tip Chord (cm): " GridPane.columnIndex="2" GridPane.rowIndex="4" />
-                              <Label text="Fin Span (cm): " GridPane.rowIndex="5" />
                               <TextField fx:id="finBaseChordEntry" text="3" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                              <Label text="Fin Tip Chord (cm): " GridPane.columnIndex="2" GridPane.rowIndex="4" />
                               <TextField fx:id="finTipChordEntry" text="1" GridPane.columnIndex="3" GridPane.rowIndex="4" />
+                              <Label text="Fin Span (cm): " GridPane.rowIndex="5" />
+                              <TextField fx:id="finSpanEntry" text="2.5" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                               <Label text="Fin Sweep (deg): " GridPane.columnIndex="2" GridPane.rowIndex="5" />
-                              <TextField fx:id="finSpanEntry" text="2" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                               <TextField fx:id="finSweepEntry" text="0" GridPane.columnIndex="3" GridPane.rowIndex="5" />
                               <Label text="Number Fins:" GridPane.columnIndex="4" GridPane.rowIndex="4" />
                               <ChoiceBox fx:id="numberOfFinsEntry" prefWidth="150.0" GridPane.columnIndex="5" GridPane.rowIndex="4" />

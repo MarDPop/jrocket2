@@ -30,7 +30,9 @@ public class RocketSimple extends State
     
     public final AerodynamicQuantities aero = new AerodynamicQuantities();
     
-    private double g0;
+    private double g0 = 9.806;
+
+    private double launchRailHeight = 0.0;
     
     
     public final CommercialMotor thruster;
@@ -45,37 +47,12 @@ public class RocketSimple extends State
     private int thrusterTIdx = 0;
     
     
-    public RocketSimple(CommercialMotor thruster, Aerodynamics aerodynamics, SimpleGNC gnc) 
+    public RocketSimple(CommercialMotor thruster, Aerodynamics aerodynamics, 
+        SimpleGNC gnc, InertiaSimple empty) 
     {
         this.thruster = thruster;
         this.aerodynamics = aerodynamics;
         this.gnc = gnc;
-    }
-    
-    public void setGround(double pascal, double kelvin, double gravity, double latitude)
-    {
-        this.g0 = gravity;
-        this.atm.setConstantTemperature(kelvin, pascal, gravity, 100, 6200, Earth.earthRadius(latitude));
-    }
-    
-    public void setLaunchOrientation(double pitch, double heading)
-    {
-        double s = Math.cos(pitch);
-        double c = Math.sqrt(1.0 - s*s);
-        double ct = Math.cos(heading);
-        double st = Math.sin(heading);
-        Vec3 x = new Vec3(c*ct,c*st,s);
-        Vec3 y = new Vec3(-st,ct,0);
-        Vec3 z = Vec3.cross(x, y);
-        
-        Matrix3 CS = new Matrix3(x,y,z);
-        
-        this.coordinateSystem.setFrom(CS);
-        this.orientation.fromRotationMatrix(CS);
-    }
-    
-    public void setInertia(InertiaSimple empty)
-    {
         this.inertiaEmpty.copy(empty);
     }
     
@@ -84,8 +61,14 @@ public class RocketSimple extends State
         return this.inertia.mass;
     }
 
-    public void init()
+    public void init(final Matrix3 CS, final double pascal, final double kelvin, final double gravity, 
+        final double latitude, final double launchRailHeight)
     {
+        this.g0 = gravity;
+        this.launchRailHeight = Double.max(0.0, launchRailHeight);
+        this.atm.setConstantTemperature(kelvin, pascal, gravity, 100, 6200, Earth.earthRadius(latitude));
+        this.coordinateSystem.setFrom(CS);
+        this.orientation.fromRotationMatrix(CS);
         this.thrusterTIdx = 0;
         double[] values = this.thruster.getValuesAtTime(0, thrusterTIdx);
         InertiaSimple propInertia = new InertiaSimple(values[1], values[2], values[3], values[4]);
@@ -118,7 +101,7 @@ public class RocketSimple extends State
             this.inertia = new InertiaSimple(this.inertiaEmpty, propInertia);
         }
         // add damping
-        final double damping = 0.0*this.inertia.Irr;
+        final double damping = 0.01*this.inertiaEmpty.Irr;
         this.moments.set(Vec3.subtract(this.aerodynamics.moment, Vec3.mult(this.angular_velocity, damping)));
         final double arm = this.aerodynamics.position.x - this.inertia.CGx;
         this.moments.y -= arm*this.aerodynamics.force.z;
@@ -128,31 +111,36 @@ public class RocketSimple extends State
     
     Vec3 getAngularAcceleration()
     {
-        final double invIrr = 1.0/this.inertiaEmpty.Irr;
-        return new Vec3(this.moments.x/this.inertiaEmpty.Ixx,this.moments.y*invIrr, this.moments.z*invIrr);
+        final double invIrr = 1.0/this.inertia.Irr;
+        return new Vec3(this.moments.x/this.inertia.Ixx,this.moments.y*invIrr, this.moments.z*invIrr);
     }
     
     void step(double dt)
     {
         Vec3 acceleration0 = this.coordinateSystem.transposeMult(this.forces);
 
-        final double gravity = this.g0*this.inertia.mass;
+        double gravity = this.g0*this.inertia.mass;
         
-        if((this.position.z < 1e-6 && acceleration0.z < gravity))
+        if(this.position.z < this.launchRailHeight)
         {
-            acceleration0 = new Vec3();
+            acceleration0.x = 0;
+            acceleration0.y = 0;
+            moments.scale(0.0);
+
+            if(acceleration0.z < gravity)
+            {
+                gravity = acceleration0.z;
+            }
         }
-        else
-        {
-            acceleration0.z -= gravity;
-            acceleration0.scale(dt*0.5/this.inertia.mass);
-        }
-        
+
+        acceleration0.z -= gravity;
+        acceleration0.scale(dt*0.5/this.inertia.mass);
+    
         this.velocity.add(acceleration0);
         this.position.add(Vec3.mult(this.velocity, dt));
         this.velocity.add(acceleration0);
         
-        Quaternion qd0 = Util.getQuaternionDelta(this.orientation, this.angular_velocity, dt);
+        final Quaternion qd0 = Util.getQuaternionDelta(this.orientation, this.angular_velocity, dt);
         this.orientation.add(qd0);
         this.angular_velocity.add(Vec3.mult(this.getAngularAcceleration(), dt));
         

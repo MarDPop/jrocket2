@@ -23,7 +23,7 @@ public class AerodynamicQuantities
     
     private final Vec3 liftVectorBody = new Vec3();
     
-    public void update(Vec3 velocity, Matrix3 CS, Air air, Vec3 wind)
+    public void update(final Vec3 velocity, final Matrix3 CS, final Air air, final Vec3 wind)
     {
         Vec3 relativeWind = Vec3.subtract(wind, velocity);
         
@@ -33,7 +33,8 @@ public class AerodynamicQuantities
         
         Matrix3.mult(CS, relativeWind, this.unitVectorBody);
         this.unitVectorBody.scale(1.0/(this.airspeed + 1e-17));
-        
+
+        /*
         final double offXcomponent = unitVectorBody.y*unitVectorBody.y + unitVectorBody.z*unitVectorBody.z;
         this.zeta = Math.sqrt(offXcomponent); // note this is not angle of attack
         final double t = this.zeta < 1e-10 ? 0.0 : 1.0/this.zeta;
@@ -41,6 +42,7 @@ public class AerodynamicQuantities
         this.momentVectorBody.z = -this.unitVectorBody.y*t;
         
         this.liftVectorBody.fromCross(this.momentVectorBody, this.unitVectorBody);
+        */
     }
     
     public double getAirspeed()
@@ -55,7 +57,7 @@ public class AerodynamicQuantities
 
     public double getAngleOfAttack()
     {
-        return Math.atan2(this.unitVectorBody.z, this.unitVectorBody.x);
+        return Math.atan2(this.zeta, this.unitVectorBody.x);
     }
     
     public double getDynamicPressure()
