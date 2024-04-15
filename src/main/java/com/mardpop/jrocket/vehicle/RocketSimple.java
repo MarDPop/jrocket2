@@ -101,8 +101,8 @@ public class RocketSimple extends State
             this.inertia = new InertiaSimple(this.inertiaEmpty, propInertia);
         }
         // add damping
-        final double damping = 0.01*this.inertiaEmpty.Irr;
-        this.moments.set(Vec3.subtract(this.aerodynamics.moment, Vec3.mult(this.angular_velocity, damping)));
+        
+        this.moments.set(this.aerodynamics.moment);
         final double arm = this.aerodynamics.position.x - this.inertia.CGx;
         this.moments.y -= arm*this.aerodynamics.force.z;
         this.moments.z += arm*this.aerodynamics.force.y;
@@ -112,7 +112,9 @@ public class RocketSimple extends State
     Vec3 getAngularAcceleration()
     {
         final double invIrr = 1.0/this.inertia.Irr;
-        return new Vec3(this.moments.x/this.inertia.Ixx,this.moments.y*invIrr, this.moments.z*invIrr);
+        final double damping = -0.001;
+        Vec3 angularAcceleration = new Vec3(this.moments.x/this.inertia.Ixx,this.moments.y*invIrr, this.moments.z*invIrr);
+        return Vec3.add(angularAcceleration, Vec3.mult(this.angular_velocity, damping));
     }
     
     void step(double dt)
