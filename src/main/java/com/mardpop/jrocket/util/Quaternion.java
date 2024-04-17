@@ -107,21 +107,21 @@ public class Quaternion {
     public Quaternion mult(Quaternion p) 
     {
         Quaternion q = new Quaternion();
-        this.x = this.w*this.x + this.x*p.w + this.y*p.z - this.z*p.y;
-        this.y = this.w*this.y - this.x*p.z + this.y*p.w + this.z*p.x;
-        this.z = this.w*this.z + this.x*p.y - this.y*p.x + this.z*p.w;
-        this.w = this.w*this.w - this.x*p.x - this.y*p.y - this.z*p.z;
+        this.x = this.w*p.x + this.x*p.w + this.y*p.z - this.z*p.y;
+        this.y = this.w*p.y - this.x*p.z + this.y*p.w + this.z*p.x;
+        this.z = this.w*p.z + this.x*p.y - this.y*p.x + // this.z*p.w;
+        this.w = this.w*p.w - this.x*p.x - this.y*p.y - this.z*p.z;
         return q;
     }
 
     public static Quaternion fromAxisAngle(Vec3 axis, double angle) {
         Quaternion q = new Quaternion();
-        double s = Math.sin(angle/2);
+        double s = Math.sin(angle*0.5);
         
         q.x = axis.x*s;
         q.y = axis.y*s;
         q.z = axis.z*s;
-        q.w = Math.cos(angle/2);
+        q.w = Math.cos(angle*0.5);
         return q;
     }
     

@@ -27,8 +27,7 @@ public class InertiaSimple
     public InertiaSimple(InertiaSimple a, InertiaSimple b)
     {
         this.mass = a.mass + b.mass;
-        double invMass = 1.0/this.mass;
-        this.CGx = (a.CGx*a.mass + b.CGx*b.mass)*invMass;
+        this.CGx = (a.CGx*a.mass + b.CGx*b.mass)/this.mass;
         this.Ixx = a.Ixx + b.Ixx;
         double dxa = a.CGx - this.CGx;
         double dxb = b.CGx - this.CGx;

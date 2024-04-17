@@ -142,11 +142,17 @@ public class RocketSimple extends State
         this.position.add(Vec3.mult(this.velocity, dt));
         this.velocity.add(acceleration0);
         
-        final Quaternion qd0 = Util.getQuaternionDelta(this.orientation, this.angular_velocity, dt);
-        this.orientation.add(qd0);
+        double angleRotation = this.angular_velocity.magnitude();
+        if(angleRotation > 1e-10) {
+            Vec3 axis = Vec3.mult(this.angular_velocity, 1.0/angleRotation);
+            final Quaternion qd0 = Quaternion.fromAxisAngle(axis, angleRotation*dt);
+            final Quaternion newOrientation = this.orientation.mult(qd0);
+            this.orientation.set(newOrientation);
+        }
+
         this.angular_velocity.add(Vec3.mult(this.getAngularAcceleration(), dt));
         
-        this.orientation.normalize();
+        //this.orientation.normalize();
     }
 
     public void push(double time, double dt)

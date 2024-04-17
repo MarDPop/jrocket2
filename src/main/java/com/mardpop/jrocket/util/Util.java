@@ -36,7 +36,7 @@ public class Util
     public static Quaternion getQuaternionDelta(final Quaternion q, final Vec3 angular_velocity, double dt)
     {
         dt *= 0.5;
-        Quaternion q_dot = new Quaternion();
+        Quaternion q_dot = new Quaternion(); // TODO: DOUBLE CHECK THIS
         q_dot.x = ( angular_velocity.z*q.y - angular_velocity.y*q.z + angular_velocity.x*q.w)*dt;
         q_dot.y = (-angular_velocity.z*q.x + angular_velocity.x*q.z + angular_velocity.y*q.w)*dt;
         q_dot.z = ( angular_velocity.y*q.x - angular_velocity.x*q.y + angular_velocity.z*q.w)*dt;

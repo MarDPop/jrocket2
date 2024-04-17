@@ -122,6 +122,6 @@ public class Vec3 {
     @Override
     public String toString()
     {
-        return String.format("[%f, %f, %f]", this.x, this.y, this.z);
+        return String.format("[%.6e, %.6e, %.6e]", this.x, this.y, this.z);
     }
 }
