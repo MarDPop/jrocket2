@@ -4,12 +4,10 @@ import com.mardpop.jrocket.util.Matrix3;
 import com.mardpop.jrocket.util.Quaternion;
 import com.mardpop.jrocket.util.Vec3;
 import com.mardpop.jrocket.vehicle.*;
-import com.mardpop.jrocket.vehicle.aerodynamics.Aerodynamics;
-import com.mardpop.jrocket.vehicle.aerodynamics.AerodynamicsBallistic;
 import com.mardpop.jrocket.vehicle.aerodynamics.AerodynamicsConstantCP;
 import com.mardpop.jrocket.vehicle.gnc.SimpleGNC;
 import com.mardpop.jrocket.vehicle.propulsion.CommercialMotor;
-import com.mardpop.jrocket.vehicle.propulsion.Thruster;
+import com.mardpop.jrocket.vehicle.recovery.SimpleChute;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -44,11 +42,13 @@ public class SimulationSimpleRocket
 
     private double launchRailHeight = 1.0;
     
-    private double timeFinal = 8.0;
+    private double timeFinal = 300.0;
     
     private InertiaSimple structureInertia = new InertiaSimple(0.5,1.0,1.0,0.0);
     
-    private Aerodynamics aerodynamics = new AerodynamicsBallistic(0.5, 0.1);
+    private AerodynamicsConstantCP aerodynamics = new AerodynamicsConstantCP(0.0,0.0,0.0,1.0);
+
+    private SimpleChute chute = new SimpleChute(0,0,0);
     
     private CommercialMotor thruster;
     
@@ -122,7 +122,7 @@ public class SimulationSimpleRocket
         if(json.has("ODE") )
         {
             obj = json.getJSONObject("ODE");
-            this.setSimulationRunTime(obj.getDouble("MaxRunTime"));
+            this.setSimulationRunTime(obj.getDouble("MaxRuntime"));
         }
         
         if(json.has("Launch"))
@@ -184,6 +184,13 @@ public class SimulationSimpleRocket
             this.aerodynamics = new AerodynamicsConstantCP(obj.getDouble("CD"),
                     obj.getDouble("CN_alpha"), obj.getDouble("COP_x"), obj.getDouble("Area"));
         }
+
+        if(rocket.has("Chute"))
+        {
+            obj = rocket.getJSONObject("Chute");
+            this.chute = new SimpleChute(obj.getDouble("Area"),obj.getDouble("Delay"),
+                    obj.getDouble("DeployTime"));
+        }
     }
 
     public static Matrix3 launchOrientation(double pitch, double heading)
@@ -201,13 +208,13 @@ public class SimulationSimpleRocket
     
     public void run() 
     {
-        RocketSimple rocket = new RocketSimple(this.thruster, this.aerodynamics, this.gnc, this.structureInertia);
+        RocketSimple rocket = new RocketSimple(this.thruster, this.aerodynamics, this.chute, this.gnc, this.structureInertia);
         Matrix3 CS = launchOrientation(this.pitch, this.heading);
         
         double time = 0;
         double dt = 0.0005;
         double timeRecord = 0;
-        double dtRecord = 0.1;
+        double dtRecord = 0.25;
         
         final Vec3 position = new Vec3();
         this.times.clear();

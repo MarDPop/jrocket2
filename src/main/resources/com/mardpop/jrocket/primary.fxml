@@ -5,7 +5,6 @@
 <?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
@@ -122,7 +121,7 @@
                               <ChoiceBox fx:id="structureMaterialEntry" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="6" />
                               <TextField fx:id="structureThicknessEntry" text="1" GridPane.columnIndex="3" GridPane.rowIndex="6" />
                               <Label text="Structure Thickness (mm): " GridPane.columnIndex="2" GridPane.rowIndex="6" />
-                              <TextField fx:id="motorXOffsetEntry" GridPane.columnIndex="5" GridPane.rowIndex="3" text="0" />
+                              <TextField fx:id="motorXOffsetEntry" text="0" GridPane.columnIndex="5" GridPane.rowIndex="3" />
                               <Label text="Motor Offset (mm):" GridPane.columnIndex="4" GridPane.rowIndex="3" />
                            </children>
                         </GridPane>
@@ -211,7 +210,6 @@
          <content>
             <VBox fx:id="simpleRocketForm" prefHeight="537.0" prefWidth="295.0" spacing="10.0">
                <children>
-                  <CheckBox id="overrideValuesBox" fx:id="overrideValuesBox" mnemonicParsing="false" text="Override Values" />
                   <Label text="Mass &amp; Inertia">
                      <font>
                         <Font size="18.0" />
@@ -244,13 +242,13 @@
                   <HBox prefWidth="200.0">
                      <children>
                         <Label text="Propellant Mass (kg): " />
-                        <TextField id="propellantMassEntry" fx:id="propellantMassEntry" promptText="Mass of the fuel" text="5" />
+                        <TextField id="propellantMassEntry" fx:id="propellantMassEntry" disable="true" promptText="Mass of the fuel" text="5" />
                      </children>
                   </HBox>
                   <HBox prefWidth="200.0">
                      <children>
                         <Label text="Full CG (cm): " />
-                        <TextField id="irrEntry" fx:id="cGxFullEntry" promptText="Moment of Inertia Perpendicular to Axis" text="0.0" />
+                        <TextField id="irrEntry" fx:id="cGxFullEntry" disable="true" promptText="Moment of Inertia Perpendicular to Axis" text="0.0" />
                      </children>
                   </HBox>
                   <Label text="Aerodynamics">
@@ -323,6 +321,35 @@
                         <TextField id="headingEntry" fx:id="headingEntry" promptText="Direction of the pitch angle from north" text="0" />
                      </children>
                   </HBox>
+                  <Label text="Recovery">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
+                  <HBox prefWidth="200.0">
+                     <children>
+                        <Label text="Parachute Area (m2):" />
+                        <TextField id="chuteAreaEntry" fx:id="chuteAreaEntry" promptText="Size of Parachute" text="0" />
+                     </children>
+                  </HBox>
+                  <HBox prefWidth="200.0">
+                     <children>
+                        <Label text="Parachute Delay (s):" />
+                        <TextField id="chuteDelayEntry" fx:id="chuteDelayEntry" promptText="Delay of parachute" text="0" />
+                     </children>
+                  </HBox>
+                  <Label text="Simulation Parameters">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
+                  <HBox prefWidth="200.0">
+                     <children>
+                        <Label text="Max Run Time (s): " />
+                        <TextField id="headingEntry" fx:id="maxRunTimeEntry" promptText="Direction of the pitch angle from north" text="60" />
+                     </children>
+                  </HBox>
+
                   <HBox prefWidth="200.0" spacing="15.0">
                      <children>
                         <Button id="loadSimple" fx:id="loadSimple" mnemonicParsing="false" onAction="#loadSimpleRocket" text="Load" />

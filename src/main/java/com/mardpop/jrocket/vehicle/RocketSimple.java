@@ -3,9 +3,10 @@ package com.mardpop.jrocket.vehicle;
 import com.mardpop.jrocket.atmosphere.AerodynamicQuantities;
 import com.mardpop.jrocket.atmosphere.Atmosphere;
 import com.mardpop.jrocket.util.*;
-import com.mardpop.jrocket.vehicle.aerodynamics.Aerodynamics;
+import com.mardpop.jrocket.vehicle.aerodynamics.AerodynamicsConstantCP;
 import com.mardpop.jrocket.vehicle.gnc.SimpleGNC;
 import com.mardpop.jrocket.vehicle.propulsion.CommercialMotor;
+import com.mardpop.jrocket.vehicle.recovery.SimpleChute;
 
 /**
  *
@@ -37,7 +38,9 @@ public class RocketSimple extends State
     
     public final CommercialMotor thruster;
     
-    public final Aerodynamics aerodynamics;
+    public final AerodynamicsConstantCP aerodynamics;
+
+    public final SimpleChute chute;
     
     public final SimpleGNC gnc;
 
@@ -47,11 +50,12 @@ public class RocketSimple extends State
     private int thrusterTIdx = 0;
     
     
-    public RocketSimple(CommercialMotor thruster, Aerodynamics aerodynamics, 
+    public RocketSimple(CommercialMotor thruster, AerodynamicsConstantCP aerodynamics, SimpleChute chute, 
         SimpleGNC gnc, InertiaSimple empty) 
     {
         this.thruster = thruster;
         this.aerodynamics = aerodynamics;
+        this.chute = chute;
         this.gnc = gnc;
         this.inertiaEmpty.copy(empty);
     }
@@ -100,7 +104,11 @@ public class RocketSimple extends State
             InertiaSimple propInertia = new InertiaSimple(values[1], values[2], values[3], values[4]);
             this.inertia = new InertiaSimple(this.inertiaEmpty, propInertia);
         }
-        // add damping
+
+        if(time > this.chute.deployTime)
+        {
+            this.forces.add(this.chute.bodyForce(time, aero));
+        }
         
         this.moments.set(this.aerodynamics.moment);
         final double arm = this.aerodynamics.position.x - this.inertia.CGx;
@@ -147,14 +155,13 @@ public class RocketSimple extends State
         if(angleRotation > 1e-10) 
         {
             Vec3 axis = Vec3.mult(this.angular_velocity, 1.0/angleRotation);
-            // axis = this.coordinateSystem.transposeMult(axis);
             final Quaternion qd0 = Quaternion.fromAxisAngle(axis, angleRotation*dt);
             this.orientation.set(qd0.mult(this.orientation));
         }
 
         this.angular_velocity.add(Vec3.mult(this.getAngularAcceleration(), dt));
         
-        //this.orientation.normalize();
+        this.orientation.normalize();
     }
 
     public void push(double time, double dt)

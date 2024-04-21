@@ -27,7 +27,7 @@ public class ControllerHelper {
 
         json.put("Ground", ground);
         json.put("Launch", launch);
-        json.put("Ode", ode);
+        json.put("ODE", ode);
 
         json.put("Rocket", createSimpleRocketJson());
 
@@ -54,9 +54,15 @@ public class ControllerHelper {
         aerodynamics.put("CN_alpha", 0.0);
         aerodynamics.put("Area", 0.03);
 
+        JSONObject chute = new JSONObject();
+        chute.put("Delay", 5);
+        chute.put("DeployTime", 5);
+        chute.put("Area", 0.1);
+
         json.put("InertiaEmpty", inertiaEmpty);
         json.put("Thruster", thruster);
         json.put("Aerodynamics", aerodynamics);
+        json.put("Chute", chute);
 
         json.put("GNC", 0);
 

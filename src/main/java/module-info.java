@@ -16,4 +16,5 @@ module com.mardpop.jrocket {
     exports com.mardpop.jrocket.designer;
     exports com.mardpop.jrocket.vehicle.propulsion;
     exports com.mardpop.jrocket.vehicle.aerodynamics;
+    exports com.mardpop.jrocket.vehicle.recovery;
 }

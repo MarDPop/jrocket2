@@ -53,9 +53,6 @@ public class PrimaryController implements Initializable
     String currentProjectName = "SimpleRocket";
 
     @FXML
-    CheckBox overrideValuesBox;
-
-    @FXML
     TextField emptyMassEntry;
 
     @FXML
@@ -102,6 +99,15 @@ public class PrimaryController implements Initializable
 
     @FXML
     TextField headingEntry;
+
+    @FXML
+    TextField chuteAreaEntry;
+
+    @FXML
+    TextField chuteDelayEntry;
+
+    @FXML
+    TextField maxRunTimeEntry;
 
     @FXML
     TextField noseConeLengthEntry, noseSphericalEntry;
@@ -206,6 +212,12 @@ public class PrimaryController implements Initializable
         
         launch.put("LaunchRailHeight",1.0);
 
+        JSONObject ode = json.getJSONObject("ODE");
+
+        try {
+            ode.put("MaxRuntime", Double.parseDouble(maxRunTimeEntry.getText()));
+        } catch (Exception e) {}
+
         JSONObject rocket = json.getJSONObject("Rocket");
 
         RocketParameters params = getParams();
@@ -243,6 +255,16 @@ public class PrimaryController implements Initializable
 
         try {
             aerodynamics.put("Area", Double.parseDouble(referenceAreaEntry.getText()));
+        } catch (Exception e) {}
+
+        JSONObject chute = rocket.getJSONObject("Chute");
+
+        try {
+            chute.put("Area", Double.parseDouble(chuteAreaEntry.getText()));
+        } catch (Exception e) {}
+
+        try {
+            chute.put("Delay", Double.parseDouble(chuteDelayEntry.getText()));
         } catch (Exception e) {}
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(this.currentProjectName +".sRocket"))) 
@@ -591,6 +613,17 @@ public class PrimaryController implements Initializable
                     throw new Exception("Missing Aerodynamics");
                 }
 
+                if(rocket.has("Chute"))
+                {
+                    JSONObject obj = rocket.getJSONObject("Chute");
+                    chuteAreaEntry.setText(Double.toString(obj.getDouble("Area")));
+                    chuteDelayEntry.setText(Double.toString(obj.getDouble("Delay")));
+                }
+                else
+                {
+                    throw new Exception("Missing Chute");
+                }
+
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (JSONException e) {
@@ -796,19 +829,6 @@ public class PrimaryController implements Initializable
              "Aluminum", "Fiberglass", "Carbon Fiber");
 
         this.structureMaterialEntry.getSelectionModel().selectFirst();
-        
-        this.overrideValuesBox.onActionProperty().setValue((event) -> {
-            boolean flag = !overrideValuesBox.isSelected();
-            for(Node node : simpleRocketForm.getChildren())
-            {
-                if(node instanceof TextField)
-                {
-                    node.setDisable(flag);
-                }
-            }
-        });
-
-        this.overrideValuesBox.setSelected(true);
 
         Set<File> files = Stream.of(new File("./etc").listFiles())
             .filter(file -> !file.isDirectory())
