@@ -51,9 +51,7 @@ public class ControllerHelper {
 
         JSONObject aerodynamics = new JSONObject();
         aerodynamics.put("CD", 0.7);
-        aerodynamics.put("CL_alpha", 0.0);
-        aerodynamics.put("CM_alpha", 0.0);
-        aerodynamics.put("LiftInducedDrag", 0.0);
+        aerodynamics.put("CN_alpha", 0.0);
         aerodynamics.put("Area", 0.03);
 
         json.put("InertiaEmpty", inertiaEmpty);

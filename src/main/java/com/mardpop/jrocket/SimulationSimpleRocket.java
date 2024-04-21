@@ -44,7 +44,7 @@ public class SimulationSimpleRocket
 
     private double launchRailHeight = 1.0;
     
-    private double timeFinal = 300.0;
+    private double timeFinal = 8.0;
     
     private InertiaSimple structureInertia = new InertiaSimple(0.5,1.0,1.0,0.0);
     
@@ -207,7 +207,7 @@ public class SimulationSimpleRocket
         double time = 0;
         double dt = 0.0005;
         double timeRecord = 0;
-        double dtRecord = 0.25;
+        double dtRecord = 0.1;
         
         final Vec3 position = new Vec3();
         this.times.clear();

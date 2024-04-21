@@ -28,21 +28,30 @@ public class AerodynamicQuantities
         Vec3 relativeWind = Vec3.subtract(wind, velocity);
         
         this.airspeed = relativeWind.magnitude();
-        this.mach = this.airspeed*air.getInvSoundSpeed();
-        this.dynamicPressure = 0.5*air.getDensity()*this.airspeed*this.airspeed;
-        
-        Matrix3.mult(CS, relativeWind, this.unitVectorBody);
-        this.unitVectorBody.scale(1.0/(this.airspeed + 1e-17));
 
-        /*
-        final double offXcomponent = unitVectorBody.y*unitVectorBody.y + unitVectorBody.z*unitVectorBody.z;
-        this.zeta = Math.sqrt(offXcomponent); // note this is not angle of attack
-        final double t = this.zeta < 1e-10 ? 0.0 : 1.0/this.zeta;
-        this.momentVectorBody.y = this.unitVectorBody.z*t;
-        this.momentVectorBody.z = -this.unitVectorBody.y*t;
-        
-        this.liftVectorBody.fromCross(this.momentVectorBody, this.unitVectorBody);
-        */
+        if(this.airspeed > 1e-8)
+        {
+            this.mach = this.airspeed*air.getInvSoundSpeed();
+            this.dynamicPressure = 0.5*air.getDensity()*this.airspeed*this.airspeed;
+            relativeWind.scale(1.0/this.airspeed);
+            Matrix3.mult(CS, relativeWind, this.unitVectorBody);
+            
+            final double offXcomponent = unitVectorBody.y*unitVectorBody.y + unitVectorBody.z*unitVectorBody.z;
+            this.zeta = Math.sqrt(offXcomponent); // note this is not angle of attack
+            final double t = this.zeta < 1e-10 ? 0.0 : 1.0/this.zeta;
+            this.momentVectorBody.y = this.unitVectorBody.z*t;
+            this.momentVectorBody.z = -this.unitVectorBody.y*t;
+            
+            this.liftVectorBody.fromCross(this.momentVectorBody, this.unitVectorBody);
+        }
+        else
+        {
+            this.mach = 0;
+            this.dynamicPressure = 0;
+            this.unitVectorBody.x = 0.0;
+            this.unitVectorBody.y = 0.0;
+            this.unitVectorBody.z = 0.0;
+        }
     }
     
     public double getAirspeed()

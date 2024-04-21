@@ -12,7 +12,7 @@ public class Quaternion {
 
     public double z;
 
-    public double w;
+    public double w = 1.0;
 
     public Quaternion() {}
 
@@ -106,17 +106,15 @@ public class Quaternion {
 
     public Quaternion mult(Quaternion p) 
     {
-        Quaternion q = new Quaternion();
-        this.x = this.w*p.x + this.x*p.w + this.y*p.z - this.z*p.y;
-        this.y = this.w*p.y - this.x*p.z + this.y*p.w + this.z*p.x;
-        this.z = this.w*p.z + this.x*p.y - this.y*p.x + // this.z*p.w;
-        this.w = this.w*p.w - this.x*p.x - this.y*p.y - this.z*p.z;
-        return q;
+        return new Quaternion(this.w*p.x + this.x*p.w + this.y*p.z - this.z*p.y,
+            this.w*p.y - this.x*p.z + this.y*p.w + this.z*p.x,
+            this.w*p.z + this.x*p.y - this.y*p.x + this.z*p.w,
+            this.w*p.w - this.x*p.x - this.y*p.y - this.z*p.z);
     }
 
     public static Quaternion fromAxisAngle(Vec3 axis, double angle) {
         Quaternion q = new Quaternion();
-        double s = Math.sin(angle*0.5);
+        final double s = Math.sin(angle*0.5);
         
         q.x = axis.x*s;
         q.y = axis.y*s;
@@ -239,6 +237,6 @@ public class Quaternion {
     @Override
     public String toString()
     {
-        return String.format("[%f, %f, %f, %f]", this.x, this.y, this.z, this.w);
+        return String.format("[%e, %e, %e, %e]", this.x, this.y, this.z, this.w);
     }
 }

@@ -13,12 +13,12 @@ public class AerodynamicsConstantCP extends Aerodynamics
         final double ReferenceArea)
     {
         this.CD0 = CD0*ReferenceArea;
-        this.CN = -0*CN*ReferenceArea;
+        this.CN = 0*CN*ReferenceArea;
         this.position.x = CPx;
     }
 
     @Override
-    public void update(AerodynamicQuantities aero)
+    public void update(final AerodynamicQuantities aero)
     {
         final double drag = this.CD0*aero.getDynamicPressure();
         final double lift = this.CN*aero.getDynamicPressure();

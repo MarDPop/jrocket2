@@ -24,7 +24,7 @@ public class RocketSimple extends State
     private final InertiaSimple inertiaEmpty = new InertiaSimple();
     
         
-    public final Matrix3 coordinateSystem = new Matrix3();
+    public final Matrix3 coordinateSystem = new Matrix3(); // row major
     
     private final Atmosphere atm = new Atmosphere();
     
@@ -112,9 +112,10 @@ public class RocketSimple extends State
     Vec3 getAngularAcceleration()
     {
         final double invIrr = 1.0/this.inertia.Irr;
-        final double damping = -0.001;
-        Vec3 angularAcceleration = new Vec3(this.moments.x/this.inertia.Ixx,this.moments.y*invIrr, this.moments.z*invIrr);
-        return Vec3.add(angularAcceleration, Vec3.mult(this.angular_velocity, damping));
+        final double artificial_damping = -0.001;
+        final Vec3 angularAcceleration = new Vec3(this.moments.x/this.inertia.Ixx,
+            this.moments.y*invIrr, this.moments.z*invIrr);
+        return Vec3.add(angularAcceleration, Vec3.mult(this.angular_velocity, artificial_damping));
     }
     
     void step(double dt)
@@ -143,11 +144,12 @@ public class RocketSimple extends State
         this.velocity.add(acceleration0);
         
         double angleRotation = this.angular_velocity.magnitude();
-        if(angleRotation > 1e-10) {
+        if(angleRotation > 1e-10) 
+        {
             Vec3 axis = Vec3.mult(this.angular_velocity, 1.0/angleRotation);
+            // axis = this.coordinateSystem.transposeMult(axis);
             final Quaternion qd0 = Quaternion.fromAxisAngle(axis, angleRotation*dt);
-            final Quaternion newOrientation = this.orientation.mult(qd0);
-            this.orientation.set(newOrientation);
+            this.orientation.set(qd0.mult(this.orientation));
         }
 
         this.angular_velocity.add(Vec3.mult(this.getAngularAcceleration(), dt));
