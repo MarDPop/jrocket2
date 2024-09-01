@@ -6,6 +6,11 @@ package com.mardpop.jrocket.atmosphere;
  */
 public class AtmosphereWithWind extends Atmosphere
 {
+    public AtmosphereWithWind(double temperature, double groundPressure, double groundGravity, double heightIncrement,
+            double maxHeight, double R0) {
+        super(temperature, groundPressure, groundGravity, heightIncrement, maxHeight, R0);
+    }
+
     private double[] windTimes;
 
     private double[] invTimes;

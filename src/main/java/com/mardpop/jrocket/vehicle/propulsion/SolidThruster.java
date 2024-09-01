@@ -12,4 +12,9 @@ public class SolidThruster extends Thruster
     {
         return this.solidFuel;
     }
+
+    public Propulsion toPropulsion()
+    {
+        return new Propulsion(this, this.solidFuel);
+    }
 }

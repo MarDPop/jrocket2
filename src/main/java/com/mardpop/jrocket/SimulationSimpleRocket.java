@@ -1,5 +1,7 @@
 package com.mardpop.jrocket;
 
+import com.mardpop.jrocket.atmosphere.Atmosphere;
+import com.mardpop.jrocket.util.Earth;
 import com.mardpop.jrocket.util.Matrix3;
 import com.mardpop.jrocket.util.Quaternion;
 import com.mardpop.jrocket.util.Vec3;
@@ -29,6 +31,8 @@ public class SimulationSimpleRocket
     private double groundPressure = 101325;
     
     private double groundTemperature = 291;
+
+    private Atmosphere.Wind wind = new Atmosphere.Wind();
     
     private double latitude = 0.0;
     
@@ -94,6 +98,12 @@ public class SimulationSimpleRocket
         this.heading = Math.toRadians(heading);
         this.launchRailHeight = launchRailHeight;
     }
+
+    public void setWind(double speed, double direction)
+    {
+        this.wind.east = (float)(speed*Math.cos(direction));
+        this.wind.north = (float)(speed*Math.sin(direction));
+    }
     
     public void setSimulationRunTime(double runTime)
     {
@@ -134,6 +144,8 @@ public class SimulationSimpleRocket
             this.setLaunchOrientation(obj.getDouble("Pitch"),
                 obj.getDouble("Heading"), 
                 obj.getDouble("LaunchRailHeight"));
+
+            this.setWind(obj.getDouble("WindSpeed"), obj.getDouble("WindDirection"));
         }
 
         if(!json.has("Rocket"))
@@ -210,6 +222,14 @@ public class SimulationSimpleRocket
     {
         RocketSimple rocket = new RocketSimple(this.thruster, this.aerodynamics, this.chute, this.gnc, this.structureInertia);
         Matrix3 CS = launchOrientation(this.pitch, this.heading);
+
+        Atmosphere atm = new Atmosphere(this.groundTemperature, this.groundPressure, this.groundGravity, 
+            100, 6200, Earth.earthRadius(latitude));
+
+        atm.wind.east = this.wind.east;
+        atm.wind.north = this.wind.north;
+
+        rocket.init(CS, atm, this.groundGravity, this.launchRailHeight);
         
         double time = 0;
         double dt = 0.0005;
@@ -220,10 +240,6 @@ public class SimulationSimpleRocket
         this.times.clear();
         this.masses.clear();
         this.states.clear();
-
-        rocket.init(CS, this.groundPressure, this.groundTemperature, this.groundGravity, 
-            this.latitude, this.launchRailHeight);
-
         while(time < this.timeFinal)
         {
             if(time >= timeRecord)

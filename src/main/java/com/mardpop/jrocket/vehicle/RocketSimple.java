@@ -27,7 +27,7 @@ public class RocketSimple extends State
         
     public final Matrix3 coordinateSystem = new Matrix3(); // row major
     
-    private final Atmosphere atm = new Atmosphere();
+    private Atmosphere atm = null;
     
     public final AerodynamicQuantities aero = new AerodynamicQuantities();
     
@@ -65,14 +65,16 @@ public class RocketSimple extends State
         return this.inertia.mass;
     }
 
-    public void init(final Matrix3 CS, final double pascal, final double kelvin, final double gravity, 
-        final double latitude, final double launchRailHeight)
+    public void init(final Matrix3 CS, final Atmosphere atm, final double gravity, final double launchRailHeight)
     {
-        this.g0 = gravity;
+        this.g0 = gravity; // no coriolis effect
         this.launchRailHeight = Double.max(0.0, launchRailHeight);
-        this.atm.setConstantTemperature(kelvin, pascal, gravity, 100, 6200, Earth.earthRadius(latitude));
+        this.atm = atm;
         this.coordinateSystem.setFrom(CS);
         this.orientation.fromRotationMatrix(CS);
+        this.wind.x = atm.wind.east;
+        this.wind.y = atm.wind.north;
+
         this.thrusterTIdx = 0;
         double[] values = this.thruster.getValuesAtTime(0, thrusterTIdx);
         InertiaSimple propInertia = new InertiaSimple(values[1], values[2], values[3], values[4]);

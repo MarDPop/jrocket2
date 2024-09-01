@@ -8,8 +8,8 @@ public class Component
 {
     protected final Inertia inertia = new Inertia();
     
-    public Inertia getInertia()
+    public final Inertia getInertia()
     {
-        return inertia;
+        return new Inertia(inertia);
     }    
 }

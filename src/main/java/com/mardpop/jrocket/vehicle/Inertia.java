@@ -40,6 +40,18 @@ public class Inertia
         this.COM.set(COM);
     }
 
+    public Inertia(Inertia copy)
+    {
+        this.mass = copy.mass;
+        this.Ixx = copy.Ixx;
+        this.Iyy = copy.Iyy;
+        this.Izz = copy.Izz;
+        this.Ixy = copy.Ixy;
+        this.Ixz = copy.Ixz;
+        this.Iyz = copy.Iyz;
+        this.COM.set(COM);
+    }
+
     public Matrix3 getMatrix()
     {
         return new Matrix3(Ixx, -Ixy, -Ixz, -Ixy, Iyy, -Iyz, -Ixz, -Iyz, Izz);

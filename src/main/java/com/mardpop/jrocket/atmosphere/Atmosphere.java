@@ -6,17 +6,17 @@ package com.mardpop.jrocket.atmosphere;
  */
 public class Atmosphere 
 {
-    public class Wind 
+    public static class Wind 
     {
         public float north = 0.0f;
         public float east = 0.0f;
     }
 
-    private double[] heights;
+    private final double[] heights;
     
-    private double[] values;
+    private final double[] values;
     
-    private double[] dvalues;
+    private final double[] dvalues;
     
     private int heightIdx = 0;
     
@@ -31,7 +31,7 @@ public class Atmosphere
         return (R0*z)/(R0 + z);
     }
     
-    public void setConstantTemperature(double temperature, double groundPressure, 
+    public Atmosphere(double temperature, double groundPressure, 
         double groundGravity, double heightIncrement, double maxHeight, double R0)
     {
         final int nHeights = (int)(maxHeight / heightIncrement) + 2;
@@ -60,19 +60,42 @@ public class Atmosphere
         
         for(int i = 1; i < nHeights; i++)
         {
-            int lo = 4*(i - 1);
-            int hi = 4*i;
+            final int lo = 4*(i - 1);
+            final int hi = 4*i;
             this.dvalues[lo] = (this.values[hi] - this.values[lo])*invHeightInc;
             this.dvalues[lo + 1] = (this.values[hi + 1] - this.values[lo + 1])*invHeightInc;
             this.dvalues[lo + 2] = (this.values[hi + 2] - this.values[lo + 2])*invHeightInc;
             this.dvalues[lo + 3] = (this.values[hi + 3] - this.values[lo + 3])*invHeightInc;
         }
     }
-    
-    public void loadProfile(String file)
+
+    public Atmosphere(double[] heights, double[] values)
     {
-        
+        final int nHeights =  heights.length;
+        assert(values.length == nHeights*4);
+
+        this.heights = new double[nHeights];
+        this.values = new double[nHeights*4];
+        this.dvalues = new double[nHeights*4];
+
+        System.arraycopy(heights, 0, this.heights, 0, nHeights);
+        System.arraycopy(values, 0, this.values, 0, nHeights*4);
+
+        for(int i = 1; i < nHeights; i++)
+        {
+            final double invHeightInc = 1.0/this.heights[i] - 1.0/this.heights[i - 1];
+            final int lo = 4*(i - 1);
+            final int hi = 4*i;
+            this.dvalues[lo] = (this.values[hi] - this.values[lo])*invHeightInc;
+            this.dvalues[lo + 1] = (this.values[hi + 1] - this.values[lo + 1])*invHeightInc;
+            this.dvalues[lo + 2] = (this.values[hi + 2] - this.values[lo + 2])*invHeightInc;
+            this.dvalues[lo + 3] = (this.values[hi + 3] - this.values[lo + 3])*invHeightInc;
+        }
     }
+
+    /*
+    public Atmosphere(String file){}
+    */
     
     public void updateWind(double height, double time)
     {

@@ -321,6 +321,18 @@
                         <TextField id="headingEntry" fx:id="headingEntry" promptText="Direction of the pitch angle from north" text="0" />
                      </children>
                   </HBox>
+                  <HBox prefWidth="200.0">
+                     <children>
+                        <Label text="Wind Speed (m/s): " />
+                        <TextField id="windSpeedEntry" fx:id="windSpeedEntry" promptText="Wind speed " text="0" />
+                     </children>
+                  </HBox>
+                  <HBox prefWidth="200.0">
+                     <children>
+                        <Label text="Wind Direction (deg): " />
+                        <TextField id="windDirectionEntry" fx:id="windDirectionEntry" promptText="Direction of wind from north" text="0" />
+                     </children>
+                  </HBox>
                   <Label text="Recovery">
                      <font>
                         <Font size="18.0" />
@@ -346,7 +358,7 @@
                   <HBox prefWidth="200.0">
                      <children>
                         <Label text="Max Run Time (s): " />
-                        <TextField id="headingEntry" fx:id="maxRunTimeEntry" promptText="Direction of the pitch angle from north" text="60" />
+                        <TextField id="maxRunTimeEntry" fx:id="maxRunTimeEntry" promptText="Direction of the pitch angle from north" text="60" />
                      </children>
                   </HBox>
 

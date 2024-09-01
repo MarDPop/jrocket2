@@ -1,14 +1,25 @@
 package com.mardpop.jrocket.vehicle;
 
+import com.mardpop.jrocket.vehicle.propulsion.Propellant;
+import com.mardpop.jrocket.vehicle.propulsion.PropellantTank;
+import com.mardpop.jrocket.vehicle.propulsion.PropellantTankSimple;
 import com.mardpop.jrocket.vehicle.propulsion.Propulsion;
+import com.mardpop.jrocket.vehicle.propulsion.SolidThrusterSimple;
 import com.mardpop.jrocket.vehicle.aerodynamics.Aerodynamics;
 import com.mardpop.jrocket.atmosphere.Atmosphere;
+
 import com.mardpop.jrocket.atmosphere.AerodynamicQuantities;
 import com.mardpop.jrocket.util.Matrix3;
 import com.mardpop.jrocket.util.Quaternion;
 import com.mardpop.jrocket.util.Util;
 import com.mardpop.jrocket.util.Vec3;
 import com.mardpop.jrocket.vehicle.gnc.GNC;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+import org.json.JSONObject;
 
 /**
  *
@@ -43,18 +54,118 @@ public class Rocket extends State
     public final Aerodynamics aerodynamics;
 
     public final GNC gnc;
+    
+    /* Public Methods */
+    public void setAtmosphere(Atmosphere atm)
+    {
+        this.atm = atm;
+    }
 
+    public void setFrameAcceleration(FrameAccelerationLTP frameAcceleration) 
+    {
+        this.frameAcceleration = frameAcceleration;
+    }
+
+    public static Rocket loadFromFile(String filename) throws IOException
+    {
+        String content = new String(Files.readAllBytes(Paths.get(filename)));
+        JSONObject json = new JSONObject(content);
+        JSONObject obj;
+
+        Rocket rocket = null;
+
+        Inertia inertiaEmpty;
+        if(json.has("InertiaEmpy"))
+        {
+            obj = json.getJSONObject("InertiaEmpty");
+
+            double mass = obj.getDouble("Mass");
+            double ixx = obj.getDouble("Ixx");
+            double iyy = obj.getDouble("Iyy");
+            double izz = obj.getDouble("Izz");
+            double ixy = obj.getDouble("Ixy");
+            double ixz = obj.getDouble("Ixz");
+            double iyz = obj.getDouble("Iyz");
+            double COMx = obj.getDouble("COMx"), COMy = obj.getDouble("COMy"), COMz = obj.getDouble("COMz");
+            Vec3 COM = new Vec3(COMx, COMy, COMz);
+            inertiaEmpty = new Inertia(mass, ixx, iyy, izz, ixy, ixz, iyz, COM);
+        }
+        else
+        {
+            throw new IOException("Missing Empty Inertia");
+        }  
+        
+
+        Propulsion propulsion;
+        if(json.has("Propulsion"))
+        {
+            
+            obj = json.getJSONObject("Propulsion");
+
+            int propulsionType = 0;
+            if(obj.has("Type"))
+            {
+                propulsionType = obj.getInt("Type");
+            }
+            else
+            {
+                throw new IOException("Need to specify propulasion type");
+            }
+
+            if(propulsionType == 0)
+            {
+                PropellantTank tank;
+                Propellant prop;
+                if(obj.has("Propellant"))
+                {
+                    prop = new Propellant(obj.getInt("Id"), obj.getDouble("Density"));
+                }
+                else
+                {
+                    throw new IOException("Need to set propellant for tank");
+                }
+
+                if(obj.has("PropellantTankSimple"))
+                {
+                    double mass = obj.getDouble("Full Mass");
+                    double maxIxx = obj.getDouble("Full Ixx");
+                    double maxIrr = obj.getDouble("Full Irr");
+                    double COMx = obj.getDouble("Full COM X");
+                    tank = new PropellantTankSimple(prop, mass, maxIxx, maxIrr, COMx);
+                }
+
+                if(obj.has("Thruster"))
+                {
+                    
+                }
+            }
+            else if(propulsionType == 1)
+            {
+                SolidThrusterSimple thruster;
+                if(obj.has("File"))
+                {
+                    thruster = SolidThrusterSimple.load(obj.getString("File"));
+                }
+                else
+                {
+                    throw new IOException("Need to specificy file");
+                }
+                propulsion = thruster.toPropulsion();
+            }
+        }
+        else
+        {
+            throw new IOException("Missing tank");
+        }
+
+        return rocket;
+    }
 
     Rocket(Propulsion propulsion, Aerodynamics aerodynamics, GNC gnc) 
     {
         this.propulsion = propulsion;
         this.aerodynamics = aerodynamics;
         this.gnc = gnc;
-    }
-    
-    void setAtmosphere(Atmosphere atm)
-    {
-        this.atm = atm;
     }
     
     Vec3 getAngularAcceleration()

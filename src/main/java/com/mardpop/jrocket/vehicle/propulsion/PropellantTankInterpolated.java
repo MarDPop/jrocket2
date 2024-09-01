@@ -53,8 +53,14 @@ public class PropellantTankInterpolated extends PropellantTank
         }
     }
 
+    public boolean isEmpty()
+    {
+        return this.inertia.mass == 0;
+    }
+
     @Override
-    public void setMass(double mass) {
+    public void setMass(double mass) 
+    {
         if(mass < 0)
         {
             this.inertia.mass = 0;

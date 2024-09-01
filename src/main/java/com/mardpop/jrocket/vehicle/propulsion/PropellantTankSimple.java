@@ -33,6 +33,12 @@ public class PropellantTankSimple extends PropellantTank
         this.dI_xx = maxI_xx / maxFuelMass;
         this.dCG_x = deltaCG_x / maxFuelMass;
     }
+
+    @Override
+    public boolean isEmpty() 
+    {
+         return this.inertia.mass <= 0.0;
+    }
     
     @Override
     public void setMass(double mass) 

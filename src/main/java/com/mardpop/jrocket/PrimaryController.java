@@ -21,14 +21,12 @@ import java.util.stream.Stream;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart.*;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -99,6 +97,12 @@ public class PrimaryController implements Initializable
 
     @FXML
     TextField headingEntry;
+
+    @FXML
+    TextField windSpeedEntry;
+
+    @FXML
+    TextField windDirectionEntry;
 
     @FXML
     TextField chuteAreaEntry;
@@ -208,6 +212,14 @@ public class PrimaryController implements Initializable
 
         try {
             launch.put("Heading", Double.parseDouble(headingEntry.getText()));
+        } catch (Exception e) {}
+
+        try {
+            launch.put("WindSpeed", Double.parseDouble(windSpeedEntry.getText()));
+        } catch (Exception e) {}
+
+        try {
+            launch.put("WindDirection", Double.parseDouble(windDirectionEntry.getText()));
         } catch (Exception e) {}
         
         launch.put("LaunchRailHeight",1.0);
@@ -541,7 +553,8 @@ public class PrimaryController implements Initializable
                     latitudeEntry.setText(Double.toString(obj.getDouble("Latitude")));
                     pitchEntry.setText(Double.toString(obj.getDouble("Pitch")));
                     headingEntry.setText(Double.toString(obj.getDouble("Heading")));
-
+                    windSpeedEntry.setText(Double.toString(obj.getDouble("WindSpeed")));
+                    windDirectionEntry.setText(Double.toString(obj.getDouble("WindDirection")));
                 }
 
                 if(!json.has("Rocket"))

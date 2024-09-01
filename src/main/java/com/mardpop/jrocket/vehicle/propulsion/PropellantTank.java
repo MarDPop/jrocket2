@@ -19,6 +19,8 @@ public abstract class PropellantTank extends Component
     }
     
     public abstract void setMass(double mass);
+
+    public abstract boolean isEmpty();
     
     public void takePropellant(double dm)
     {

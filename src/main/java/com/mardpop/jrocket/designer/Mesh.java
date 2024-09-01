@@ -10,5 +10,8 @@ public class Mesh {
 
     ArrayList<Face> faces = new ArrayList<>();
 
-    
+    public void generateStepFile(String fileName)
+    {
+        
+    }
 }
