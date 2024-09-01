@@ -28,7 +28,19 @@ public class Simulation
         JSONObject json = new JSONObject(content);
         JSONObject obj;
 
+        if(json.has("RocketFile"))
+        {
+            this.rocket = Rocket.loadFromFile(json.getString("RocketFile"));
+        }
+        else
+        {
+            throw new IOException("Rocket File is required");
+        }
 
+        if(json.has("Atmosphere"))
+        {
+            
+        }
     }
     
     public void run()

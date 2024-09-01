@@ -5,7 +5,11 @@ import com.mardpop.jrocket.vehicle.propulsion.PropellantTank;
 import com.mardpop.jrocket.vehicle.propulsion.PropellantTankSimple;
 import com.mardpop.jrocket.vehicle.propulsion.Propulsion;
 import com.mardpop.jrocket.vehicle.propulsion.SolidThrusterSimple;
+import com.mardpop.jrocket.vehicle.propulsion.Thruster;
 import com.mardpop.jrocket.vehicle.aerodynamics.Aerodynamics;
+import com.mardpop.jrocket.vehicle.aerodynamics.AerodynamicsBallistic;
+import com.mardpop.jrocket.vehicle.aerodynamics.AerodynamicsBasicCoefficients;
+import com.mardpop.jrocket.vehicle.aerodynamics.AerodynamicsConstantCP;
 import com.mardpop.jrocket.atmosphere.Atmosphere;
 
 import com.mardpop.jrocket.atmosphere.AerodynamicQuantities;
@@ -40,31 +44,20 @@ public class Rocket extends State
         
     public final Matrix3 CS = new Matrix3();
     
-    private Atmosphere atm;
+    public Atmosphere atm;
     
     public final AerodynamicQuantities aero = new AerodynamicQuantities();
 
     private final Vec3 wind = new Vec3();
 
-    private FrameAccelerationLTP frameAcceleration = new FrameAccelerationLTP(0.0);
+    public FrameAccelerationLTP frameAcceleration = new FrameAccelerationLTP(0.0);
     
     
     public final Propulsion propulsion;
     
     public final Aerodynamics aerodynamics;
 
-    public final GNC gnc;
-    
-    /* Public Methods */
-    public void setAtmosphere(Atmosphere atm)
-    {
-        this.atm = atm;
-    }
-
-    public void setFrameAcceleration(FrameAccelerationLTP frameAcceleration) 
-    {
-        this.frameAcceleration = frameAcceleration;
-    }
+    public GNC gnc;
 
     public static Rocket loadFromFile(String filename) throws IOException
     {
@@ -95,11 +88,10 @@ public class Rocket extends State
             throw new IOException("Missing Empty Inertia");
         }  
         
-
-        Propulsion propulsion;
+        Aerodynamics aerodynamics = null;
+        Propulsion propulsion = null;
         if(json.has("Propulsion"))
         {
-            
             obj = json.getJSONObject("Propulsion");
 
             int propulsionType = 0;
@@ -114,8 +106,9 @@ public class Rocket extends State
 
             if(propulsionType == 0)
             {
-                PropellantTank tank;
-                Propellant prop;
+                PropellantTank tank = null;
+                Thruster thruster = null;
+                Propellant prop = null;
                 if(obj.has("Propellant"))
                 {
                     prop = new Propellant(obj.getInt("Id"), obj.getDouble("Density"));
@@ -136,8 +129,16 @@ public class Rocket extends State
 
                 if(obj.has("Thruster"))
                 {
-                    
+                    double thrust = obj.getDouble("Thrust");
+                    double isp = obj.getDouble("ISP");
+                    thruster = new Thruster(thrust, isp);
                 }
+
+                if(tank == null || thruster == null)
+                {
+                    throw new IOException("Need to have a tank and thruster for type 1");
+                }
+                propulsion = new Propulsion(thruster, tank);
             }
             else if(propulsionType == 1)
             {
@@ -158,14 +159,59 @@ public class Rocket extends State
             throw new IOException("Missing tank");
         }
 
+        if(json.has("Aerodynamics"))
+        {
+            obj = json.getJSONObject("Aerodynamics");
+
+            int type = 0;
+            if(obj.has("Type"))
+            {
+                type = obj.getInt("Type");
+            }
+            else
+            {
+                throw new IOException("Need to specify propulasion type");
+            }
+
+            if(type == 0)
+            {
+                double CD = obj.getDouble("CD");
+                double A = obj.getDouble("Area");
+                aerodynamics = new AerodynamicsBallistic(CD, A);
+            }
+            else if(type == 1)
+            {
+                double CD0 = obj.getDouble("CD0");
+                double A = obj.getDouble("Area");
+                double CL_alpha = obj.getDouble("CL_alpha");
+                double CM_alpha = obj.getDouble("CM_alpha");
+                double K = obj.getDouble("K");
+                aerodynamics = new AerodynamicsBasicCoefficients(CD0, CL_alpha, CM_alpha, K, A);
+            }
+            else if(type == 2)
+            {
+                double CD0 = obj.getDouble("CD0");
+                double A = obj.getDouble("Area");
+                double CN = obj.getDouble("CN");
+                double CPx = obj.getDouble("CPx");
+                aerodynamics = new AerodynamicsConstantCP(CD0, CN, CPx, A);
+            }
+            else
+            {
+                System.err.println("No aerodynamics found setting null aero");
+                aerodynamics = new Aerodynamics();
+            }
+        }
+
+        rocket = new Rocket(propulsion, aerodynamics);
         return rocket;
     }
 
-    Rocket(Propulsion propulsion, Aerodynamics aerodynamics, GNC gnc) 
+    Rocket(Propulsion propulsion, Aerodynamics aerodynamics) 
     {
         this.propulsion = propulsion;
         this.aerodynamics = aerodynamics;
-        this.gnc = gnc;
+        this.gnc = new GNC(this);
     }
     
     Vec3 getAngularAcceleration()

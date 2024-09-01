@@ -12,4 +12,9 @@ public class Control
     {
         this.guidance = guidance;
     }
+
+    public void update(double time)
+    {
+        
+    }
 }

@@ -31,5 +31,7 @@ public class GNC
     public void update(double time)
     {
         this.navigation.update(time);
+        this.guidance.update(time);
+        this.control.update(time);
     }
 }
