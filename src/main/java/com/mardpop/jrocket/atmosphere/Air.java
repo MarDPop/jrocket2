@@ -14,13 +14,13 @@ public class Air
     
     public static final double MW_DRY = 0.028964917;
     
-    double density;
+    double density = 1.225;
     
-    double pressure;
+    double pressure = 101325;
     
-    double invSoundSpeed;
+    double invSoundSpeed = 2.913024819271e-3;
     
-    double temperature;
+    double temperature = 293.15;
     
     public Air(){}
     
@@ -39,13 +39,30 @@ public class Air
         this.invSoundSpeed = values[2];
         this.temperature = values[3];
     }
+
+    public static Air fromTempAndPessure(double temperature, double pressure)
+    {
+        return new Air(temperature, pressure, pressure/(Air.RGAS_DRY*temperature),
+            1.0/Math.sqrt(1.4*Air.RGAS_DRY*temperature));
+    }
+
+    public static Air fromTempAndPessure(double temperature, double pressure, double mw, double gamma)
+    {
+        double R  = Air.RGAS/mw;
+        return new Air(temperature, pressure, pressure/(R*temperature), 1.0/Math.sqrt(gamma*R*temperature));
+    }
     
-    void copy(Air air)
+    public void set(Air air)
     {
         this.density = air.density;
         this.pressure = air.pressure;
         this.invSoundSpeed = air.invSoundSpeed;
         this.temperature = air.temperature;
+    }
+
+    public Air copy()
+    {
+        return new Air(this.density, this.pressure, this.invSoundSpeed, this.temperature);
     }
     
     public double getDensity()

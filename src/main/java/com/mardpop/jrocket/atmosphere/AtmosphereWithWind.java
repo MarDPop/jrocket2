@@ -4,7 +4,7 @@ package com.mardpop.jrocket.atmosphere;
  *
  * @author mariu
  */
-public class AtmosphereWithWind extends Atmosphere
+public class AtmosphereWithWind extends AtmosphereTabulated
 {
     public AtmosphereWithWind(double temperature, double groundPressure, double groundGravity, double heightIncrement,
             double maxHeight, double R0) {
@@ -37,12 +37,12 @@ public class AtmosphereWithWind extends Atmosphere
     }
     
     @Override
-    public void updateWind(double height, double time)
+    public void updateWind(Wind wind, double height, double time)
     {
         if(height > this.finalHeight || time > this.finalTime)
         {
-            this.wind.north = 0.0f;
-            this.wind.east = 0.0f;
+            wind.north = 0.0f;
+            wind.east = 0.0f;
             return;
         }
 
@@ -73,7 +73,7 @@ public class AtmosphereWithWind extends Atmosphere
         float A3 = (1-dT1)*dH1;
         float A4 = dT1*dH1;
         
-        this.wind.north = windNorth[windHeightIdx][windTimeIdx]*A1 + windNorth[windHeightIdx + 1][windTimeIdx]*A2 + windNorth[windHeightIdx][windTimeIdx + 1]*A3 + windNorth[windHeightIdx + 1][windTimeIdx + 1]*A4;
-        this.wind.east = windEast[windHeightIdx][windTimeIdx]*A1 + windEast[windHeightIdx + 1][windTimeIdx]*A2 + windEast[windHeightIdx][windTimeIdx + 1]*A3 + windEast[windHeightIdx + 1][windTimeIdx + 1]*A4;
+        wind.north = windNorth[windHeightIdx][windTimeIdx]*A1 + windNorth[windHeightIdx + 1][windTimeIdx]*A2 + windNorth[windHeightIdx][windTimeIdx + 1]*A3 + windNorth[windHeightIdx + 1][windTimeIdx + 1]*A4;
+        wind.east = windEast[windHeightIdx][windTimeIdx]*A1 + windEast[windHeightIdx + 1][windTimeIdx]*A2 + windEast[windHeightIdx][windTimeIdx + 1]*A3 + windEast[windHeightIdx + 1][windTimeIdx + 1]*A4;
     }
 }

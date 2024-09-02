@@ -230,17 +230,19 @@ public class Rocket extends State
         
         this.atm.update(this.position.z, time);
 
-        this.wind.x = this.CS.a00*this.atm.wind.east + this.CS.a01*this.atm.wind.north;
-        this.wind.y = this.CS.a10*this.atm.wind.east + this.CS.a11*this.atm.wind.north;
-        this.wind.z = this.CS.a20*this.atm.wind.east + this.CS.a21*this.atm.wind.north;
-        this.aero.update(this.velocity, this.CS, this.atm.air, this.wind);
+        final Atmosphere.Wind wind = this.atm.getWind();
+
+        this.wind.x = this.CS.a00*wind.east + this.CS.a01*wind.north;
+        this.wind.y = this.CS.a10*wind.east + this.CS.a11*wind.north;
+        this.wind.z = this.CS.a20*wind.east + this.CS.a21*wind.north;
+        this.aero.update(this.velocity, this.CS, this.atm.getAir(), this.wind);
         
         this.gnc.update(time);
     }
     
     void updateForces(double time, double dt) 
     {
-        this.propulsion.update(this.atm.air.getPressure(), time, dt);
+        this.propulsion.update(this.atm.getAir().getPressure(), time, dt);
         this.aerodynamics.update(aero);
         
         this.forces.set(this.aerodynamics.force);

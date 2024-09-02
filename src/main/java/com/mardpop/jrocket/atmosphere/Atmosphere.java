@@ -10,19 +10,19 @@ public class Atmosphere
     {
         public float north = 0.0f;
         public float east = 0.0f;
-    }
 
-    private final double[] heights;
+        public Wind() {}
+
+        public Wind(float north, float east)
+        {
+            this.north = north;
+            this.east = east;
+        }
+    }
     
-    private final double[] values;
+    private final Air air;
     
-    private final double[] dvalues;
-    
-    private int heightIdx = 0;
-    
-    public final Air air = new Air();
-    
-    public final Wind wind = new Wind();
+    private final Wind wind;
     
     public static final Air VACUUM = new Air(0,0,1,1);
     
@@ -30,107 +30,38 @@ public class Atmosphere
     {
         return (R0*z)/(R0 + z);
     }
-    
-    public Atmosphere(double temperature, double groundPressure, 
-        double groundGravity, double heightIncrement, double maxHeight, double R0)
+
+    public Atmosphere() 
     {
-        final int nHeights = (int)(maxHeight / heightIncrement) + 2;
-        this.heights = new double[nHeights];
-        this.values = new double[nHeights*4];
-        this.dvalues = new double[nHeights*4];
-        
-        final double invHeightInc = 1.0/heightIncrement;
-        
-        final double RT = Air.RGAS_DRY*temperature;
-        final double constant = -groundGravity/RT;
-        final double groundDensity = groundPressure/RT;
-        final double invSoundSpeed = 1.0/Math.sqrt(Air.GAMMA*RT);
-        
-        for(int i = 0; i < nHeights; i++)
-        {
-            this.heights[i] = i*heightIncrement;
-            int idx = 4*i;
-            double geopotentialHeight = geometric2geopotential(this.heights[i], R0);
-            double factor = Math.exp(geopotentialHeight*constant);
-            this.values[idx] = groundDensity*factor;
-            this.values[idx + 1] = groundPressure*factor;
-            this.values[idx + 2] = invSoundSpeed;
-            this.values[idx + 3] = temperature;
-        }
-        
-        for(int i = 1; i < nHeights; i++)
-        {
-            final int lo = 4*(i - 1);
-            final int hi = 4*i;
-            this.dvalues[lo] = (this.values[hi] - this.values[lo])*invHeightInc;
-            this.dvalues[lo + 1] = (this.values[hi + 1] - this.values[lo + 1])*invHeightInc;
-            this.dvalues[lo + 2] = (this.values[hi + 2] - this.values[lo + 2])*invHeightInc;
-            this.dvalues[lo + 3] = (this.values[hi + 3] - this.values[lo + 3])*invHeightInc;
-        }
+        this.air = new Air();
+        this.wind = new Wind();
     }
 
-    public Atmosphere(double[] heights, double[] values)
+    public Atmosphere(Air air, Wind wind)
     {
-        final int nHeights =  heights.length;
-        assert(values.length == nHeights*4);
-
-        this.heights = new double[nHeights];
-        this.values = new double[nHeights*4];
-        this.dvalues = new double[nHeights*4];
-
-        System.arraycopy(heights, 0, this.heights, 0, nHeights);
-        System.arraycopy(values, 0, this.values, 0, nHeights*4);
-
-        for(int i = 1; i < nHeights; i++)
-        {
-            final double invHeightInc = 1.0/this.heights[i] - 1.0/this.heights[i - 1];
-            final int lo = 4*(i - 1);
-            final int hi = 4*i;
-            this.dvalues[lo] = (this.values[hi] - this.values[lo])*invHeightInc;
-            this.dvalues[lo + 1] = (this.values[hi + 1] - this.values[lo + 1])*invHeightInc;
-            this.dvalues[lo + 2] = (this.values[hi + 2] - this.values[lo + 2])*invHeightInc;
-            this.dvalues[lo + 3] = (this.values[hi + 3] - this.values[lo + 3])*invHeightInc;
-        }
+        this.air = air;
+        this.wind = wind;
     }
 
-    /*
-    public Atmosphere(String file){}
-    */
-    
-    public void updateWind(double height, double time)
+    public final Air getAir()
     {
-        
+        return this.air;
+    }
+
+    public final Wind getWind()
+    {
+        return this.wind;
+    }
+
+    protected void updateAir(Air air, double z, double time) {}
+    
+    protected void updateWind(Wind wind, double z, double time) {}
+
+    public final void update(double z, double time) 
+    {
+        this.updateAir(air, z, time);
+        this.updateWind(wind, z,time);
     }
     
-    public void update(double z, double time)
-    {
-        if(z >= heights[heights.length-1])
-        {
-            air.copy(VACUUM);
-            return;
-        }
-        
-        z = Double.max(0.0, z);
-        
-        while(z < this.heights[this.heightIdx])
-        {
-            this.heightIdx--;
-        }
-        
-        while(z > this.heights[this.heightIdx + 1])
-        {
-            this.heightIdx++;
-        }
-        
-        double delta = z - this.heights[heightIdx];
-        
-        int idx = heightIdx << 2;
-        
-        this.air.density = this.values[idx] + this.dvalues[idx]*delta;
-        this.air.pressure = this.values[idx + 1] + this.dvalues[idx + 1]*delta;
-        this.air.invSoundSpeed = this.values[idx + 2] + this.dvalues[idx + 2]*delta;
-        this.air.temperature = this.values[idx + 3] + this.dvalues[idx + 3]*delta;
-        
-        this.updateWind(z, time);
-    }
+    
 }

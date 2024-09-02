@@ -72,8 +72,8 @@ public class RocketSimple extends State
         this.atm = atm;
         this.coordinateSystem.setFrom(CS);
         this.orientation.fromRotationMatrix(CS);
-        this.wind.x = atm.wind.east;
-        this.wind.y = atm.wind.north;
+        this.wind.x = atm.getWind().east;
+        this.wind.y = atm.getWind().north;
 
         this.thrusterTIdx = 0;
         double[] values = this.thruster.getValuesAtTime(0, thrusterTIdx);
@@ -86,7 +86,7 @@ public class RocketSimple extends State
         this.orientation.setRotationMatrixUnit(this.coordinateSystem);
         
         this.atm.update(this.position.z, time);
-        this.aero.update(this.velocity, this.coordinateSystem, this.atm.air, this.wind);
+        this.aero.update(this.velocity, this.coordinateSystem, this.atm.getAir(), this.wind);
     }
     
     void updateForces(final double time) 
