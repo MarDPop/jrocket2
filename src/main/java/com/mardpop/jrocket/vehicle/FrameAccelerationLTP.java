@@ -7,13 +7,13 @@ import com.mardpop.jrocket.util.Vec3;
  *
  * @author mariu
  */
-public class FrameAccelerationLTP 
+public class FrameAccelerationLTP extends FrameAcceleration
 {
     private static final double EARTH_MU = 3.986004418e14;
 
     private final Vec3 earthRotatationInFrame;
 
-    private final Vec3 centripetalForce = new Vec3();
+    private final Vec3 centripetalAcceleration = new Vec3();
     
     private final double g0;
     
@@ -25,8 +25,8 @@ public class FrameAccelerationLTP
         this.R0 = Earth.earthRadius(latitude);
         double rEy = this.R0*Math.cos(latitude);
         double rEz = this.R0*Math.sin(latitude);
-        this.centripetalForce.y = rEz*this.earthRotatationInFrame.z*this.earthRotatationInFrame.z;
-        this.centripetalForce.z = -rEy*this.earthRotatationInFrame.y*this.earthRotatationInFrame.y;
+        this.centripetalAcceleration.y = rEz*this.earthRotatationInFrame.z*this.earthRotatationInFrame.z;
+        this.centripetalAcceleration.z = -rEy*this.earthRotatationInFrame.y*this.earthRotatationInFrame.y;
         this.earthRotatationInFrame.scale(-2.0);
         this.g0 = EARTH_MU/(this.R0*this.R0);
     }
@@ -38,19 +38,20 @@ public class FrameAccelerationLTP
         this.R0 = ecef.magnitude();
         double rEy = this.R0*Math.cos(latitude);
         double rEz = this.R0*Math.sin(latitude);
-        this.centripetalForce.y = rEz*this.earthRotatationInFrame.z*this.earthRotatationInFrame.z;
-        this.centripetalForce.z = -rEy*this.earthRotatationInFrame.y*this.earthRotatationInFrame.y;
+        this.centripetalAcceleration.y = rEz*this.earthRotatationInFrame.z*this.earthRotatationInFrame.z;
+        this.centripetalAcceleration.z = -rEy*this.earthRotatationInFrame.y*this.earthRotatationInFrame.y;
         this.earthRotatationInFrame.scale(-2.0);
         this.g0 = g0;
     }
     
-    public Vec3 computeAcceleration(double height, Vec3 velocity)
+    @Override
+    public void compute(Vec3 position, Vec3 velocity)
     {
-        double R = R0 + height;
-        double f = R0/R;
-        Vec3 coriolis = Vec3.cross(this.earthRotatationInFrame, velocity);
-        Vec3 acceleration = Vec3.add(coriolis, this.centripetalForce);
-        acceleration.z -= g0*f*f;
-        return acceleration;
+        final double R = R0 + position.z;
+        final double f = R0/R;
+        this.fromCross(this.earthRotatationInFrame, velocity);
+        this.y += this.centripetalAcceleration.y;
+        this.z += this.centripetalAcceleration.z;
+        this.z -= g0*f*f;
     }
 }

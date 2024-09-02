@@ -50,7 +50,7 @@ public class Rocket extends State
 
     private final Vec3 wind = new Vec3();
 
-    public FrameAccelerationLTP frameAcceleration = new FrameAccelerationLTP(0.0);
+    public FrameAcceleration frameAcceleration = new FrameAcceleration();
     
     
     public final Propulsion propulsion;
@@ -264,7 +264,8 @@ public class Rocket extends State
         Vec3 angularRate0 = new Vec3(this.angular_velocity);
         
         Vec3 acceleration0 = Vec3.mult(this.forces, 1.0/this.inertia.mass);
-        acceleration0.add(this.frameAcceleration.computeAcceleration(this.position.z, this.velocity));
+        this.frameAcceleration.compute(this.position, this.velocity);
+        acceleration0.add(this.frameAcceleration);
         
         Vec3 angularAcceleration0 = this.getAngularAcceleration();
 
@@ -279,7 +280,8 @@ public class Rocket extends State
         this.updateForces(time, 0);
 
         Vec3 acceleration1 = Vec3.mult(this.forces, 1.0/this.inertia.mass);
-        acceleration1.add(this.frameAcceleration.computeAcceleration(this.position.z, this.velocity));
+        this.frameAcceleration.compute(this.position, this.velocity);
+        acceleration1.add(this.frameAcceleration);
         
         Vec3 angularAcceleration1 = this.getAngularAcceleration();
 

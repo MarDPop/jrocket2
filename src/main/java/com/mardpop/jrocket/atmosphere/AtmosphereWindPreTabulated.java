@@ -1,16 +1,7 @@
 package com.mardpop.jrocket.atmosphere;
 
-/**
- *
- * @author mariu
- */
-public class AtmosphereWithWind extends AtmosphereTabulated
+public class AtmosphereWindPreTabulated 
 {
-    public AtmosphereWithWind(double temperature, double groundPressure, double groundGravity, double heightIncrement,
-            double maxHeight, double R0) {
-        super(temperature, groundPressure, groundGravity, heightIncrement, maxHeight, R0);
-    }
-
     private double[] windTimes;
 
     private double[] invTimes;
@@ -31,13 +22,12 @@ public class AtmosphereWithWind extends AtmosphereTabulated
 
     private double finalHeight = 0.0;
     
-    public void loadWind(String file)
+    public AtmosphereWindPreTabulated(String file)
     {
         
     }
     
-    @Override
-    public void updateWind(Wind wind, double height, double time)
+    public void updateWind(Atmosphere.Wind wind, double height, double time)
     {
         if(height > this.finalHeight || time > this.finalTime)
         {

@@ -1,7 +1,7 @@
 package com.mardpop.jrocket;
 
 import com.mardpop.jrocket.atmosphere.Atmosphere;
-import com.mardpop.jrocket.atmosphere.AtmosphereTabulated;
+import com.mardpop.jrocket.atmosphere.AtmospherePreTabulated;
 import com.mardpop.jrocket.util.Earth;
 import com.mardpop.jrocket.util.Matrix3;
 import com.mardpop.jrocket.util.Quaternion;
@@ -224,8 +224,8 @@ public class SimulationSimpleRocket
         RocketSimple rocket = new RocketSimple(this.thruster, this.aerodynamics, this.chute, this.gnc, this.structureInertia);
         Matrix3 CS = launchOrientation(this.pitch, this.heading);
 
-        Atmosphere atm = new AtmosphereTabulated(this.groundTemperature, this.groundPressure, this.groundGravity, 
-            100, 6200, Earth.earthRadius(latitude));
+        Atmosphere atm = new AtmospherePreTabulated(this.groundTemperature, this.groundPressure, this.groundGravity, 
+            100, 6200, Earth.earthRadius(latitude)*1e3);
 
         atm.getWind().east = this.wind.east;
         atm.getWind().north = this.wind.north;
